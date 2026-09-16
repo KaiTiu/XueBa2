@@ -944,7 +944,7 @@ render();loadBasic();firstEntryGate();render30();setTimeout(renderDailyGate,50);
 <script>
 /* V21: Supabase Auth + SCORE-A entitlement gate. Publishable key is browser-safe; RLS remains the data security boundary. */
 const SCOREA_SUPABASE_URL='https://htzkjfztqqsbzxahxfnt.supabase.co';
-const SCOREA_SUPABASE_PUBLISHABLE_KEY='sb_publishable_-2O1tEq0GCQPSiMGQVSFrQ_bC3hf4WM';
+const SCOREA_SUPABASE_PUBLISHABLE_KEY='sb_publishable_-2O1fEqOGCQPSiMGQVSFrQ_bC3hf4WM';
 const scoreASupabase=window.supabase.createClient(SCOREA_SUPABASE_URL,SCOREA_SUPABASE_PUBLISHABLE_KEY);
 
 function authMessage(text,type='err'){const el=document.getElementById('authMsg');if(!el)return;el.textContent=text;el.className='authMsg show '+type}
