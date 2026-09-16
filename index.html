@@ -105,8 +105,54 @@ body{margin:0;font-family:Inter,"Microsoft YaHei",Arial,sans-serif;background:va
 .readerFooterTip{background:#eaf9f2;border:1px solid #bfead7;border-radius:16px;padding:15px;margin-top:14px;line-height:1.7}
 @media(max-width:650px){.readerHero{padding:19px}.readerHero h2{font-size:23px}.readerNav{position:static}.readerNav button{flex:1 1 45%}}
 .dateStamp{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;background:#eef6ff;border:1px solid #cfe0ff;border-radius:14px;padding:12px 14px;margin:10px 0 14px}.dateStamp b{color:#0d4fa8}
+
+/* ===== V21 Supabase Login + Entitlement Gate ===== */
+#scoreApp{display:none}
+.authGate{min-height:100vh;display:grid;place-items:center;padding:28px;background:radial-gradient(circle at top left,#eaf2ff 0,#f7f9fd 42%,#f4f7fc 100%)}
+.authShell{width:min(940px,100%);display:grid;grid-template-columns:1.05fr .95fr;background:#fff;border:1px solid #e0e7f1;border-radius:28px;overflow:hidden;box-shadow:0 24px 70px #17315d20}
+.authBrand{padding:42px;background:linear-gradient(145deg,#0b2457,#7047eb);color:#fff}.authBrand h1{font-size:34px;margin:10px 0}.authBrand p{color:#dce6ff;line-height:1.75}.authBrand .authPoint{padding:11px 0;border-bottom:1px solid #ffffff20;font-weight:800}
+.authForm{padding:42px}.authForm h2{margin:0 0 7px}.authForm .field{background:#fff}.authMsg{display:none;margin:12px 0;padding:12px 14px;border-radius:12px;font-size:13px;line-height:1.55}.authMsg.show{display:block}.authMsg.err{background:#fff1f1;border:1px solid #ffcaca;color:#9b1c1c}.authMsg.ok{background:#eefaf4;border:1px solid #c7ecd8;color:#12633f}.authMeta{font-size:12px;color:#6b7890;line-height:1.6;margin-top:14px}.authLoading{display:none;align-items:center;gap:8px;font-size:13px;color:#53627a;margin:10px 0}.authLoading.show{display:flex}.authSpinner{width:18px;height:18px;border:3px solid #dce6f5;border-top-color:#1769ff;border-radius:50%;animation:authSpin .8s linear infinite}@keyframes authSpin{to{transform:rotate(360deg)}}
+.authDenied{display:none}.authDenied.show{display:block}.authInfo{background:#f6f8fc;border:1px solid #e1e8f2;border-radius:14px;padding:13px;margin:10px 0;font-size:13px;line-height:1.7}.authTopUser{font-size:11px;font-weight:850;color:#53627a}.logoutBtn{border:0;background:#eef2f8;color:#30415e;padding:8px 11px;border-radius:10px;font-weight:850;cursor:pointer;margin-left:6px}
+@media(max-width:760px){.authShell{grid-template-columns:1fr}.authBrand{padding:28px}.authForm{padding:28px}.authBrand h1{font-size:28px}}
 </style></head><body>
-<header class="top"><div class="logo">🎓 How to Score A with AI<small>学霸学习成长系统 · Student OS</small></div><div class="nav"><span class="pill" id="streak">🔥 1 Day</span><span class="pill hide" id="level">Lv1 学霸觉醒</span><span class="pill" id="xp">⭐ 0 XP</span></div></header>
+<div id="authGate" class="authGate">
+  <div class="authShell">
+    <section class="authBrand">
+      <div style="font-weight:950;font-size:18px">🎓 How to Score A with AI</div>
+      <div style="font-size:12px;opacity:.8">学霸学习成长系统 · Student OS</div>
+      <h1>欢迎回来 👋</h1>
+      <p>登录后，系统会自动验证你的学生账号、SCORE-A 课程状态和使用期限。验证通过后才会进入完整 Student OS。</p>
+      <div class="authPoint">✓ 学生身份验证</div>
+      <div class="authPoint">✓ SCORE-A 课程权限验证</div>
+      <div class="authPoint">✓ ACTIVE / 到期日检查</div>
+      <div class="authPoint">✓ 原有 30-Day Challenge 与 Student OS 完整保留</div>
+    </section>
+    <section class="authForm">
+      <div id="loginBox">
+        <div style="font-size:12px;font-weight:950;color:#1769ff;letter-spacing:1px">STUDENT LOGIN</div>
+        <h2>学生登录</h2>
+        <p class="muted">测试阶段请使用 Supabase Authentication 中建立的 Email + Password。</p>
+        <label class="formLabel">Email</label>
+        <input class="field" id="authEmail" type="email" autocomplete="username" placeholder="student@example.com">
+        <label class="formLabel">Password</label>
+        <input class="field" id="authPassword" type="password" autocomplete="current-password" placeholder="请输入密码">
+        <button class="btn" id="authLoginBtn" style="width:100%" onclick="scoreALogin()">登录并验证课程 →</button>
+        <div id="authLoading" class="authLoading"><span class="authSpinner"></span><span>正在验证学生身份与课程权限…</span></div>
+        <div id="authMsg" class="authMsg"></div>
+        <div class="authMeta">账号必须同时满足：学生状态 ACTIVE、SCORE-A 课程有效、Enrollment 状态 ACTIVE，并且尚未超过 expiry date。</div>
+      </div>
+      <div id="authDenied" class="authDenied">
+        <div style="font-size:12px;font-weight:950;color:#b45309;letter-spacing:1px">ACCESS STATUS</div>
+        <h2 id="authDeniedTitle">暂时无法进入课程</h2>
+        <div id="authDeniedInfo" class="authInfo"></div>
+        <button class="btn light" onclick="scoreALogout()">退出并使用其他账号</button>
+      </div>
+    </section>
+  </div>
+</div>
+<div id="scoreApp">
+
+<header class="top"><div class="logo">🎓 How to Score A with AI<small>学霸学习成长系统 · Student OS</small></div><div class="nav"><span class="pill" id="streak">🔥 1 Day</span><span class="pill hide" id="level">Lv1 学霸觉醒</span><span class="pill" id="xp">⭐ 0 XP</span><span class="authTopUser" id="authTopUser"></span><button class="logoutBtn" onclick="scoreALogout()">登出</button></div></header>
 <main class="wrap">
 <section class="hero"><div class="heroGrid"><div><div class="eyebrow">30-DAY TOP STUDENT TRANSFORMATION</div><h1>今天，不是来“上课”。<br>是来升级自己。 🚀</h1><p>每天一个短剧情 + 一个真实学习任务。系统带你走 30 天，最后把学习的控制权交回给你自己。</p><div style="display:flex;justify-content:space-between;font-size:12px;font-weight:850"><span id="dayLabel">DAY 1 / 30</span><span id="percent">0%</span></div><div class="bar"><i id="mainbar" style="width:0"></i></div></div><div class="xp"><div class="eyebrow">NEXT LEVEL</div><b id="xpBig">0 XP</b><p id="next">距离 Lv2 还差 250 XP</p><div class="bar"><i id="xpbar" style="width:0"></i></div></div></div></section>
 
@@ -555,9 +601,9 @@ const LIBRARY_DOCS={"lib30": "<article class=\"libraryArticle\"><h2>🚀《30 �
 
 const UK="scoreAStudentToolsV2";
 let U=JSON.parse(localStorage.getItem(UK)||"{}");
-U.basic=U.basic||{};U.fixed=U.fixed||[];U.week=U.week||{};U.habits=U.habits||{};U.review=U.review||[];U.timeWeek=U.timeWeek||1;U.timeWeeks=U.timeWeeks||{1:{},2:{},3:{},4:{}};
+U.basic=U.basic||{};U.fixed=U.fixed||[];U.week=U.week||{};U.habits=U.habits||{};U.review=U.review||[];U.timeWeek=U.timeWeek||1;U.timeWeeks=U.timeWeeks||{};
 U.schedule=U.schedule||Object.assign({},U.week||{});U.dailyDates=U.dailyDates||{};
-U.terms=U.terms||{};U.mistakes=U.mistakes||[];U.mistakeWeek=U.mistakeWeek||1;U.mistakeWeeks=U.mistakeWeeks||{1:[],2:[],3:[],4:[]};
+U.terms=U.terms||{};U.mistakes=U.mistakes||[];U.mistakeWeek=U.mistakeWeek||1;U.mistakeWeeks=U.mistakeWeeks||{};
 function usave(){localStorage.setItem(UK,JSON.stringify(U))}
 function saveBasic(){U.basic={name:uName.value,grade:uGrade.value,school:uSchool.value,minutes:uMinutes.value,strong:uStrong.value,weak:uWeak.value,challenge:selectedChallenges()};usave();alert("✓ 基本资料已保存")}
 function loadBasic(){let b=U.basic||{};["Name","Grade","School","Minutes","Strong","Weak"].forEach(k=>{let el=document.getElementById("u"+k);if(el&&b[k.toLowerCase()]!=null)el.value=b[k.toLowerCase()]});let vals=Array.isArray(b.challenge)?b.challenge:(b.challenge?[b.challenge]:[]);document.querySelectorAll("#uChallenge input").forEach(x=>x.checked=vals.includes(x.value))}
@@ -676,13 +722,13 @@ function openLibrary(id){let a=document.getElementById("libraryArea");a.innerHTM
 function openToolbox(id){let a=document.getElementById("toolboxArea");if(id==="timebox")a.innerHTML=timeHTML();if(id==="examgoal")a.innerHTML=examGoalHTML();if(id==="chatgpt")a.innerHTML=chatHTML();if(id==="mistakebox")a.innerHTML=mistakeHTML();a.scrollIntoView({behavior:"smooth"});setTimeout(loadToolValues,0)}
 function localDateLabel(){let d=new Date();return d.toLocaleDateString("zh-MY",{year:"numeric",month:"long",day:"numeric",weekday:"long"})}
 function localDateKey(){let d=new Date(),p=n=>String(n).padStart(2,"0");return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`}
-function timeHTML(){let days=["星期一","星期二","星期三","星期四","星期五","星期六","星期日"];let saved=U.dailyDates[U.timeWeek]||"尚未保存";return `<div class="card"><h2>⏰ 时间管理</h2><div class="dateStamp"><span>📅 <b>今天：${localDateLabel()}</b></span><span class="muted">第 ${U.timeWeek} 日记录日期：${saved}</span></div><div class="weekNav"><button class="btn light" onclick="changeTimeWeek(-1)">← 上一日</button><span class="weekPill">第 ${U.timeWeek} 日 / 30</span><button class="btn light" onclick="changeTimeWeek(1)">下一日 →</button></div>
+function timeHTML(){let days=["星期一","星期二","星期三","星期四","星期五","星期六","星期日"];let saved=U.dailyDates[U.timeWeek]||"尚未保存";return `<div class="card"><h2>⏰ 时间管理</h2><div class="dateStamp"><span>📅 <b>今天：${localDateLabel()}</b></span><span class="muted">第 ${U.timeWeek} 日记录日期：${saved}</span></div><div class="weekNav"><button class="btn light" onclick="changeTimeWeek(-1)">← 上一日</button><span class="weekPill">第 ${U.timeWeek} 日 / 365</span><button class="btn light" onclick="changeTimeWeek(1)">下一日 →</button></div>
 <div class="sectionBox"><h3>① 固定活动</h3><p class="muted">这是长期固定安排，只需要设定一次；之后每天自动保留，不需要重复填写。</p><div id="fixedRows"></div><button class="btn light" onclick="addFixed()">＋ 增加固定活动</button></div>
 <div class="sectionBox"><h3>② 每日时间管理总表｜固定作息模板</h3><p class="muted">这张星期一到星期日的时间表是你的固定作息模板。设定后会持续保留，不需要每日更新；只有作息改变时才修改。</p><div class="scrollX"><table class="dataTable"><tr><th>时间</th>${days.map(x=>`<th>${x}</th>`).join("")}</tr>${[1,2,3,4,5,6].map(r=>`<tr><td><input data-schedule="time${r}" placeholder="4:00–4:30"></td>${days.map((d,i)=>`<td><input data-schedule="d${i}r${r}" placeholder="安排"></td>`).join("")}</tr>`).join("")}</table></div><button class="btn light" onclick="addTimeRow()">＋ 增加时间 Row</button></div>
 <div class="sectionBox"><h3>③ 每日学习 + 时间管理习惯打卡</h3><p class="muted">这一部分才是每天记录。完成后当天打勾。</p><div class="scrollX"><div class="checkGrid" id="habitGrid"></div></div></div>
 <div class="sectionBox"><h3>④ 每日复盘</h3><div id="reviewRows"></div><button class="btn light" onclick="addReview()">＋ 增加复盘项目</button></div>
 <div style="display:flex;gap:9px;flex-wrap:wrap"><button class="btn green" onclick="saveTimeAll()">保存今日时间管理</button><button class="btn light" onclick="backToDailyUnlock()">← 回去「解锁今日训练」</button></div></div>`}
-function changeTimeWeek(n){saveTimeAll(false);U.timeWeeks[U.timeWeek]={habits:{...U.habits},review:JSON.parse(JSON.stringify(U.review)),date:U.dailyDates[U.timeWeek]||""};U.timeWeek=Math.max(1,Math.min(30,U.timeWeek+n));let w=U.timeWeeks[U.timeWeek]||{};U.habits=w.habits||{};U.review=w.review||[];usave();openToolbox("timebox")}
+function changeTimeWeek(n){saveTimeAll(false);U.timeWeeks[U.timeWeek]={habits:{...U.habits},review:JSON.parse(JSON.stringify(U.review)),date:U.dailyDates[U.timeWeek]||""};U.timeWeek=Math.max(1,Math.min(365,U.timeWeek+n));let w=U.timeWeeks[U.timeWeek]||{};U.habits=w.habits||{};U.review=w.review||[];usave();openToolbox("timebox")}
 function addTimeRow(){let table=document.querySelector(".dataTable");if(!table)return;saveTimeAll(false);let idx=table.rows.length;for(let i=0;i<7;i++)if(U.schedule[`d${i}r${idx}`]===undefined)U.schedule[`d${i}r${idx}`]="";U.schedule[`time${idx}`]=U.schedule[`time${idx}`]||"";usave();let r=table.insertRow(-1);r.innerHTML=`<td><input data-schedule="time${idx}" placeholder="时间"></td>`+Array.from({length:7},(_,i)=>`<td><input data-schedule="d${i}r${idx}" placeholder="安排"></td>`).join("");loadScheduleValues()}
 function renderFixed(){let e=document.getElementById("fixedRows");if(!e)return;if(!U.fixed.length)U.fixed=[{time:"",activity:""}];e.innerHTML=U.fixed.map((x,i)=>`<div class="miniGrid"><input class="field" id="ft${i}" value="${esc(x.time)}" placeholder="时间"><input class="field" id="fa${i}" value="${esc(x.activity)}" placeholder="固定活动"></div>`).join("")}
 function addFixed(){saveTimeAll(false);U.fixed.push({time:"",activity:""});usave();renderFixed()}
@@ -701,10 +747,10 @@ function chatHTML(){return `<div class="card"><div class="chatHero"><div class="
 <div class="sectionBox"><h3>📚 我可以教什么？</h3><p>支持 KSSR（小学）、KSSM（中学）、UEC（独中）。</p><p>华文 · English · Bahasa Melayu · Mathematics · Science · Biology · Chemistry · Physics · Additional Mathematics · Ekonomi · Prinsip Akaun · Pendidikan Moral · History · Geography 等。</p></div>
 <div class="featureTiles"><div class="featureTile"><b>📖 AI 一对一教学</b><p>一步一步讲解，让学生真正理解。</p></div><div class="featureTile"><b>📝 AI 自动出题</b><p>选择、填充、阅读、应用、KBAT、Grammar、Vocabulary、作文。</p></div><div class="featureTile"><b>✅ AI 即时批改</b><p>批改 → 讲解 → 分析错误 → 改善建议。</p></div><div class="featureTile"><b>📊 学习成长分析</b><p>强项、弱项、常见错误、成长趋势、下一目标。</p></div><div class="featureTile"><b>✍️ AI 作文老师</b><p>作文指导、批改、词汇、句型、结构。</p></div><div class="featureTile"><b>🌏 AI 语言老师</b><p>发音、文法、单字、会话、写作、翻译。</p></div><div class="featureTile"><b>📄 AI 成长报告</b><p>各科表现、趋势、成就、学习与家长建议。</p></div><div class="featureTile"><b>🎓 AI 升学顾问</b><p>大学、科系、奖学金、PTPTN、TVET、就业与职业规划。</p></div></div>
 <div class="sectionBox"><h3>❤️ 带来的价值</h3><p>建立学习习惯 · 培养自律 · 提升兴趣与信心 · 改善思考与阅读理解 · 培养解决问题能力 · 减少家长陪读压力。</p><p><b>目标：不仅会考试，更会学习。</b></p></div></div>`}
-function mistakeHTML(){let opts=["粗心（看错题 / 抄错 / 算错）","不会审题","不理解题目意思","基础知识不会","公式 / 词汇 / 文法不熟","时间不够 / 太赶","作文不会展开 / 不会组织内容","其他"];let careless=["看错数字","抄错题目","漏看关键字","忘记单位","少写步骤 / 少写答案","算到一半跳步骤","太快做完没有检查","其他"];return `<div class="card"><h2>⚔️ 错题与粗心分析表</h2><div class="weekNav"><button class="btn light" onclick="changeMistakeWeek(-1)">← 上一日</button><span class="weekPill">第 ${U.mistakeWeek} 周 / 4</span><button class="btn light" onclick="changeMistakeWeek(1)">下一日 →</button></div><div class="sectionBox"><h3>① 错题记录</h3><div class="miniGrid"><input class="field" id="mSub" placeholder="科目 / 题目"><input class="field" id="mMine" placeholder="我的原本答案"><input class="field" id="mCorrect" placeholder="正确答案"><input class="field" id="mWhere" placeholder="我错在哪里？（简述）"></div></div><div class="sectionBox"><h3>② 错误原因分析</h3>${opts.map((x,i)=>`<label class="check"><input type="checkbox" class="mReason" value="${x}"> ${x}</label>`).join("")}</div><div class="sectionBox"><h3>③ 粗心分析</h3>${careless.map(x=>`<label class="check"><input type="checkbox" class="mCare" value="${x}"> ${x}</label>`).join("")}</div><div class="sectionBox"><h3>④ 这题下次怎样做对？</h3><textarea class="field" id="mMethod" placeholder="正确解法 / 正确答案重做"></textarea><textarea class="field" id="mCorrectWhat" placeholder="这题真正考什么？"></textarea><textarea class="field" id="mPrevent" placeholder="下次遇到同类题要先注意什么？"></textarea><textarea class="field" id="mKey" placeholder="我要记住的关键方法"></textarea></div><button class="btn green" onclick="saveMistake()">保存错题分析</button><div class="sectionBox"><h3>📊 本周错题统计</h3><div id="mistakeStats"></div></div></div>`}
-function changeMistakeWeek(n){U.mistakeWeek=Math.max(1,Math.min(4,U.mistakeWeek+n));usave();openToolbox("mistakebox")}
-function saveMistake(){let x={subject:mSub.value,mine:mMine.value,correct:mCorrect.value,where:mWhere.value,reasons:[...document.querySelectorAll(".mReason:checked")].map(x=>x.value),careless:[...document.querySelectorAll(".mCare:checked")].map(x=>x.value),method:mMethod.value,correctWhat:mCorrectWhat.value,prevent:mPrevent.value,key:mKey.value,date:new Date().toLocaleDateString()};U.mistakes.push(x);U.mistakeWeeks[U.mistakeWeek].push(x);usave();renderMistakeStats();alert("✓ 错题分析已保存")}
-function renderMistakeStats(){let e=document.getElementById("mistakeStats");if(!e)return;let m={};(U.mistakeWeeks[U.mistakeWeek]||[]).forEach(x=>(x.reasons||[]).forEach(r=>m[r]=(m[r]||0)+1));e.innerHTML=(U.mistakeWeeks[U.mistakeWeek]||[]).length?`<p>第 ${U.mistakeWeek} 周已记录 <b>${U.mistakeWeeks[U.mistakeWeek].length}</b> 题。</p>`+Object.entries(m).map(x=>`<div class="log">${x[0]}：<b>${x[1]}</b></div>`).join(""):'<p class="muted">还没有错题记录。</p>'}
+function mistakeHTML(){let opts=["粗心（看错题 / 抄错 / 算错）","不会审题","不理解题目意思","基础知识不会","公式 / 词汇 / 文法不熟","时间不够 / 太赶","作文不会展开 / 不会组织内容","其他"];let careless=["看错数字","抄错题目","漏看关键字","忘记单位","少写步骤 / 少写答案","算到一半跳步骤","太快做完没有检查","其他"];return `<div class="card"><h2>⚔️ 错题与粗心分析表</h2><div class="weekNav"><button class="btn light" onclick="changeMistakeWeek(-1)">← 上一日</button><span class="weekPill">第 ${U.mistakeWeek} 日 / 365</span><button class="btn light" onclick="changeMistakeWeek(1)">下一日 →</button></div><div class="sectionBox"><h3>① 错题记录</h3><div class="miniGrid"><input class="field" id="mSub" placeholder="科目 / 题目"><input class="field" id="mMine" placeholder="我的原本答案"><input class="field" id="mCorrect" placeholder="正确答案"><input class="field" id="mWhere" placeholder="我错在哪里？（简述）"></div></div><div class="sectionBox"><h3>② 错误原因分析</h3>${opts.map((x,i)=>`<label class="check"><input type="checkbox" class="mReason" value="${x}"> ${x}</label>`).join("")}</div><div class="sectionBox"><h3>③ 粗心分析</h3>${careless.map(x=>`<label class="check"><input type="checkbox" class="mCare" value="${x}"> ${x}</label>`).join("")}</div><div class="sectionBox"><h3>④ 这题下次怎样做对？</h3><textarea class="field" id="mMethod" placeholder="正确解法 / 正确答案重做"></textarea><textarea class="field" id="mCorrectWhat" placeholder="这题真正考什么？"></textarea><textarea class="field" id="mPrevent" placeholder="下次遇到同类题要先注意什么？"></textarea><textarea class="field" id="mKey" placeholder="我要记住的关键方法"></textarea></div><button class="btn green" onclick="saveMistake()">保存错题分析</button><div class="sectionBox"><h3>📊 今日错题统计</h3><div id="mistakeStats"></div></div></div>`}
+function changeMistakeWeek(n){U.mistakeWeek=Math.max(1,Math.min(365,U.mistakeWeek+n));usave();openToolbox("mistakebox")}
+function saveMistake(){let x={subject:mSub.value,mine:mMine.value,correct:mCorrect.value,where:mWhere.value,reasons:[...document.querySelectorAll(".mReason:checked")].map(x=>x.value),careless:[...document.querySelectorAll(".mCare:checked")].map(x=>x.value),method:mMethod.value,correctWhat:mCorrectWhat.value,prevent:mPrevent.value,key:mKey.value,date:new Date().toLocaleDateString()};U.mistakes.push(x);(U.mistakeWeeks[U.mistakeWeek]||(U.mistakeWeeks[U.mistakeWeek]=[])).push(x);usave();renderMistakeStats();alert("✓ 错题分析已保存")}
+function renderMistakeStats(){let e=document.getElementById("mistakeStats");if(!e)return;let m={};(U.mistakeWeeks[U.mistakeWeek]||[]).forEach(x=>(x.reasons||[]).forEach(r=>m[r]=(m[r]||0)+1));e.innerHTML=(U.mistakeWeeks[U.mistakeWeek]||[]).length?`<p>第 ${U.mistakeWeek} 日已记录 <b>${U.mistakeWeeks[U.mistakeWeek].length}</b> 题。</p>`+Object.entries(m).map(x=>`<div class="log">${x[0]}：<b>${x[1]}</b></div>`).join(""):'<p class="muted">还没有错题记录。</p>'}
 function esc(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 function loadToolValues(){renderFixed();if(document.getElementById("habitGrid"))renderHabits();if(document.getElementById("reviewRows"))renderReview();loadScheduleValues();if(document.getElementById("termArea"))renderTerm(1,document.querySelector(".termBtn"));renderMistakeStats()}
 
@@ -845,10 +891,33 @@ function beatBoss(){let c=[...document.querySelectorAll(".bc")];if(!c.every(x=>x
 
 function renderParentGuideDirect(){
   let a=document.getElementById("parentGuideInline");
-  if(!a || typeof READABLE_DOC_CONFIG==="undefined")return;
-  let c=READABLE_DOC_CONFIG.libparent,raw=rawLibraryText("libparent"),id="parentInline";
-  a.innerHTML=`<div class="readerNav" id="readerNav_${id}">${c.tabs.map((t,i)=>`<button class="${i===0?"active":""}" onclick="showParentReadablePart(${i},this)">${t[0]}</button>`).join("")}</div>`+
-  c.tabs.map((t,i)=>`<div class="readerPanel ${i===0?"active":""}" data-parent-reader="1" id="parentReader_${i}">${readerCards(readerSlice(raw,t[1],t[2]))}</div>`).join("");
+  if(!a)return;
+  let raw=rawLibraryText("libparent"),id="parentInline";
+  // V22: each tab uses a different, non-overlapping set of sections from the original parent guide.
+  // This prevents the same paragraphs from appearing repeatedly under multiple tabs.
+  const parts=[
+    {label:"陪伴原则",ranges:[
+      ["一、家长陪伴的核心理念","三、Score A 家长沟通五步法"],
+      ["十九、How to Score A with AI 家庭教育三条底线","How to Score A with AI 家庭成长理念:"]
+    ]},
+    {label:"沟通方法",ranges:[
+      ["三、Score A 家长沟通五步法","八、孩子取得高分时"],
+      ["十、孩子主动要求挑战难题时","十一、正确使用奖励"]
+    ]},
+    {label:"时间与习惯",ranges:[
+      ["十一、正确使用奖励","十七、家长使用 AI 的正确方式"]
+    ]},
+    {label:"考试与压力",ranges:[
+      ["八、孩子取得高分时","十、孩子主动要求挑战难题时"],
+      ["十八、家长情绪管理原则","十九、How to Score A with AI 家庭教育三条底线"]
+    ]},
+    {label:"AI 使用",ranges:[
+      ["十七、家长使用 AI 的正确方式","十八、家长情绪管理原则"]
+    ]}
+  ];
+  const content=p=>p.ranges.map(r=>readerSlice(raw,r[0],r[1])).filter(Boolean).join("\n\n");
+  a.innerHTML=`<div class="readerNav" id="readerNav_${id}">${parts.map((p,i)=>`<button class="${i===0?"active":""}" onclick="showParentReadablePart(${i},this)">${p.label}</button>`).join("")}</div>`+
+  parts.map((p,i)=>`<div class="readerPanel ${i===0?"active":""}" data-parent-reader="1" id="parentReader_${i}">${readerCards(content(p))}</div>`).join("");
 }
 function showParentReadablePart(idx,b){
   document.querySelectorAll("#readerNav_parentInline button").forEach(x=>x.classList.remove("active"));if(b)b.classList.add("active");
@@ -869,4 +938,64 @@ function clearAllScoreAData(){
 }
 
 render();loadBasic();firstEntryGate();render30();setTimeout(renderDailyGate,50);setTimeout(renderParentGuideDirect,80);
-</script></body></html>
+</script>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+/* V21: Supabase Auth + SCORE-A entitlement gate. Publishable key is browser-safe; RLS remains the data security boundary. */
+const SCOREA_SUPABASE_URL='https://htzkjfztqqsbzxahxfnt.supabase.co';
+const SCOREA_SUPABASE_PUBLISHABLE_KEY='sb_publishable_-2O1tEq0GCQPSiMGQVSFrQ_bC3hf4WM';
+const scoreASupabase=window.supabase.createClient(SCOREA_SUPABASE_URL,SCOREA_SUPABASE_PUBLISHABLE_KEY);
+
+function authMessage(text,type='err'){const el=document.getElementById('authMsg');if(!el)return;el.textContent=text;el.className='authMsg show '+type}
+function authLoading(on){document.getElementById('authLoading')?.classList.toggle('show',!!on);const b=document.getElementById('authLoginBtn');if(b)b.disabled=!!on}
+function showLogin(){document.getElementById('authGate').style.display='grid';document.getElementById('scoreApp').style.display='none';document.getElementById('loginBox').style.display='block';document.getElementById('authDenied').classList.remove('show')}
+function showDenied(title,html){document.getElementById('authGate').style.display='grid';document.getElementById('scoreApp').style.display='none';document.getElementById('loginBox').style.display='none';document.getElementById('authDeniedTitle').textContent=title;document.getElementById('authDeniedInfo').innerHTML=html;document.getElementById('authDenied').classList.add('show')}
+function openScoreA(student,enrollment){document.getElementById('authGate').style.display='none';document.getElementById('scoreApp').style.display='block';const u=document.getElementById('authTopUser');if(u)u.textContent=(student.full_name||student.student_id||'Student')+' · '+(enrollment.expiry_date||'');}
+function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+
+async function verifyScoreAAccess(user){
+  try{
+    const {data:student,error:se}=await scoreASupabase.from('students').select('id,student_id,full_name,grade,status').eq('user_id',user.id).maybeSingle();
+    if(se)throw se;
+    if(!student)return showDenied('找不到学生资料','这个登录账号尚未连接 Student Profile。请联系管理员建立学生资料。');
+    if(student.status!=='ACTIVE')return showDenied('学生账号目前不可使用',`Student ID：<b>${esc(student.student_id)}</b><br>学生状态：<b>${esc(student.status)}</b>`);
+
+    const {data:course,error:ce}=await scoreASupabase.from('courses').select('id,course_code,course_name,is_active').eq('course_code','SCORE-A').eq('is_active',true).maybeSingle();
+    if(ce)throw ce;
+    if(!course)return showDenied('课程目前不可使用','系统找不到有效的 SCORE-A 课程。');
+
+    const {data:enrollment,error:ee}=await scoreASupabase.from('enrollments').select('id,plan_days,start_date,expiry_date,status,course_id').eq('student_id',student.id).eq('course_id',course.id).maybeSingle();
+    if(ee)throw ee;
+    if(!enrollment)return showDenied('尚未开通 SCORE-A','学生账号存在，但目前没有有效的 SCORE-A Enrollment。');
+    if(enrollment.status!=='ACTIVE')return showDenied('课程权限目前不是 ACTIVE',`Student ID：<b>${esc(student.student_id)}</b><br>Enrollment：<b>${esc(enrollment.status)}</b>`);
+    if(!enrollment.expiry_date)return showDenied('课程到期日尚未设置','请管理员为这个 Enrollment 设置 expiry_date。');
+
+    const today=new Date();today.setHours(0,0,0,0);
+    const expiry=new Date(enrollment.expiry_date+'T23:59:59');
+    if(expiry<today)return showDenied('课程使用期限已结束',`Student ID：<b>${esc(student.student_id)}</b><br>到期日：<b>${esc(enrollment.expiry_date)}</b><br>请联系管理员续期后再登录。`);
+
+    sessionStorage.setItem('scorea_verified',JSON.stringify({uid:user.id,student_id:student.student_id,expiry_date:enrollment.expiry_date,checked_at:new Date().toISOString()}));
+    openScoreA(student,enrollment);
+  }catch(err){console.error('Score A entitlement error',err);showDenied('权限验证出现问题',`无法完成课程权限验证。<br><small>${esc(err.message||'Unknown error')}</small>`)}
+}
+
+async function scoreALogin(){
+  const email=document.getElementById('authEmail').value.trim();const password=document.getElementById('authPassword').value;
+  if(!email||!password)return authMessage('请输入 Email 和 Password。');
+  authLoading(true);document.getElementById('authMsg').className='authMsg';
+  const {data,error}=await scoreASupabase.auth.signInWithPassword({email,password});
+  authLoading(false);
+  if(error)return authMessage('登录失败：'+error.message);
+  if(!data.user)return authMessage('登录失败：没有取得用户资料。');
+  await verifyScoreAAccess(data.user);
+}
+async function scoreALogout(){sessionStorage.removeItem('scorea_verified');await scoreASupabase.auth.signOut();showLogin();document.getElementById('authPassword').value='';}
+
+document.getElementById('authPassword')?.addEventListener('keydown',e=>{if(e.key==='Enter')scoreALogin()});
+(async()=>{
+  const {data:{session}}=await scoreASupabase.auth.getSession();
+  if(session?.user)await verifyScoreAAccess(session.user);else showLogin();
+})();
+</script>
+</body></html>
