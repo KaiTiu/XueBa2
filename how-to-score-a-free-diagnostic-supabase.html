@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HOW TO SCORE A｜3分钟学习能力诊断</title>
+  <meta name="description" content="免费3分钟学习能力诊断：找出你目前最需要改善的学习问题。" />
+  <style>
+    :root{
+      --bg:#f6f8ff;
+      --card:#ffffff;
+      --text:#172033;
+      --muted:#6b7280;
+      --line:#e7eaf3;
+      --primary:#5b63f3;
+      --primary2:#7b5cf5;
+      --soft:#eef0ff;
+      --good:#0f9d76;
+      --warn:#d9822b;
+      --danger:#d94f4f;
+      --shadow:0 18px 60px rgba(44,55,120,.12);
+      --radius:24px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+      "Segoe UI","PingFang SC","Microsoft YaHei","Noto Sans CJK SC",Arial,sans-serif;
+      background:
+        radial-gradient(circle at 15% 10%, rgba(123,92,245,.12), transparent 30%),
+        radial-gradient(circle at 90% 10%, rgba(91,99,243,.10), transparent 28%),
+        var(--bg);
+      color:var(--text);
+      min-height:100vh;
+    }
+    .wrap{max-width:880px;margin:0 auto;padding:24px 18px 60px}
+    .brand{
+      display:flex;align-items:center;gap:12px;margin:8px 0 20px;
+      font-weight:800;letter-spacing:.2px
+    }
+    .logo{
+      width:42px;height:42px;border-radius:14px;
+      background:linear-gradient(135deg,var(--primary),var(--primary2));
+      color:#fff;display:grid;place-items:center;font-weight:900;
+      box-shadow:0 10px 24px rgba(91,99,243,.28)
+    }
+    .small{font-size:13px;color:var(--muted);font-weight:600}
+    .card{
+      background:rgba(255,255,255,.94);
+      border:1px solid rgba(255,255,255,.7);
+      box-shadow:var(--shadow);
+      border-radius:var(--radius);
+      padding:34px;
+      backdrop-filter: blur(8px);
+    }
+    h1{font-size:clamp(30px,6vw,54px);line-height:1.08;margin:8px 0 16px}
+    h2{font-size:clamp(25px,4vw,36px);margin:0 0 12px}
+    h3{font-size:20px;margin:0 0 10px}
+    p{line-height:1.75}
+    .lead{font-size:18px;color:#4b5563;max-width:720px}
+    .badge{
+      display:inline-flex;gap:8px;align-items:center;
+      padding:9px 13px;border-radius:999px;background:var(--soft);
+      color:#4a50c7;font-weight:800;font-size:13px
+    }
+    .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:22px 0}
+    .mini{
+      background:#fafbff;border:1px solid var(--line);border-radius:16px;padding:16px;
+      text-align:center
+    }
+    .mini b{display:block;font-size:16px;margin-top:5px}
+    button{
+      border:0;cursor:pointer;font:inherit
+    }
+    .btn{
+      display:inline-flex;align-items:center;justify-content:center;gap:8px;
+      padding:15px 22px;border-radius:14px;font-weight:800;
+      transition:.2s transform,.2s box-shadow,.2s opacity;
+    }
+    .btn:hover{transform:translateY(-1px)}
+    .btn-primary{
+      color:#fff;background:linear-gradient(135deg,var(--primary),var(--primary2));
+      box-shadow:0 12px 28px rgba(91,99,243,.28)
+    }
+    .btn-ghost{background:#f4f5fb;color:#374151}
+    .btn-wide{width:100%}
+    .muted{color:var(--muted)}
+    .screen{display:none}
+    .screen.active{display:block}
+    .progress-shell{
+      height:10px;background:#e9ecf7;border-radius:999px;overflow:hidden;margin:12px 0 8px
+    }
+    .progress{height:100%;width:0;background:linear-gradient(90deg,var(--primary),var(--primary2));transition:.3s}
+    .question-num{font-size:13px;color:var(--muted);font-weight:800}
+    .question{
+      font-size:clamp(23px,4vw,32px);line-height:1.4;margin:24px 0 22px;font-weight:850
+    }
+    .options{display:grid;gap:12px}
+    .option{
+      width:100%;text-align:left;border:1.5px solid var(--line);background:#fff;
+      border-radius:16px;padding:17px 18px;color:var(--text);font-weight:750;
+      display:flex;align-items:center;justify-content:space-between;
+      transition:.2s
+    }
+    .option:hover{border-color:#aeb3ff;background:#fafaff;transform:translateY(-1px)}
+    .option .score{
+      width:32px;height:32px;border-radius:10px;background:#f1f3fb;
+      display:grid;place-items:center;color:#697386;font-size:13px
+    }
+    .navrow{display:flex;gap:10px;margin-top:18px}
+    .navrow .btn{flex:1}
+    .result-hero{
+      background:linear-gradient(135deg,#eef0ff,#f8f1ff);
+      border:1px solid #e1e3ff;border-radius:22px;padding:24px;margin:20px 0
+    }
+    .type-label{font-size:14px;font-weight:900;color:#565dd6;letter-spacing:.4px}
+    .type-title{font-size:clamp(27px,5vw,40px);font-weight:900;margin:7px 0}
+    .score-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:18px 0 26px}
+    .score-card{
+      border:1px solid var(--line);border-radius:16px;padding:14px 10px;text-align:center;background:#fff
+    }
+    .score-card .n{font-size:25px;font-weight:900}
+    .score-card .l{font-size:12px;color:var(--muted);margin-top:4px;font-weight:700}
+    .section{
+      border-top:1px solid var(--line);padding-top:24px;margin-top:24px
+    }
+    .tip{
+      background:#f8fafc;border:1px solid #e5e7eb;border-radius:16px;padding:18px;margin:12px 0
+    }
+    .action{
+      background:#effcf8;border:1px solid #ccefe4;border-radius:16px;padding:18px
+    }
+    .secondary{
+      padding:14px 16px;background:#fff7e9;border:1px solid #f3dfba;border-radius:15px;margin-top:12px
+    }
+    .share-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
+    .privacy{
+      margin-top:20px;padding:14px 16px;border-radius:15px;background:#f8fafc;color:#64748b;font-size:13px;line-height:1.65
+    }
+    .profile-box{
+      margin:20px 0;padding:18px;border:1px solid var(--line);border-radius:18px;background:#fbfcff
+    }
+    .field{margin:13px 0}
+    label{display:block;font-size:13px;font-weight:800;margin-bottom:7px;color:#4b5563}
+    input,select{
+      width:100%;padding:13px 14px;border:1.5px solid var(--line);border-radius:12px;
+      font:inherit;color:var(--text);background:#fff;outline:none
+    }
+    input:focus,select:focus{border-color:#aeb3ff;box-shadow:0 0 0 4px rgba(91,99,243,.08)}
+    .sync-status{margin-top:10px;font-size:13px;color:var(--muted)}
+    .challenge-cta{
+      margin-top:18px;padding:20px;border-radius:18px;background:linear-gradient(135deg,#eef0ff,#f8f1ff);
+      border:1px solid #dfe1ff
+    }
+    .footer{font-size:12px;color:#8a93a5;text-align:center;margin-top:18px}
+    @media(max-width:680px){
+      .card{padding:22px}
+      .grid3{grid-template-columns:1fr}
+      .score-grid{grid-template-columns:repeat(2,1fr)}
+      .share-row{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand">
+    <div class="logo">A+</div>
+    <div>
+      <div>HOW TO SCORE A with AI</div>
+      <div class="small">学习能力成长系统</div>
+    </div>
+  </div>
+
+  <section id="start" class="screen active">
+    <div class="card">
+      <div class="badge">✓ 免费 · 无需注册 · 约3分钟</div>
+      <h1>你真正的学习问题，<br>可能不是“不够努力”。</h1>
+      <p class="lead">回答15个简单问题，系统会立即分析你目前最需要优先改善的学习方向，并给你一个马上可以开始的小行动。</p>
+
+      <div class="grid3">
+        <div class="mini">🧠<b>5个学习维度</b><span class="small">理解、方法、时间、考试、自主</span></div>
+        <div class="mini">⚡<b>即时结果</b><span class="small">做完马上看到分析</span></div>
+        <div class="mini">☁️<b>连接学习档案</b><span class="small">结果保存到 HOW TO SCORE A</span></div>
+      </div>
+
+      <div class="profile-box">
+        <h3 style="margin-bottom:4px">先建立你的免费学习档案</h3>
+        <p class="small">请使用以后进入 HOW TO SCORE A 正式课程时会使用的同一个 Email，这样系统才能把免费诊断、5天挑战与正式课程连接起来。</p>
+        <div class="field">
+          <label>学生姓名</label>
+          <input id="studentName" autocomplete="name" placeholder="例如：KHOR">
+        </div>
+        <div class="field">
+          <label>年级</label>
+          <select id="studentGrade">
+            <option value="">请选择</option>
+            <option>Year 1 / 一年级</option><option>Year 2 / 二年级</option><option>Year 3 / 三年级</option>
+            <option>Year 4 / 四年级</option><option>Year 5 / 五年级</option><option>Year 6 / 六年级</option>
+            <option>Form 1 / 中一</option><option>Form 2 / 中二</option><option>Form 3 / 中三</option>
+            <option>Form 4 / 中四</option><option>Form 5 / 中五</option><option>其他</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Email</label>
+          <input id="studentEmail" type="email" autocomplete="email" placeholder="name@example.com">
+        </div>
+        <div id="profileWarn" class="small" style="display:none;color:#b45309;margin-top:8px">请填写姓名、年级和正确的 Email。</div>
+      </div>
+
+      <button class="btn btn-primary btn-wide" onclick="startQuiz()">开始免费诊断 →</button>
+      <div class="privacy">
+        这不是医疗、心理或智力测验，也不会判断你“聪不聪明”。资料会保存到 HOW TO SCORE A 的 Supabase 学习档案，只用于连接你的诊断、5天挑战和正式课程。
+      </div>
+    </div>
+  </section>
+
+  <section id="quiz" class="screen">
+    <div class="card">
+      <div class="question-num" id="qNum">第 1 / 15 题</div>
+      <div class="progress-shell"><div id="progress" class="progress"></div></div>
+      <div class="question" id="questionText"></div>
+
+      <div class="options">
+        <button class="option" onclick="answer(0)"><span>几乎没有</span><span class="score">0</span></button>
+        <button class="option" onclick="answer(1)"><span>偶尔</span><span class="score">1</span></button>
+        <button class="option" onclick="answer(2)"><span>经常</span><span class="score">2</span></button>
+        <button class="option" onclick="answer(3)"><span>非常明显</span><span class="score">3</span></button>
+      </div>
+
+      <div class="navrow">
+        <button id="backBtn" class="btn btn-ghost" onclick="goBack()">← 上一题</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="result" class="screen">
+    <div class="card">
+      <div class="badge">诊断完成 ✓</div>
+      <h2>你的学习分析结果</h2>
+      <p class="muted">先改善最主要的一个问题，不需要一次改变全部。</p>
+
+      <div class="result-hero">
+        <div class="type-label">目前最需要优先改善</div>
+        <div class="type-title" id="primaryTitle"></div>
+        <p id="primaryDesc"></p>
+        <div class="secondary" id="secondaryBox"></div>
+      </div>
+
+      <div class="score-grid" id="scoreGrid"></div>
+
+      <div class="section">
+        <h3>你可能会出现这些情况</h3>
+        <div class="tip" id="symptoms"></div>
+      </div>
+
+      <div class="section">
+        <h3>今天先做这一个小行动</h3>
+        <div class="action" id="actionText"></div>
+      </div>
+
+      <div class="section">
+        <h3>下一步建议</h3>
+        <p id="nextStep"></p>
+        <p class="muted">最有效的改变，不是一次做很多，而是每天解决一个真正影响学习的问题。</p>
+      </div>
+
+      <div id="syncStatus" class="sync-status">正在建立你的学习档案…</div>
+
+      <div class="challenge-cta">
+        <h3>下一步｜免费5天学霸启动挑战</h3>
+        <p class="muted">你的诊断结果会带入5天挑战，让接下来的练习更有针对性。</p>
+        <a class="btn btn-primary btn-wide" href="how-to-score-a-5-day-challenge-supabase.html" style="text-decoration:none">开始5天免费挑战 →</a>
+      </div>
+
+      <div class="share-row">
+        <button class="btn btn-primary" onclick="copyResult()">复制我的结果</button>
+        <button class="btn btn-ghost" onclick="shareWhatsApp()">分享到 WhatsApp</button>
+      </div>
+
+      <button class="btn btn-ghost btn-wide" style="margin-top:10px" onclick="restart()">重新测试</button>
+
+      <div class="privacy">
+        隐私说明：诊断资料会保存到 HOW TO SCORE A 的 Supabase 学习档案。免费阶段不需要密码；正式课程开通后，只要使用相同 Email，系统就可以继续读取属于你的学习资料。
+      </div>
+    </div>
+  </section>
+
+  <div class="footer">HOW TO SCORE A with AI · Free Learning Diagnostic</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SCOREA_SUPABASE_URL="https://htzkjfztqqsbzxahxfnt.supabase.co";
+const SCOREA_SUPABASE_PUBLISHABLE_KEY="sb_publishable_-2O1tEq0GCQPSiMGQVSFrQ_bC3hf4WM";
+const scoreASupabase=window.supabase.createClient(SCOREA_SUPABASE_URL,SCOREA_SUPABASE_PUBLISHABLE_KEY);
+const SCOREA_IDENTITY_KEY="scorea_free_identity_v1";
+const SCOREA_DIAGNOSTIC_KEY="scorea_free_diagnostic_v1";
+
+function uuid(){
+  return (crypto && crypto.randomUUID) ? crypto.randomUUID() :
+    'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{const r=Math.random()*16|0,v=c==='x'?r:(r&0x3|0x8);return v.toString(16)});
+}
+function validEmail(v){return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)}
+function getIdentity(){try{return JSON.parse(localStorage.getItem(SCOREA_IDENTITY_KEY)||"null")}catch(e){return null}}
+function saveIdentity(x){localStorage.setItem(SCOREA_IDENTITY_KEY,JSON.stringify(x))}
+async function saveDiagnosticToSupabase(scores,primary,secondary){
+  const identity=getIdentity();
+  if(!identity) return;
+  const payload={
+    id: identity.diagnostic_id,
+    client_session_id: identity.client_session_id,
+    email: identity.email.toLowerCase(),
+    student_name: identity.student_name,
+    grade: identity.grade,
+    primary_type: primary,
+    secondary_type: secondary,
+    score_a: scores.A, score_b: scores.B, score_c: scores.C, score_d: scores.D, score_e: scores.E,
+    answers: answers
+  };
+  localStorage.setItem(SCOREA_DIAGNOSTIC_KEY,JSON.stringify({...payload,created_at:new Date().toISOString()}));
+  const el=document.getElementById("syncStatus");
+  try{
+    const {error}=await scoreASupabase.from("scorea_free_diagnostics").insert(payload);
+    if(error) throw error;
+    if(el) el.textContent="✓ 诊断结果已保存到 HOW TO SCORE A 学习档案。";
+  }catch(err){
+    console.error("Supabase diagnostic save failed",err);
+    if(el) el.textContent="⚠ 结果已保存在此装置，但暂时未能同步到云端。";
+  }
+}
+
+const questions = [
+  {cat:"A", text:"我遇到新的知识点时，经常需要别人重复讲很多次才真正明白。"},
+  {cat:"A", text:"题目稍微换一种问法，我就容易不知道应该怎样回答。"},
+  {cat:"A", text:"学完一个章节后，过几天我很容易忘记重点内容。"},
+
+  {cat:"B", text:"我的“复习”主要是重复看课本、笔记或答案，很少自己测试是否真的会。"},
+  {cat:"B", text:"做错题后，我通常只是看正确答案，没有认真找出自己为什么会错。"},
+  {cat:"B", text:"我有时读了很久，却说不清楚自己今天到底学会了什么。"},
+
+  {cat:"C", text:"我经常到了考试前才开始集中温习。"},
+  {cat:"C", text:"写功课或复习时，我很容易被手机、游戏、YouTube或其他事情打断。"},
+  {cat:"C", text:"即使知道今天应该学习什么，我还是常常拖延，最后没有按照计划完成。"},
+
+  {cat:"D", text:"平时会做的题，我考试时还是常常因为粗心、看错题或漏步骤而失分。"},
+  {cat:"D", text:"考试时我不太会分配时间，容易在某些题目花太久。"},
+  {cat:"D", text:"考试前或考试过程中，我容易紧张，影响原本会做的题。"},
+
+  {cat:"E", text:"如果父母或老师没有提醒，我通常不会主动开始复习或学习。"},
+  {cat:"E", text:"遇到不会的题目时，我容易马上问别人或AI，而不是先尝试自己思考。"},
+  {cat:"E", text:"我不太清楚自己目前最弱在哪里，也不知道下一步应该怎样改善。"}
+];
+
+const types = {
+  A:{
+    name:"A型｜基础理解薄弱型",
+    short:"基础理解",
+    desc:"你目前比较需要先加强“真正理解知识”的能力。不是做更多题，而是确认自己是否真的明白概念，而不是只记住答案。",
+    symptoms:"你可能会出现：老师讲过但换题就不会、记得答案却不懂为什么、学过几天后很快忘记。",
+    action:"今天学完一个知识点后，先把书合起来，用自己的话解释一次：『它是什么？为什么？可以举一个例子吗？』如果说不出来，就代表这里还需要重新理解。",
+    next:"接下来重点练习：理解 → 自己解释 → 举例 → 变式题 → 再测试。"
+  },
+  B:{
+    name:"B型｜学习方法需要升级型",
+    short:"学习方法",
+    desc:"你可能已经花了不少时间学习，但方法未必有效。真正的问题不一定是“不努力”，而是学习过程缺少主动回忆、测试和错题分析。",
+    symptoms:"你可能会出现：一直看书却记不牢、读很久但不知道学会什么、做错题只看答案、重复同样错误。",
+    action:"今天不要问『我读了多久？』，改成问：『我今天解决了哪一个不会的问题？』然后做3–5题小测试，看看自己是否真的掌握。",
+    next:"接下来重点练习：Learn → Recall → Test → Analyse Mistake → Relearn → Retest。"
+  },
+  C:{
+    name:"C型｜时间管理失衡型",
+    short:"时间管理",
+    desc:"你目前最大的学习阻力，可能不是能力，而是“开始得太迟、任务不清楚、容易被打断”。先把执行系统建立起来，学习才会稳定。",
+    symptoms:"你可能会出现：临近考试才读、知道要做但一直拖、手机游戏打断、计划很多但真正完成很少。",
+    action:"今天不要写『今晚读书』。改成一个25分钟的具体任务，例如：『7:30–7:55 数学，完成5道分数题，最后自己检查一次。』",
+    next:"接下来重点练习：明确任务 → 25分钟专注 → 短休息 → 检查完成度 → 调整明天计划。"
+  },
+  D:{
+    name:"D型｜考试失分型",
+    short:"考试策略",
+    desc:"你可能平时并不是完全不会，但考试时容易把会做的分数丢掉。接下来要训练的是审题、步骤、时间和检查，而不只是继续刷更多题。",
+    symptoms:"你可能会出现：粗心、看错题、漏步骤、时间不够、会做却丢分、考试紧张。",
+    action:"从下一次练习开始，每一个错题都标记原因：『粗心 / 不会 / 步骤 / 概念 / 时间』。不要只记录答案，要记录“为什么失分”。",
+    next:"接下来重点练习：限时练习 → 错误分类 → 审题标记 → 时间分配 → 最后检查。"
+  },
+  E:{
+    name:"E型｜自主学习不足型",
+    short:"自主学习",
+    desc:"你目前比较依赖别人提醒、安排或直接给答案。真正要建立的是“知道自己要做什么、为什么做、做完怎样判断自己会不会”的能力。",
+    symptoms:"你可能会出现：不提醒就不开始、不会题马上问人或AI、不知道自己弱点在哪里、学习很依赖父母安排。",
+    action:"今天学习前，先自己写下3句话：『我要完成什么？为什么先做这个？完成后怎样知道自己真的会了？』",
+    next:"接下来重点练习：自己定任务 → 先尝试 → 再求助 → 自己检查 → 每天复盘。"
+  }
+};
+
+let current = 0;
+let answers = Array(questions.length).fill(null);
+
+function startQuiz(){
+  const student_name=document.getElementById("studentName").value.trim();
+  const grade=document.getElementById("studentGrade").value;
+  const email=document.getElementById("studentEmail").value.trim();
+  const warn=document.getElementById("profileWarn");
+  if(!student_name || !grade || !validEmail(email)){
+    warn.style.display="block"; return;
+  }
+  warn.style.display="none";
+  const prev=getIdentity();
+  const identity={
+    diagnostic_id: uuid(),
+    client_session_id: prev?.client_session_id || uuid(),
+    student_name, grade, email
+  };
+  saveIdentity(identity);
+  document.getElementById("start").classList.remove("active");
+  document.getElementById("quiz").classList.add("active");
+  current = 0;
+  renderQuestion();
+}
+
+function renderQuestion(){
+  document.getElementById("qNum").textContent = `第 ${current+1} / ${questions.length} 题`;
+  document.getElementById("questionText").textContent = questions[current].text;
+  document.getElementById("progress").style.width = `${((current)/questions.length)*100}%`;
+  document.getElementById("backBtn").style.visibility = current===0 ? "hidden" : "visible";
+}
+
+function answer(score){
+  answers[current] = score;
+  if(current < questions.length-1){
+    current++;
+    renderQuestion();
+  }else{
+    showResult();
+  }
+}
+
+function goBack(){
+  if(current>0){current--;renderQuestion();}
+}
+
+function getScores(){
+  const s = {A:0,B:0,C:0,D:0,E:0};
+  questions.forEach((q,i)=> s[q.cat]+=Number(answers[i]??0));
+  return s;
+}
+
+function showResult(){
+  const scores = getScores();
+  const ranked = Object.entries(scores).sort((a,b)=> b[1]-a[1]);
+  const primary = ranked[0][0];
+  const secondary = ranked[1][0];
+
+  document.getElementById("quiz").classList.remove("active");
+  document.getElementById("result").classList.add("active");
+
+  document.getElementById("primaryTitle").textContent = types[primary].name;
+  document.getElementById("primaryDesc").textContent = types[primary].desc;
+  document.getElementById("secondaryBox").innerHTML =
+    `<b>第二改善方向：</b>${types[secondary].short}（${scores[secondary]} / 9）`;
+
+  const labels = {A:"基础理解",B:"学习方法",C:"时间管理",D:"考试策略",E:"自主学习"};
+  document.getElementById("scoreGrid").innerHTML = ["A","B","C","D","E"].map(k=>`
+    <div class="score-card">
+      <div class="n">${scores[k]}/9</div>
+      <div class="l">${labels[k]}</div>
+    </div>
+  `).join("");
+
+  document.getElementById("symptoms").textContent = types[primary].symptoms;
+  document.getElementById("actionText").textContent = types[primary].action;
+  document.getElementById("nextStep").textContent = types[primary].next;
+
+  saveDiagnosticToSupabase(scores,primary,secondary);
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
+function resultText(){
+  const scores = getScores();
+  const ranked = Object.entries(scores).sort((a,b)=> b[1]-a[1]);
+  const primary = ranked[0][0], secondary = ranked[1][0];
+  return `HOW TO SCORE A｜我的学习诊断结果
+
+主要改善方向：${types[primary].name}
+第二改善方向：${types[secondary].short}
+
+基础理解：${scores.A}/9
+学习方法：${scores.B}/9
+时间管理：${scores.C}/9
+考试策略：${scores.D}/9
+自主学习：${scores.E}/9
+
+今天的小行动：
+${types[primary].action}`;
+}
+
+async function copyResult(){
+  try{
+    await navigator.clipboard.writeText(resultText());
+    alert("结果已经复制，可以发送给家长或老师。");
+  }catch(e){
+    alert("无法自动复制，请长按或手动复制页面内容。");
+  }
+}
+
+function shareWhatsApp(){
+  const text = encodeURIComponent(resultText());
+  window.open(`https://wa.me/?text=${text}`, "_blank");
+}
+
+function restart(){
+  answers = Array(questions.length).fill(null);
+  current = 0;
+  document.getElementById("result").classList.remove("active");
+  document.getElementById("start").classList.add("active");
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+const savedIdentity=getIdentity();
+if(savedIdentity){
+  const n=document.getElementById("studentName"),g=document.getElementById("studentGrade"),e=document.getElementById("studentEmail");
+  if(n)n.value=savedIdentity.student_name||"";
+  if(g)g.value=savedIdentity.grade||"";
+  if(e)e.value=savedIdentity.email||"";
+}
+</script>
+</body>
+</html>

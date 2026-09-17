@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HOW TO SCORE A｜5天学霸启动挑战</title>
+  <meta name="description" content="免费5天学霸启动挑战：每天完成一个小任务，建立更有效的学习方法。" />
+  <style>
+    :root{
+      --bg:#f7f8fc;--card:#fff;--text:#182033;--muted:#6f7787;
+      --primary:#5c62f2;--primary2:#7d5df6;--line:#e7e9f2;
+      --soft:#f0f1ff;--green:#0c9a70;--greenSoft:#ebfbf5;
+      --orange:#c97a20;--orangeSoft:#fff6e7;--shadow:0 18px 60px rgba(54,64,130,.12);
+      --radius:24px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,
+      "Segoe UI","PingFang SC","Microsoft YaHei","Noto Sans CJK SC",Arial,sans-serif;
+      background:
+        radial-gradient(circle at 10% 0%, rgba(125,93,246,.10), transparent 28%),
+        radial-gradient(circle at 100% 8%, rgba(92,98,242,.10), transparent 26%),
+        var(--bg);
+      color:var(--text);min-height:100vh;
+    }
+    .wrap{max-width:980px;margin:0 auto;padding:22px 18px 70px}
+    .brand{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:4px 0 18px}
+    .brand-left{display:flex;gap:12px;align-items:center}
+    .logo{
+      width:44px;height:44px;border-radius:14px;background:linear-gradient(135deg,var(--primary),var(--primary2));
+      color:#fff;display:grid;place-items:center;font-weight:900;box-shadow:0 10px 24px rgba(92,98,242,.24)
+    }
+    .brand-title{font-weight:900}.small{font-size:13px;color:var(--muted)}
+    .toplink{font-size:13px;font-weight:800;color:#5259ca;text-decoration:none;background:var(--soft);padding:9px 12px;border-radius:999px}
+    .hero,.panel{
+      background:rgba(255,255,255,.96);border:1px solid rgba(255,255,255,.85);
+      border-radius:var(--radius);box-shadow:var(--shadow);padding:30px;backdrop-filter:blur(8px)
+    }
+    .hero h1{font-size:clamp(32px,6vw,54px);line-height:1.08;margin:8px 0 14px}
+    .hero p{font-size:18px;line-height:1.75;color:#515969;max-width:760px}
+    .badge{
+      display:inline-flex;align-items:center;gap:8px;background:var(--soft);color:#4b52c5;
+      padding:9px 13px;border-radius:999px;font-size:13px;font-weight:900
+    }
+    .progress-wrap{margin-top:22px}
+    .progress-shell{height:11px;border-radius:999px;background:#e9ebf6;overflow:hidden}
+    .progress{height:100%;width:0;background:linear-gradient(90deg,var(--primary),var(--primary2));transition:.3s}
+    .days{
+      display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin:14px 0 24px
+    }
+    .day-tab{
+      border:1px solid var(--line);background:#fff;border-radius:15px;padding:12px 10px;
+      font-weight:850;color:#5d6473;cursor:pointer;text-align:center;transition:.18s
+    }
+    .day-tab.active{border-color:#aeb2ff;background:#f8f8ff;color:#444bc1}
+    .day-tab.done{background:var(--greenSoft);border-color:#bfe8d9;color:#087454}
+    .day-tab.locked{opacity:.48;cursor:not-allowed}
+    .panel{margin-top:18px}
+    .day-head{display:flex;gap:14px;align-items:flex-start}
+    .day-number{
+      min-width:58px;height:58px;border-radius:18px;background:linear-gradient(135deg,var(--primary),var(--primary2));
+      color:#fff;display:grid;place-items:center;font-weight:950;font-size:20px
+    }
+    h2{font-size:clamp(25px,4.5vw,36px);margin:0 0 8px}
+    h3{font-size:20px;margin:0 0 10px}
+    p{line-height:1.75}.muted{color:var(--muted)}
+    .lesson{
+      margin:22px 0;background:#f8f9ff;border:1px solid #e9eaff;border-radius:18px;padding:20px
+    }
+    .lesson strong{color:#454cc1}
+    .task{margin-top:24px;border-top:1px solid var(--line);padding-top:22px}
+    .field{margin:16px 0}
+    label{display:block;font-size:14px;font-weight:850;margin-bottom:8px}
+    input,textarea,select{
+      width:100%;padding:14px 15px;border:1.5px solid var(--line);border-radius:13px;background:#fff;
+      font:inherit;color:var(--text);outline:none
+    }
+    input:focus,textarea:focus,select:focus{border-color:#a9aeff;box-shadow:0 0 0 4px rgba(92,98,242,.08)}
+    textarea{min-height:100px;resize:vertical}
+    .choices{display:grid;gap:10px}
+    .choice{
+      border:1.5px solid var(--line);border-radius:14px;padding:14px 15px;background:#fff;
+      cursor:pointer;font-weight:750;transition:.18s
+    }
+    .choice:hover{border-color:#b2b6ff;background:#fbfbff}
+    .choice.selected{border-color:#9ca2ff;background:#f2f3ff;color:#4047b9}
+    .btn{
+      border:0;border-radius:14px;padding:14px 19px;font:inherit;font-weight:900;cursor:pointer;
+      display:inline-flex;align-items:center;justify-content:center;gap:8px;transition:.18s
+    }
+    .btn:hover{transform:translateY(-1px)}
+    .btn-primary{color:#fff;background:linear-gradient(135deg,var(--primary),var(--primary2));box-shadow:0 12px 28px rgba(92,98,242,.24)}
+    .btn-soft{background:#f1f2f7;color:#3f4756}
+    .btn-wide{width:100%}
+    .result{
+      display:none;margin-top:18px;border-radius:18px;padding:18px;background:var(--greenSoft);
+      border:1px solid #c9eadf;color:#165b48;line-height:1.7
+    }
+    .result.show{display:block}
+    .warning{
+      display:none;margin-top:14px;border-radius:14px;padding:13px 15px;background:var(--orangeSoft);
+      border:1px solid #efd7aa;color:#855316
+    }
+    .warning.show{display:block}
+    .summary{
+      display:none;margin-top:20px;background:linear-gradient(135deg,#f0f1ff,#f9f3ff);
+      border:1px solid #dedfff;border-radius:20px;padding:22px
+    }
+    .summary.show{display:block}
+    .summary ul{padding-left:20px;line-height:1.8}
+    .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+    .actions .btn{flex:1;min-width:190px}
+    .finish-card{
+      display:none;margin-top:22px;background:#fff;border:1px solid var(--line);border-radius:20px;padding:22px
+    }
+    .finish-card.show{display:block}
+    .mini-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:16px}
+    .mini{background:#fafbff;border:1px solid var(--line);border-radius:15px;padding:15px;text-align:center}
+    .mini b{display:block;margin-top:4px}
+    .footer{font-size:12px;color:#8a92a0;text-align:center;margin-top:18px}
+    @media(max-width:720px){
+      .hero,.panel{padding:22px}.days{grid-template-columns:repeat(5,minmax(58px,1fr));overflow-x:auto}
+      .mini-grid{grid-template-columns:1fr}.brand{align-items:flex-start}.toplink{display:none}
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand">
+    <div class="brand-left">
+      <div class="logo">A+</div>
+      <div>
+        <div class="brand-title">HOW TO SCORE A with AI</div>
+        <div class="small">5天学霸启动挑战</div>
+      </div>
+    </div>
+    <a class="toplink" href="how-to-score-a-free-diagnostic.html">← 回到3分钟学习诊断</a>
+  </div>
+
+  <section class="hero">
+    <div class="badge">✓ 免费 · 每天约15–30分钟 · 自动保存进度</div>
+    <h1>5天，不是学更多，<br>而是开始学得更对。</h1>
+    <p>每天只解决一个学习问题：找出失分原因、学会有效复习、减少拖延、用好错题、最后做出自己的30天学习计划。</p>
+
+    <div class="progress-wrap">
+      <div class="small" id="progressText">进度：0 / 5 天完成</div>
+      <div class="progress-shell"><div class="progress" id="overallProgress"></div></div>
+    </div>
+
+    <div id="diagnosticBanner" class="lesson" style="display:none;margin-top:14px"></div>
+    <div class="days" id="dayTabs"></div>
+
+    <button class="btn btn-primary btn-wide" onclick="openCurrentDay()">继续今天的挑战 →</button>
+  </section>
+
+  <section class="panel" id="dayPanel"></section>
+
+  <div class="footer">HOW TO SCORE A with AI · Free 5-Day Student Challenge</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SCOREA_SUPABASE_URL="https://htzkjfztqqsbzxahxfnt.supabase.co";
+const SCOREA_SUPABASE_PUBLISHABLE_KEY="sb_publishable_-2O1tEq0GCQPSiMGQVSFrQ_bC3hf4WM";
+const scoreASupabase=window.supabase.createClient(SCOREA_SUPABASE_URL,SCOREA_SUPABASE_PUBLISHABLE_KEY);
+
+const IDENTITY_KEY = "scorea_free_identity_v1";
+const DIAGNOSTIC_KEY = "scorea_free_diagnostic_v1";
+const STORAGE_KEY = "htsa_5day_challenge_v1";
+
+const dayData = [
+  {
+    title:"Day 1｜找出真正的失分原因",
+    intro:"今天不要急着做更多题。先找出你真正失分在哪里。很多学生不是“不会”，而是把不同问题全部当成同一个问题。",
+    lesson:`<strong>今天的核心：</strong>每一个错题都要有原因。最常见的5类是：粗心、不会、步骤错误、概念错误、时间问题。只写“错了”没有帮助；知道“为什么错”，才知道下一步练什么。`,
+    render:()=>`
+      <div class="task">
+        <h3>今天的任务</h3>
+        <div class="field">
+          <label>最近最常失分的是哪一种？</label>
+          <div class="choices" id="d1choices">
+            ${["粗心","不会","步骤错误","概念错误","时间不够"].map(x=>`<div class="choice" onclick="selectChoice(this,'d1Reason')">${x}</div>`).join("")}
+          </div>
+        </div>
+        <div class="field">
+          <label>写下最近一道做错的题，或简单描述发生了什么：</label>
+          <textarea id="d1Example" placeholder="例如：数学分数应用题，我看错题目要求，算式本来会做。"></textarea>
+        </div>
+        <button class="btn btn-primary btn-wide" onclick="completeDay1()">完成 Day 1</button>
+        <div class="warning" id="d1warn">请选择一种失分原因，并写一个真实例子。</div>
+        <div class="result" id="d1result"></div>
+      </div>`
+  },
+  {
+    title:"Day 2｜学会真正有效的复习",
+    intro:"很多学生复习很久，却没有明显进步，因为他们一直“看”，却很少测试自己是不是真的会。",
+    lesson:`<strong>有效复习闭环：</strong>学习 → 回忆 → 测试 → 找错 → 重学 → 再测试。真正的复习不是把同一页看5次，而是把书合起来，看看自己能不能说出来、做出来。`,
+    render:()=>`
+      <div class="task">
+        <h3>先做一个小判断</h3>
+        <div class="field">
+          <label>哪一种方法最能检查你是否真的掌握？</label>
+          <div class="choices" id="d2choices">
+            ${[
+              "把课本重新看一遍",
+              "把笔记抄得更整齐",
+              "把书合起来，自己回答问题或做题",
+              "把答案背下来"
+            ].map((x,i)=>`<div class="choice" onclick="selectChoice(this,'d2Method')" data-value="${i}">${x}</div>`).join("")}
+          </div>
+        </div>
+        <div class="field">
+          <label>现在写一个你今天可以用来“测试自己”的问题：</label>
+          <textarea id="d2Question" placeholder="例如：什么是光合作用？不用看书，我能不能自己解释？"></textarea>
+        </div>
+        <button class="btn btn-primary btn-wide" onclick="completeDay2()">完成 Day 2</button>
+        <div class="warning" id="d2warn">请选择答案，并写一个可以测试自己的问题。</div>
+        <div class="result" id="d2result"></div>
+      </div>`
+  },
+  {
+    title:"Day 3｜解决拖延与时间管理",
+    intro:"“今晚要读书”不是计划。任务越模糊，大脑越容易拖延。今天我们把学习变成一个可以马上开始的25分钟任务。",
+    lesson:`<strong>一个有效学习任务必须有4样东西：</strong>什么时候开始、读什么、做多少、怎样算完成。任务越具体，越容易开始。`,
+    render:()=>`
+      <div class="task">
+        <h3>建立你的25分钟学习区块</h3>
+        <div class="field">
+          <label>今天几点开始？</label>
+          <input id="d3Time" type="time">
+        </div>
+        <div class="field">
+          <label>科目</label>
+          <input id="d3Subject" placeholder="例如：数学">
+        </div>
+        <div class="field">
+          <label>25分钟内只完成什么？</label>
+          <input id="d3Task" placeholder="例如：完成5道分数题，并自己检查一次">
+        </div>
+        <div class="field">
+          <label>今天最需要关掉哪一个干扰？</label>
+          <select id="d3Distraction">
+            <option value="">请选择</option>
+            <option>手机通知</option>
+            <option>游戏</option>
+            <option>YouTube / 短视频</option>
+            <option>聊天</option>
+            <option>其他杂事</option>
+          </select>
+        </div>
+        <button class="btn btn-primary btn-wide" onclick="completeDay3()">生成我的学习区块</button>
+        <div class="warning" id="d3warn">请把四项都填完整。</div>
+        <div class="result" id="d3result"></div>
+      </div>`
+  },
+  {
+    title:"Day 4｜把错题变成提分工具",
+    intro:"错题本不是抄答案的地方。真正有价值的错题记录，必须让你下一次不再用同样方式错。",
+    lesson:`<strong>错题4步：</strong>① 哪题错？ ② 为什么错？ ③ 正确方法是什么？ ④ 什么时候重做？ 如果只把正确答案抄下来，错题本很快会变成“答案收藏本”。`,
+    render:()=>`
+      <div class="task">
+        <h3>建立一条真正有用的错题记录</h3>
+        <div class="field">
+          <label>科目 / 题目</label>
+          <input id="d4Question" placeholder="例如：数学｜3/4 + 2/5">
+        </div>
+        <div class="field">
+          <label>错误原因</label>
+          <select id="d4Reason">
+            <option value="">请选择</option>
+            <option>粗心</option>
+            <option>不会</option>
+            <option>步骤错误</option>
+            <option>概念错误</option>
+            <option>时间问题</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>正确方法 / 我应该记住什么？</label>
+          <textarea id="d4Fix" placeholder="例如：分母不同不能直接相加，要先通分。"></textarea>
+        </div>
+        <button class="btn btn-primary btn-wide" onclick="completeDay4()">完成这条错题记录</button>
+        <div class="warning" id="d4warn">请把题目、错误原因和正确方法填完整。</div>
+        <div class="result" id="d4result"></div>
+      </div>`
+  },
+  {
+    title:"Day 5｜建立自己的30天学习计划",
+    intro:"你已经学会找问题、有效复习、管理时间和分析错题。最后一步，是把这些动作变成接下来30天可以重复的系统。",
+    lesson:`<strong>30天计划不是塞满行程。</strong>真正有效的计划只要回答：我最想改善什么？每天有多少时间？我要怎样知道自己有进步？`,
+    render:()=>`
+      <div class="task">
+        <h3>完成你的30天学习方向</h3>
+        <div class="field">
+          <label>未来30天最想改善的科目</label>
+          <input id="d5Subject" placeholder="例如：数学">
+        </div>
+        <div class="field">
+          <label>最想先改善的问题</label>
+          <select id="d5Goal">
+            <option value="">请选择</option>
+            <option>减少粗心</option>
+            <option>不再拖延</option>
+            <option>学会安排时间</option>
+            <option>学会正确复习</option>
+            <option>提升考试表现</option>
+            <option>更主动学习</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>每天可以稳定学习多久？</label>
+          <select id="d5Minutes">
+            <option value="">请选择</option>
+            <option>20分钟</option>
+            <option>30分钟</option>
+            <option>45分钟</option>
+            <option>60分钟</option>
+            <option>90分钟</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>你会怎样知道自己真的进步了？</label>
+          <textarea id="d5Measure" placeholder="例如：同类型错题越来越少；每周模拟测验分数提高；能自己按计划完成。"></textarea>
+        </div>
+        <button class="btn btn-primary btn-wide" onclick="completeDay5()">完成5天挑战</button>
+        <div class="warning" id="d5warn">请把四项都填完整。</div>
+        <div class="result" id="d5result"></div>
+
+        <div class="finish-card" id="finishCard">
+          <div class="badge">🎉 5天挑战完成</div>
+          <h2 style="margin-top:12px">你已经完成第一阶段。</h2>
+          <p>真正重要的不是这5天“看了多少”，而是你已经开始建立一套可以重复使用的学习方法。</p>
+          <div class="mini-grid">
+            <div class="mini">Day 1<b>知道为什么失分</b></div>
+            <div class="mini">Day 2<b>学会有效复习</b></div>
+            <div class="mini">Day 3<b>会安排学习区块</b></div>
+            <div class="mini">Day 4<b>会分析错题</b></div>
+            <div class="mini">Day 5<b>有30天方向</b></div>
+            <div class="mini">Next<b>把方法变成习惯</b></div>
+          </div>
+          <div class="summary show" id="finalSummary"></div>
+          <div class="actions">
+            <button class="btn btn-primary" onclick="copyPlan()">复制我的30天计划</button>
+            <a class="btn btn-soft" href="how-to-score-a-free-diagnostic.html" style="text-decoration:none">重新做学习诊断</a>
+          </div>
+          <p class="small" style="margin-top:14px">这份学习档案已经使用你的 Email 与 HOW TO SCORE A Supabase 连接。正式课程开通后使用同一个 Email，即可继续衔接个性化学习路线。</p>
+        </div>
+      </div>`
+  }
+];
+
+let state = loadState();
+let currentDay = Math.min(state.currentDay || 1, 5);
+let temp = {};
+
+function getIdentity(){
+  try{return JSON.parse(localStorage.getItem(IDENTITY_KEY)||"null")}catch(e){return null}
+}
+function getDiagnostic(){
+  try{return JSON.parse(localStorage.getItem(DIAGNOSTIC_KEY)||"null")}catch(e){return null}
+}
+async function saveChallengeDayToSupabase(day,data){
+  const identity=getIdentity();
+  if(!identity) return;
+  const payload={
+    diagnostic_id: identity.diagnostic_id,
+    client_session_id: identity.client_session_id,
+    email: identity.email.toLowerCase(),
+    student_name: identity.student_name,
+    grade: identity.grade,
+    day_number: day,
+    payload: data
+  };
+  try{
+    const {error}=await scoreASupabase.from("scorea_free_challenge_days").insert(payload);
+    if(error && error.code!=="23505") throw error;
+  }catch(err){console.error("Supabase challenge save failed",err)}
+}
+async function saveLearningProfileToSupabase(data){
+  const identity=getIdentity(), diag=getDiagnostic();
+  if(!identity) return;
+  const payload={
+    diagnostic_id: identity.diagnostic_id,
+    client_session_id: identity.client_session_id,
+    email: identity.email.toLowerCase(),
+    student_name: identity.student_name,
+    grade: identity.grade,
+    primary_type: diag?.primary_type || null,
+    secondary_type: diag?.secondary_type || null,
+    main_subject: data.subject,
+    improvement_goal: data.goal,
+    daily_study_time: data.minutes,
+    progress_measure: data.measure
+  };
+  try{
+    const {error}=await scoreASupabase.from("scorea_free_learning_profiles").insert(payload);
+    if(error && error.code!=="23505") throw error;
+  }catch(err){console.error("Supabase profile save failed",err)}
+}
+function renderDiagnosticBanner(){
+  const el=document.getElementById("diagnosticBanner");
+  const d=getDiagnostic(), i=getIdentity();
+  if(!el) return;
+  if(!i || !d){
+    el.style.display="block";
+    el.innerHTML=`<strong>建议先完成3分钟学习诊断。</strong><br><span class="muted">这样5天挑战会知道你目前最需要改善的方向。</span><br><br><a href="how-to-score-a-free-diagnostic-supabase.html" class="btn btn-soft" style="text-decoration:none">先做免费诊断</a>`;
+    return;
+  }
+  const names={A:"基础理解",B:"学习方法",C:"时间管理",D:"考试策略",E:"自主学习"};
+  const focus={A:"Day 2 的理解与自测",B:"Day 2 的有效复习",C:"Day 3 的时间管理",D:"Day 1 与 Day 4 的失分/错题训练",E:"Day 5 的自主计划"};
+  el.style.display="block";
+  el.innerHTML=`<strong>${i.student_name||"同学"}，欢迎回来。</strong><br>
+    你的主要改善方向：<b>${names[d.primary_type]||d.primary_type}</b>；
+    第二方向：<b>${names[d.secondary_type]||d.secondary_type}</b>。<br>
+    <span class="muted">这5天请特别留意：${focus[d.primary_type]||"每天的实践任务"}。</span>`;
+}
+
+function loadState(){
+  try{
+    const x = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+    return {completed:x.completed||[], currentDay:x.currentDay||1, data:x.data||{}};
+  }catch(e){ return {completed:[],currentDay:1,data:{}}; }
+}
+function saveState(){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+function refreshHeader(){
+  const n = state.completed.length;
+  document.getElementById("progressText").textContent = `进度：${n} / 5 天完成`;
+  document.getElementById("overallProgress").style.width = `${n/5*100}%`;
+
+  const tabs = document.getElementById("dayTabs");
+  tabs.innerHTML = "";
+  for(let i=1;i<=5;i++){
+    const b = document.createElement("button");
+    b.className = "day-tab";
+    b.textContent = `Day ${i}`;
+    if(i===currentDay) b.classList.add("active");
+    if(state.completed.includes(i)) b.classList.add("done");
+    const unlocked = i===1 || state.completed.includes(i) || state.completed.includes(i-1);
+    if(!unlocked) b.classList.add("locked");
+    b.onclick = ()=> {
+      if(unlocked){ currentDay=i; renderDay(i); }
+    };
+    tabs.appendChild(b);
+  }
+}
+function openCurrentDay(){
+  currentDay = Math.min(Math.max(state.currentDay||1,1),5);
+  renderDay(currentDay);
+  document.getElementById("dayPanel").scrollIntoView({behavior:"smooth",block:"start"});
+}
+function renderDay(day){
+  currentDay = day;
+  const d = dayData[day-1];
+  document.getElementById("dayPanel").innerHTML = `
+    <div class="day-head">
+      <div class="day-number">${day}</div>
+      <div><h2>${d.title}</h2><p class="muted">${d.intro}</p></div>
+    </div>
+    <div class="lesson">${d.lesson}</div>
+    ${d.render()}
+  `;
+  refreshHeader();
+  restoreDayValues(day);
+  if(state.completed.includes(day)) showSavedResult(day);
+}
+function selectChoice(el,key){
+  el.parentElement.querySelectorAll(".choice").forEach(x=>x.classList.remove("selected"));
+  el.classList.add("selected");
+  temp[key] = el.dataset.value !== undefined ? el.dataset.value : el.textContent.trim();
+}
+function markComplete(day,data){
+  const already=state.completed.includes(day);
+  state.data["day"+day] = data;
+  if(!already) state.completed.push(day);
+  state.completed.sort((a,b)=>a-b);
+  if(day<5) state.currentDay = Math.max(state.currentDay,day+1);
+  else state.currentDay = 5;
+  saveState();
+  refreshHeader();
+  if(!already) saveChallengeDayToSupabase(day,data);
+}
+function warn(id,on=true){ document.getElementById(id).classList.toggle("show",on); }
+function result(id,html){ const el=document.getElementById(id); el.innerHTML=html; el.classList.add("show"); }
+
+function completeDay1(){
+  const reason=temp.d1Reason||state.data.day1?.reason||"";
+  const example=document.getElementById("d1Example").value.trim();
+  if(!reason||!example){warn("d1warn",true);return}
+  warn("d1warn",false);
+  markComplete(1,{reason,example});
+  const map={
+    "粗心":"接下来练习时，重点不是做更快，而是建立“审题 + 最后检查”的习惯。",
+    "不会":"先回到知识点，不要马上继续刷同类型难题。",
+    "步骤错误":"把正确步骤写成固定顺序，每次照顺序完成。",
+    "概念错误":"先弄清楚“为什么”，再做变式题确认真的理解。",
+    "时间不够":"开始做限时练习，并训练先易后难和时间分配。"
+  };
+  result("d1result",`✅ 你今天找出的主要失分原因是：<b>${reason}</b>。<br>${map[reason]}<br><br><b>今天的胜利：</b>你已经从“我又错了”进步到“我知道自己为什么会错”。`);
+}
+function completeDay2(){
+  const method=(temp.d2Method!==undefined?Number(temp.d2Method):state.data.day2?.method);
+  const q=document.getElementById("d2Question").value.trim();
+  if(method===undefined||!q){warn("d2warn",true);return}
+  warn("d2warn",false);
+  markComplete(2,{method,q});
+  const correct = method===2;
+  result("d2result",`${correct?"✅ 选对了。":"💡 更有效的答案是：把书合起来，自己回答问题或做题。"}<br><br>你写下的自测问题是：<b>${escapeHtml(q)}</b><br>今天至少尝试一次“不看答案先作答”，这才是在检查自己会不会。`);
+}
+function completeDay3(){
+  const time=document.getElementById("d3Time").value;
+  const subject=document.getElementById("d3Subject").value.trim();
+  const task=document.getElementById("d3Task").value.trim();
+  const distraction=document.getElementById("d3Distraction").value;
+  if(!time||!subject||!task||!distraction){warn("d3warn",true);return}
+  warn("d3warn",false);
+  markComplete(3,{time,subject,task,distraction});
+  result("d3result",`✅ 你的学习区块已经建立：<br><br><b>${time} 开始｜${escapeHtml(subject)}｜25分钟</b><br>任务：${escapeHtml(task)}<br>开始前先处理：${escapeHtml(distraction)}<br><br>今天不要追求做很多，只追求：<b>准时开始 + 完成一个具体任务。</b>`);
+}
+function completeDay4(){
+  const q=document.getElementById("d4Question").value.trim();
+  const reason=document.getElementById("d4Reason").value;
+  const fix=document.getElementById("d4Fix").value.trim();
+  if(!q||!reason||!fix){warn("d4warn",true);return}
+  warn("d4warn",false);
+  markComplete(4,{q,reason,fix});
+  result("d4result",`✅ 你的错题记录已经变成“可以帮助下次进步”的记录：<br><br><b>题目：</b>${escapeHtml(q)}<br><b>原因：</b>${reason}<br><b>正确方法：</b>${escapeHtml(fix)}<br><br>建议：<b>明天或后天把这题遮住答案重新做一次。</b>如果还能做对，才算真正修复。`);
+}
+function completeDay5(){
+  const subject=document.getElementById("d5Subject").value.trim();
+  const goal=document.getElementById("d5Goal").value;
+  const minutes=document.getElementById("d5Minutes").value;
+  const measure=document.getElementById("d5Measure").value.trim();
+  if(!subject||!goal||!minutes||!measure){warn("d5warn",true);return}
+  warn("d5warn",false);
+  const profileData={subject,goal,minutes,measure};
+  const wasDone=state.completed.includes(5);
+  markComplete(5,profileData);
+  if(!wasDone) saveLearningProfileToSupabase(profileData);
+  result("d5result",`✅ 你的30天方向已经完成，而且已连接到 HOW TO SCORE A 学习档案。`);
+  showFinish();
+}
+function restoreDayValues(day){
+  const d=state.data["day"+day]; if(!d)return;
+  setTimeout(()=>{
+    if(day===1){
+      document.getElementById("d1Example").value=d.example||"";
+      [...document.querySelectorAll("#d1choices .choice")].forEach(x=>{if(x.textContent.trim()===d.reason)x.classList.add("selected")});
+      temp.d1Reason=d.reason;
+    }
+    if(day===2){
+      document.getElementById("d2Question").value=d.q||"";
+      [...document.querySelectorAll("#d2choices .choice")].forEach((x,i)=>{if(i===Number(d.method))x.classList.add("selected")});
+      temp.d2Method=d.method;
+    }
+    if(day===3){
+      document.getElementById("d3Time").value=d.time||"";
+      document.getElementById("d3Subject").value=d.subject||"";
+      document.getElementById("d3Task").value=d.task||"";
+      document.getElementById("d3Distraction").value=d.distraction||"";
+    }
+    if(day===4){
+      document.getElementById("d4Question").value=d.q||"";
+      document.getElementById("d4Reason").value=d.reason||"";
+      document.getElementById("d4Fix").value=d.fix||"";
+    }
+    if(day===5){
+      document.getElementById("d5Subject").value=d.subject||"";
+      document.getElementById("d5Goal").value=d.goal||"";
+      document.getElementById("d5Minutes").value=d.minutes||"";
+      document.getElementById("d5Measure").value=d.measure||"";
+      if(state.completed.includes(5)) showFinish();
+    }
+  },0);
+}
+function showSavedResult(day){
+  const d=state.data["day"+day]; if(!d)return;
+  setTimeout(()=>{
+    const id="d"+day+"result";
+    if(!document.getElementById(id)) return;
+    if(day===1) result(id,`✅ 已完成。你的主要失分原因：<b>${d.reason}</b>。`);
+    if(day===2) result(id,`✅ 已完成。你的自测问题：<b>${escapeHtml(d.q)}</b>`);
+    if(day===3) result(id,`✅ 已完成。你的学习区块：<b>${d.time}｜${escapeHtml(d.subject)}｜25分钟</b>`);
+    if(day===4) result(id,`✅ 已完成。你的错题原因：<b>${d.reason}</b>`);
+    if(day===5) { result(id,"✅ 5天挑战已完成。"); showFinish(); }
+  },10);
+}
+function showFinish(){
+  const el=document.getElementById("finishCard"); if(!el)return;
+  el.classList.add("show");
+  const d=state.data.day5||{};
+  document.getElementById("finalSummary").innerHTML = `
+    <h3>你的30天学习计划</h3>
+    <ul>
+      <li><b>重点科目：</b>${escapeHtml(d.subject||"")}</li>
+      <li><b>最想改善：</b>${escapeHtml(d.goal||"")}</li>
+      <li><b>每天稳定学习：</b>${escapeHtml(d.minutes||"")}</li>
+      <li><b>进步判断标准：</b>${escapeHtml(d.measure||"")}</li>
+    </ul>
+    <p><b>建议每周做一次复盘：</b>这一周哪里进步了？哪里还会重复出错？下周只先解决一个最重要的问题。</p>`;
+}
+function planText(){
+  const d=state.data.day5||{};
+  return `HOW TO SCORE A｜我的30天学习计划
+
+重点科目：${d.subject||""}
+最想改善：${d.goal||""}
+每天稳定学习：${d.minutes||""}
+进步判断标准：${d.measure||""}
+
+我会继续使用：
+1. 找出失分原因
+2. 主动回忆与自测
+3. 25分钟具体学习任务
+4. 错题原因分析
+5. 每周复盘一次`;
+}
+async function copyPlan(){
+  try{await navigator.clipboard.writeText(planText());alert("30天学习计划已复制。")}
+  catch(e){alert("无法自动复制，请手动复制页面内容。")}
+}
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[m]));
+}
+
+refreshHeader();
+renderDiagnosticBanner();
+renderDay(currentDay);
+</script>
+</body>
+</html>
