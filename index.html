@@ -1,4 +1,5 @@
 <!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<!-- Personal Learning Route V2: second-layer personalization -->
 <title>How to Score A with AI｜21-Day 学霸觉醒</title>
 <style>
 *{box-sizing:border-box} :root{--b:#1769ff;--n:#081a3d;--p:#7047eb;--g:#16a66f;--y:#ffd42a;--bg:#f4f7fc;--m:#6b7890}
@@ -978,6 +979,110 @@ const SCOREA_ROUTE_TYPES={
   E:{name:'自主学习',desc:'逐步把“父母提醒我学”转成“我知道下一步该做什么”。',steps:[['今日挑战','自己决定今天要解决的一个真实学习问题。','challenge'],['学霸成长路径','从 Lv1 到 Lv9 看清楚下一阶段要建立的行为。','libgrowth'],['ChatGPT AI 辅导老师','先自己思考，再把 AI 当教练而不是答案机器。','chatgpt']]}
 };
 
+
+const SCOREA_MODULES={
+  method:{title:'Feynman + 番茄学习法',desc:'建立“专注学习 + 主动回忆 + 自己讲出来”的学习循环。'},
+  chatgpt:{title:'ChatGPT AI 辅导老师',desc:'用 AI 解释概念、追问理解、生成针对性练习，而不是直接代做。'},
+  mistakebox:{title:'错题与粗心分析',desc:'把每一次错误分类、找原因、重做，减少重复失分。'},
+  lib30:{title:'30天考试冲刺',desc:'使用诊断 → 补弱 → 强化 → 模拟 → 复盘的完整闭环。'},
+  timebox:{title:'时间管理',desc:'把“今晚读书”变成明确的时间、科目与任务。'},
+  challenge:{title:'今日挑战',desc:'每天只解决一个最重要的真实学习问题，累积完成感。'},
+  libexam:{title:'学霸考试高分系统',desc:'训练审题、时间分配、作答、检查与考场策略。'},
+  libgrowth:{title:'学霸成长路径',desc:'从被动学习逐渐走向自主、自律与长期成长。'}
+};
+
+const SCOREA_TYPE_WEIGHTS={
+  A:{method:5,chatgpt:4,mistakebox:3},
+  B:{method:5,lib30:4,mistakebox:4},
+  C:{timebox:5,method:4,challenge:4},
+  D:{mistakebox:5,libexam:5,lib30:4},
+  E:{challenge:5,libgrowth:5,chatgpt:4}
+};
+
+function addRouteWeight(scores,action,points,reason,reasons){
+  scores[action]=(scores[action]||0)+points;
+  if(reason){
+    reasons[action]=reasons[action]||[];
+    if(!reasons[action].includes(reason))reasons[action].push(reason);
+  }
+}
+
+function buildSecondLayerRoute(diag,profile){
+  const scores={},reasons={};
+  const primary=diag?.primary_type||'B';
+  const secondary=diag?.secondary_type||null;
+
+  Object.entries(SCOREA_TYPE_WEIGHTS[primary]||{}).forEach(([a,p])=>
+    addRouteWeight(scores,a,p,`主要改善方向：${SCOREA_ROUTE_TYPES[primary]?.name||primary}`,reasons)
+  );
+
+  Object.entries(SCOREA_TYPE_WEIGHTS[secondary]||{}).forEach(([a,p])=>
+    addRouteWeight(scores,a,Math.max(1,Math.round(p*0.45)),`第二改善方向：${SCOREA_ROUTE_TYPES[secondary]?.name||secondary}`,reasons)
+  );
+
+  const goal=(profile?.improvement_goal||'').trim();
+  if(goal.includes('粗心')){
+    addRouteWeight(scores,'mistakebox',6,'你的30天目标是减少粗心',reasons);
+    addRouteWeight(scores,'libexam',4,'需要建立审题与检查习惯',reasons);
+  }
+  if(goal.includes('拖延')){
+    addRouteWeight(scores,'timebox',6,'你的30天目标是减少拖延',reasons);
+    addRouteWeight(scores,'challenge',3,'用小任务降低开始阻力',reasons);
+  }
+  if(goal.includes('安排时间')||goal.includes('时间')){
+    addRouteWeight(scores,'timebox',6,'你的30天目标与时间管理有关',reasons);
+    addRouteWeight(scores,'method',3,'需要稳定的专注学习节奏',reasons);
+  }
+  if(goal.includes('复习')){
+    addRouteWeight(scores,'method',6,'你的30天目标是学会正确复习',reasons);
+    addRouteWeight(scores,'lib30',4,'需要完整的复习闭环',reasons);
+    addRouteWeight(scores,'mistakebox',3,'复习必须根据错误调整',reasons);
+  }
+  if(goal.includes('考试')){
+    addRouteWeight(scores,'libexam',6,'你的30天目标是提升考试表现',reasons);
+    addRouteWeight(scores,'lib30',4,'需要模拟、复盘与冲刺规划',reasons);
+  }
+  if(goal.includes('主动')){
+    addRouteWeight(scores,'libgrowth',6,'你的30天目标是更主动学习',reasons);
+    addRouteWeight(scores,'challenge',4,'每天自己完成一个真实学习任务',reasons);
+    addRouteWeight(scores,'chatgpt',2,'训练先自己思考、再使用AI',reasons);
+  }
+
+  const subject=(profile?.main_subject||'').toLowerCase();
+  if(/数学|math/.test(subject)){
+    addRouteWeight(scores,'mistakebox',2,'重点科目是数学，错题分析特别重要',reasons);
+    addRouteWeight(scores,'chatgpt',1,'可用AI分步骤解释数学概念',reasons);
+  }else if(/science|科学/.test(subject)){
+    addRouteWeight(scores,'chatgpt',2,'重点科目是科学，需要加强概念解释',reasons);
+    addRouteWeight(scores,'method',1,'适合用Feynman法确认理解',reasons);
+  }else if(/english|英文|bm|bahasa|华文|中文|sejarah|历史/.test(subject)){
+    addRouteWeight(scores,'chatgpt',2,'重点科目属于语言/记忆型学习，可加强解释与练习',reasons);
+    addRouteWeight(scores,'method',1,'需要主动回忆而不是只重复阅读',reasons);
+    addRouteWeight(scores,'libexam',1,'考试作答与检查也很重要',reasons);
+  }
+
+  const mins=parseInt(String(profile?.daily_study_time||'').match(/\d+/)?.[0]||'0',10);
+  if(mins>0 && mins<=30){
+    addRouteWeight(scores,'challenge',2,'你的每日学习时间较短，先做高价值小任务',reasons);
+    addRouteWeight(scores,'method',2,'短时间更需要高效学习方法',reasons);
+  }else if(mins>=60){
+    addRouteWeight(scores,'lib30',2,'你每天有较完整的学习时间，可执行系统化训练',reasons);
+    addRouteWeight(scores,'mistakebox',1,'可安排固定时间做错题复盘',reasons);
+  }
+
+  // Guarantee every route can still choose from the full module set.
+  Object.keys(SCOREA_MODULES).forEach(a=>{if(scores[a]==null)scores[a]=0});
+
+  return Object.entries(scores)
+    .sort((a,b)=>b[1]-a[1])
+    .slice(0,3)
+    .map(([action,score])=>{
+      const m=SCOREA_MODULES[action];
+      const why=(reasons[action]||[]).slice(0,2).join('；');
+      return [m.title, why ? `${m.desc} 推荐原因：${why}。` : m.desc, action];
+    });
+}
+
 function routeAction(action){
   const tabs=document.querySelectorAll('.tab');
   if(action==='challenge'){show('challenge',tabs[0]);document.getElementById('dailyGate')?.scrollIntoView({behavior:'smooth'});return}
@@ -1063,9 +1168,14 @@ async function loadPersonalizedLearning(email,student){
       ? `<div class="routeGrid"><div class="routeStat"><small>30天目标</small><b>${esc(profile.improvement_goal)}</b></div><div class="routeStat"><small>每日学习</small><b>${esc(profile.daily_study_time)}</b></div><div class="routeStat" style="grid-column:span 2"><small>怎样判断进步</small><b>${esc(profile.progress_measure)}</b></div></div>`
       : `<div class="routeEmpty">系统已找到你的诊断，但还没有找到完整的 Day 5 学习档案。<a href="how-to-score-a-5-day-challenge-supabase.html">继续完成5天挑战 →</a></div>`;
 
-    const stepsHtml=`<div class="routePlan">${cfg.steps.map((s,i)=>`<div class="routeStep"><div class="n">${i+1}</div><b>${esc(s[0])}</b><p>${esc(s[1])}</p><button onclick="routeAction('${s[2]}')">现在开始 →</button></div>`).join('')}</div>`;
+    const personalizedSteps=profile ? buildSecondLayerRoute(diag,profile) : cfg.steps;
+    const stepsHtml=`<div class="routePlan">${personalizedSteps.map((s,i)=>`<div class="routeStep"><div class="n">${i+1}</div><b>${esc(s[0])}</b><p>${esc(s[1])}</p><button onclick="routeAction('${s[2]}')">现在开始 →</button></div>`).join('')}</div>`;
 
-    body.innerHTML=statsHtml+profileHtml+`<h3 style="margin:18px 0 6px">系统建议你先从这3个模块开始</h3>`+stepsHtml;
+    const routeNote=profile
+      ? `<div class="routeEmpty" style="margin-top:14px"><b>这3个模块不是固定推荐。</b><br>系统已综合你的主要/第二改善方向、重点科目、30天目标和每日学习时间，自动排出目前优先顺序。</div>`
+      : '';
+
+    body.innerHTML=statsHtml+profileHtml+routeNote+`<h3 style="margin:18px 0 6px">系统建议你先从这3个模块开始</h3>`+stepsHtml;
   }catch(err){
     console.error('Personal route load failed',err);
     tag.textContent='资料读取失败';
