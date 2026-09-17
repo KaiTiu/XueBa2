@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>HOW TO SCORE A｜5天学霸启动挑战</title>
-  <meta name="description" content="免费5天学霸启动挑战：每天完成一个小任务，建立更有效的学习方法。" />
+  <title>HOW TO SCORE A｜5个学霸启动问题</title>
+  <meta name="description" content="免费5个学霸启动问题：通过5个问题找出学习方向，并建立30天学习计划。" />
   <style>
     :root{
       --bg:#f7f8fc;--card:#fff;--text:#182033;--muted:#6f7787;
@@ -131,16 +131,16 @@
       <div class="logo">A+</div>
       <div>
         <div class="brand-title">HOW TO SCORE A with AI</div>
-        <div class="small">5天学霸启动挑战</div>
+        <div class="small">5个学霸启动问题</div>
       </div>
     </div>
     <a class="toplink" href="how-to-score-a-free-diagnostic.html">← 回到3分钟学习诊断</a>
   </div>
 
   <section class="hero">
-    <div class="badge">✓ 免费 · 每天约15–30分钟 · 自动保存进度</div>
-    <h1>5天，不是学更多，<br>而是开始学得更对。</h1>
-    <p>每天只解决一个学习问题：找出失分原因、学会有效复习、减少拖延、用好错题、最后做出自己的30天学习计划。</p>
+    <div class="badge">✓ 免费 · 5个问题 · 即时反馈</div>
+    <h1>5个问题，<br>帮助你开始学得更对。</h1>
+    <p>依次回答5个学习问题：找出失分原因、学会有效复习、减少拖延、用好错题，最后建立自己的30天学习方向。</p>
 
     <div class="progress-wrap">
       <div class="small" id="progressText">进度：0 / 5 天完成</div>
@@ -155,7 +155,7 @@
 
   <section class="panel" id="dayPanel"></section>
 
-  <div class="footer">HOW TO SCORE A with AI · Free 5-Day Student Challenge</div>
+  <div class="footer">HOW TO SCORE A with AI · Free 5-Question Student Starter</div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -170,7 +170,7 @@ const STORAGE_KEY = "htsa_5day_challenge_v1";
 
 const dayData = [
   {
-    title:"Day 1｜找出真正的失分原因",
+    title:"问题 1｜找出真正的失分原因",
     intro:"今天不要急着做更多题。先找出你真正失分在哪里。很多学生不是“不会”，而是把不同问题全部当成同一个问题。",
     lesson:`<strong>今天的核心：</strong>每一个错题都要有原因。最常见的5类是：粗心、不会、步骤错误、概念错误、时间问题。只写“错了”没有帮助；知道“为什么错”，才知道下一步练什么。`,
     render:()=>`
@@ -186,13 +186,13 @@ const dayData = [
           <label>写下最近一道做错的题，或简单描述发生了什么：</label>
           <textarea id="d1Example" placeholder="例如：数学分数应用题，我看错题目要求，算式本来会做。"></textarea>
         </div>
-        <button class="btn btn-primary btn-wide" onclick="completeDay1()">完成 Day 1</button>
+        <button class="btn btn-primary btn-wide" onclick="completeDay1()">完成问题 1</button>
         <div class="warning" id="d1warn">请选择一种失分原因，并写一个真实例子。</div>
         <div class="result" id="d1result"></div>
       </div>`
   },
   {
-    title:"Day 2｜学会真正有效的复习",
+    title:"问题 2｜学会真正有效的复习",
     intro:"很多学生复习很久，却没有明显进步，因为他们一直“看”，却很少测试自己是不是真的会。",
     lesson:`<strong>有效复习闭环：</strong>学习 → 回忆 → 测试 → 找错 → 重学 → 再测试。真正的复习不是把同一页看5次，而是把书合起来，看看自己能不能说出来、做出来。`,
     render:()=>`
@@ -213,13 +213,13 @@ const dayData = [
           <label>现在写一个你今天可以用来“测试自己”的问题：</label>
           <textarea id="d2Question" placeholder="例如：什么是光合作用？不用看书，我能不能自己解释？"></textarea>
         </div>
-        <button class="btn btn-primary btn-wide" onclick="completeDay2()">完成 Day 2</button>
+        <button class="btn btn-primary btn-wide" onclick="completeDay2()">完成问题 2</button>
         <div class="warning" id="d2warn">请选择答案，并写一个可以测试自己的问题。</div>
         <div class="result" id="d2result"></div>
       </div>`
   },
   {
-    title:"Day 3｜解决拖延与时间管理",
+    title:"问题 3｜解决拖延与时间管理",
     intro:"“今晚要读书”不是计划。任务越模糊，大脑越容易拖延。今天我们把学习变成一个可以马上开始的25分钟任务。",
     lesson:`<strong>一个有效学习任务必须有4样东西：</strong>什么时候开始、读什么、做多少、怎样算完成。任务越具体，越容易开始。`,
     render:()=>`
@@ -254,7 +254,7 @@ const dayData = [
       </div>`
   },
   {
-    title:"Day 4｜把错题变成提分工具",
+    title:"问题 4｜把错题变成提分工具",
     intro:"错题本不是抄答案的地方。真正有价值的错题记录，必须让你下一次不再用同样方式错。",
     lesson:`<strong>错题4步：</strong>① 哪题错？ ② 为什么错？ ③ 正确方法是什么？ ④ 什么时候重做？ 如果只把正确答案抄下来，错题本很快会变成“答案收藏本”。`,
     render:()=>`
@@ -285,7 +285,7 @@ const dayData = [
       </div>`
   },
   {
-    title:"Day 5｜建立自己的30天学习计划",
+    title:"问题 5｜建立自己的30天学习计划",
     intro:"你已经学会找问题、有效复习、管理时间和分析错题。最后一步，是把这些动作变成接下来30天可以重复的系统。",
     lesson:`<strong>30天计划不是塞满行程。</strong>真正有效的计划只要回答：我最想改善什么？每天有多少时间？我要怎样知道自己有进步？`,
     render:()=>`
@@ -322,20 +322,30 @@ const dayData = [
           <label>你会怎样知道自己真的进步了？</label>
           <textarea id="d5Measure" placeholder="例如：同类型错题越来越少；每周模拟测验分数提高；能自己按计划完成。"></textarea>
         </div>
-        <button class="btn btn-primary btn-wide" onclick="completeDay5()">完成5天挑战</button>
+        <button class="btn btn-primary btn-wide" onclick="completeDay5()">完成5个问题</button>
         <div class="warning" id="d5warn">请把四项都填完整。</div>
         <div class="result" id="d5result"></div>
 
         <div class="finish-card" id="finishCard">
-          <div class="badge">🎉 5天挑战完成</div>
+          <div class="badge">🎉 5个问题完成</div>
           <h2 style="margin-top:12px">你已经完成第一阶段。</h2>
-          <p>真正重要的不是这5天“看了多少”，而是你已经开始建立一套可以重复使用的学习方法。</p>
+          <div class="lesson" style="margin-top:14px">
+            <h3>接下来｜你的30天学习计划会做什么？</h3>
+            <p>30天计划不是每天塞更多功课，而是把你刚才发现的问题，按优先顺序逐步改善：</p>
+            <p><b>Day 1–3｜诊断定位</b>：确认目前弱点与主要失分原因。<br>
+            <b>Day 4–10｜基础修复</b>：先解决真正“不会”的知识点。<br>
+            <b>Day 11–20｜重点提分</b>：集中高频弱点与最容易拿回的分数。<br>
+            <b>Day 21–26｜模拟实战</b>：训练时间、审题、检查与考试表现。<br>
+            <b>Day 27–30｜最终冲刺</b>：收口重点、复习错题、稳定状态。</p>
+            <p class="muted">重点不是一次改变全部，而是每天解决一个最值得改善的学习问题。</p>
+          </div>
+          <p>真正重要的不是“做完5题”，而是你已经找出自己的学习问题，并开始建立一套可以重复使用的学习方法。</p>
           <div class="mini-grid">
-            <div class="mini">Day 1<b>知道为什么失分</b></div>
-            <div class="mini">Day 2<b>学会有效复习</b></div>
-            <div class="mini">Day 3<b>会安排学习区块</b></div>
-            <div class="mini">Day 4<b>会分析错题</b></div>
-            <div class="mini">Day 5<b>有30天方向</b></div>
+            <div class="mini">问题 1<b>知道为什么失分</b></div>
+            <div class="mini">问题 2<b>学会有效复习</b></div>
+            <div class="mini">问题 3<b>会安排学习区块</b></div>
+            <div class="mini">问题 4<b>会分析错题</b></div>
+            <div class="mini">问题 5<b>有30天方向</b></div>
             <div class="mini">Next<b>把方法变成习惯</b></div>
           </div>
           <div class="summary show" id="finalSummary"></div>
@@ -419,16 +429,16 @@ function renderDiagnosticBanner(){
   if(!el) return;
   if(!i || !d){
     el.style.display="block";
-    el.innerHTML=`<strong>建议先完成3分钟学习诊断。</strong><br><span class="muted">这样5天挑战会知道你目前最需要改善的方向。</span><br><br><a href="how-to-score-a-free-diagnostic-supabase.html" class="btn btn-soft" style="text-decoration:none">先做免费诊断</a>`;
+    el.innerHTML=`<strong>建议先完成3分钟学习诊断。</strong><br><span class="muted">这样5个问题会更贴近你目前最需要改善的方向。</span><br><br><a href="how-to-score-a-free-diagnostic-supabase.html" class="btn btn-soft" style="text-decoration:none">先做免费诊断</a>`;
     return;
   }
   const names={A:"基础理解",B:"学习方法",C:"时间管理",D:"考试策略",E:"自主学习"};
-  const focus={A:"Day 2 的理解与自测",B:"Day 2 的有效复习",C:"Day 3 的时间管理",D:"Day 1 与 Day 4 的失分/错题训练",E:"Day 5 的自主计划"};
+  const focus={A:"问题 2 的理解与自测",B:"问题 2 的有效复习",C:"问题 3 的时间管理",D:"问题 1 与问题 4 的失分/错题训练",E:"问题 5 的自主计划"};
   el.style.display="block";
   el.innerHTML=`<strong>${i.student_name||"同学"}，欢迎回来。</strong><br>
     你的主要改善方向：<b>${names[d.primary_type]||d.primary_type}</b>；
     第二方向：<b>${names[d.secondary_type]||d.secondary_type}</b>。<br>
-    <span class="muted">这5天请特别留意：${focus[d.primary_type]||"每天的实践任务"}。</span>`;
+    <span class="muted">这5个问题请特别留意：${focus[d.primary_type]||"每一个实践问题"}。</span>`;
 }
 
 function loadState(){
@@ -442,7 +452,7 @@ function saveState(){
 }
 function refreshHeader(){
   const n = state.completed.length;
-  document.getElementById("progressText").textContent = `进度：${n} / 5 天完成`;
+  document.getElementById("progressText").textContent = `进度：${n} / 5 个问题完成`;
   document.getElementById("overallProgress").style.width = `${n/5*100}%`;
 
   const tabs = document.getElementById("dayTabs");
@@ -450,7 +460,7 @@ function refreshHeader(){
   for(let i=1;i<=5;i++){
     const b = document.createElement("button");
     b.className = "day-tab";
-    b.textContent = `Day ${i}`;
+    b.textContent = `问题 ${i}`;
     if(i===currentDay) b.classList.add("active");
     if(state.completed.includes(i)) b.classList.add("done");
     const unlocked = i===1 || state.completed.includes(i) || state.completed.includes(i-1);
@@ -508,7 +518,7 @@ function lockDayButton(day){
     btn.disabled=true;
     btn.style.opacity=".65";
     btn.style.cursor="default";
-    btn.textContent=`✓ Day ${day} 已完成并保存`;
+    btn.textContent=`✓ 问题 ${day} 已完成并保存`;
   }
 }
 
@@ -615,7 +625,7 @@ function showSavedResult(day){
     if(day===2) result(id,`✅ 已完成。你的自测问题：<b>${escapeHtml(d.q)}</b>`);
     if(day===3) result(id,`✅ 已完成。你的学习区块：<b>${d.time}｜${escapeHtml(d.subject)}｜25分钟</b>`);
     if(day===4) result(id,`✅ 已完成。你的错题原因：<b>${d.reason}</b>`);
-    if(day===5) { result(id,"✅ 5天挑战已完成。"); showFinish(); }
+    if(day===5) { result(id,"✅ 5个问题已完成。"); showFinish(); }
     lockDayButton(day);
   },10);
 }
