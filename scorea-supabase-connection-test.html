@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Score A Supabase Connection Test</title>
+<style>
+body{font-family:system-ui,-apple-system,Segoe UI,Arial;background:#f6f8ff;margin:0;padding:24px;color:#172033}
+.card{max-width:720px;margin:40px auto;background:#fff;border-radius:20px;padding:28px;box-shadow:0 18px 55px rgba(40,50,120,.12)}
+button{width:100%;padding:15px;border:0;border-radius:12px;background:#5b63f3;color:#fff;font-weight:800;font-size:16px;cursor:pointer}
+pre{white-space:pre-wrap;background:#f8fafc;border:1px solid #e5e7eb;border-radius:12px;padding:16px;min-height:90px}
+.good{color:#087454;font-weight:800} .bad{color:#b42318;font-weight:800}
+</style>
+</head>
+<body>
+<div class="card">
+<h1>HOW TO SCORE A｜Supabase连接测试</h1>
+<p>这个页面只做一件事：测试网页是否真的能写入你的 <code>scorea_free_diagnostics</code> 表。</p>
+<button id="testBtn" onclick="runTest()">测试写入 Supabase</button>
+<p id="status"></p>
+<pre id="detail">等待测试…</pre>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const url="https://htzkjfztqqsbzxahxfnt.supabase.co";
+const key="sb_publishable_-2O1tEq0GCQPSiMGQVSFrQ_bC3hf4WM";
+const db=window.supabase.createClient(url,key);
+
+function makeId(){
+  return crypto.randomUUID();
+}
+
+async function runTest(){
+  const btn=document.getElementById('testBtn');
+  const status=document.getElementById('status');
+  const detail=document.getElementById('detail');
+  btn.disabled=true;
+  status.textContent='正在测试…';
+  status.className='';
+  detail.textContent='Sending INSERT request...';
+
+  const id=makeId();
+  const payload={
+    id,
+    client_session_id: makeId(),
+    email: 'connection-test@example.com',
+    student_name: 'CONNECTION TEST',
+    grade: 'TEST',
+    primary_type: 'A',
+    secondary_type: 'B',
+    score_a: 1,
+    score_b: 2,
+    score_c: 3,
+    score_d: 4,
+    score_e: 5,
+    answers: [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+  };
+
+  try {
+    const {data,error,status:code,statusText} = await db
+      .from('scorea_free_diagnostics')
+      .insert(payload)
+      .select('id,student_name,email,created_at')
+      .single();
+
+    if(error) {
+      status.textContent='✗ 写入失败';
+      status.className='bad';
+      detail.textContent=JSON.stringify({code,statusText,error},null,2);
+    } else {
+      status.textContent='✓ 写入成功';
+      status.className='good';
+      detail.textContent=JSON.stringify({http_status:code,data},null,2);
+    }
+  } catch(e) {
+    status.textContent='✗ JavaScript / 网络错误';
+    status.className='bad';
+    detail.textContent=(e && (e.stack||e.message)) || String(e);
+  } finally {
+    btn.disabled=false;
+  }
+}
+</script>
+</body>
+</html>
