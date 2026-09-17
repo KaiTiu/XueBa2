@@ -510,8 +510,15 @@ function shareWhatsApp(){
 }
 
 function restart(){
+  if(!confirm("重新测试会建立一份新的诊断记录。确定要重新测试吗？")) return;
   answers = Array(questions.length).fill(null);
   current = 0;
+  localStorage.removeItem(SCOREA_DIAGNOSTIC_KEY);
+  const prev=getIdentity();
+  if(prev){
+    prev.diagnostic_id=uuid();
+    saveIdentity(prev);
+  }
   document.getElementById("result").classList.remove("active");
   document.getElementById("start").classList.add("active");
   window.scrollTo({top:0,behavior:"smooth"});

@@ -500,6 +500,18 @@ function markComplete(day,data){
 function warn(id,on=true){ document.getElementById(id).classList.toggle("show",on); }
 function result(id,html){ const el=document.getElementById(id); el.innerHTML=html; el.classList.add("show"); }
 
+function lockDayButton(day){
+  const panel=document.getElementById("dayPanel");
+  if(!panel) return;
+  const btn=panel.querySelector(".btn-primary.btn-wide");
+  if(btn){
+    btn.disabled=true;
+    btn.style.opacity=".65";
+    btn.style.cursor="default";
+    btn.textContent=`✓ Day ${day} 已完成并保存`;
+  }
+}
+
 function completeDay1(){
   const reason=temp.d1Reason||state.data.day1?.reason||"";
   const example=document.getElementById("d1Example").value.trim();
@@ -514,6 +526,7 @@ function completeDay1(){
     "时间不够":"开始做限时练习，并训练先易后难和时间分配。"
   };
   result("d1result",`✅ 你今天找出的主要失分原因是：<b>${reason}</b>。<br>${map[reason]}<br><br><b>今天的胜利：</b>你已经从“我又错了”进步到“我知道自己为什么会错”。`);
+  lockDayButton(1);
 }
 function completeDay2(){
   const method=(temp.d2Method!==undefined?Number(temp.d2Method):state.data.day2?.method);
@@ -523,6 +536,7 @@ function completeDay2(){
   markComplete(2,{method,q});
   const correct = method===2;
   result("d2result",`${correct?"✅ 选对了。":"💡 更有效的答案是：把书合起来，自己回答问题或做题。"}<br><br>你写下的自测问题是：<b>${escapeHtml(q)}</b><br>今天至少尝试一次“不看答案先作答”，这才是在检查自己会不会。`);
+  lockDayButton(2);
 }
 function completeDay3(){
   const time=document.getElementById("d3Time").value;
@@ -533,6 +547,7 @@ function completeDay3(){
   warn("d3warn",false);
   markComplete(3,{time,subject,task,distraction});
   result("d3result",`✅ 你的学习区块已经建立：<br><br><b>${time} 开始｜${escapeHtml(subject)}｜25分钟</b><br>任务：${escapeHtml(task)}<br>开始前先处理：${escapeHtml(distraction)}<br><br>今天不要追求做很多，只追求：<b>准时开始 + 完成一个具体任务。</b>`);
+  lockDayButton(3);
 }
 function completeDay4(){
   const q=document.getElementById("d4Question").value.trim();
@@ -542,6 +557,7 @@ function completeDay4(){
   warn("d4warn",false);
   markComplete(4,{q,reason,fix});
   result("d4result",`✅ 你的错题记录已经变成“可以帮助下次进步”的记录：<br><br><b>题目：</b>${escapeHtml(q)}<br><b>原因：</b>${reason}<br><b>正确方法：</b>${escapeHtml(fix)}<br><br>建议：<b>明天或后天把这题遮住答案重新做一次。</b>如果还能做对，才算真正修复。`);
+  lockDayButton(4);
 }
 function completeDay5(){
   const subject=document.getElementById("d5Subject").value.trim();
@@ -554,6 +570,7 @@ function completeDay5(){
   markComplete(5,profileData);
   saveLearningProfileToSupabase(profileData);
   result("d5result",`✅ 你的30天方向已经完成。系统正在同步到 HOW TO SCORE A 学习档案。`);
+  lockDayButton(5);
   showFinish();
 }
 function restoreDayValues(day){
@@ -599,6 +616,7 @@ function showSavedResult(day){
     if(day===3) result(id,`✅ 已完成。你的学习区块：<b>${d.time}｜${escapeHtml(d.subject)}｜25分钟</b>`);
     if(day===4) result(id,`✅ 已完成。你的错题原因：<b>${d.reason}</b>`);
     if(day===5) { result(id,"✅ 5天挑战已完成。"); showFinish(); }
+    lockDayButton(day);
   },10);
 }
 function showFinish(){
