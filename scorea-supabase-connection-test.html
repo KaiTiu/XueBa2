@@ -57,11 +57,9 @@ async function runTest(){
   };
 
   try {
-    const {data,error,status:code,statusText} = await db
+    const {error,status:code,statusText} = await db
       .from('scorea_free_diagnostics')
-      .insert(payload)
-      .select('id,student_name,email,created_at')
-      .single();
+      .insert(payload);
 
     if(error) {
       status.textContent='✗ 写入失败';
@@ -70,7 +68,10 @@ async function runTest(){
     } else {
       status.textContent='✓ 写入成功';
       status.className='good';
-      detail.textContent=JSON.stringify({http_status:code,data},null,2);
+      detail.textContent=JSON.stringify({
+        http_status:code,
+        note:'INSERT succeeded. Please confirm the CONNECTION TEST row in Supabase Table Editor.'
+      },null,2);
     }
   } catch(e) {
     status.textContent='✗ JavaScript / 网络错误';
