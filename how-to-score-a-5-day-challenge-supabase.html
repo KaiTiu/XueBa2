@@ -378,7 +378,7 @@ async function saveChallengeDayToSupabase(day,data){
 }
 async function saveLearningProfileToSupabase(data){
   const identity=getIdentity(), diag=getDiagnostic();
-  if(!identity) return;
+  if(!identity || !data) return false;
   const payload={
     diagnostic_id: identity.diagnostic_id,
     client_session_id: identity.client_session_id,
@@ -395,7 +395,23 @@ async function saveLearningProfileToSupabase(data){
   try{
     const {error}=await scoreASupabase.from("scorea_free_learning_profiles").insert(payload);
     if(error && error.code!=="23505") throw error;
-  }catch(err){console.error("Supabase profile save failed",err)}
+    return true;
+  }catch(err){
+    console.error("Supabase profile save failed",err);
+    return false;
+  }
+}
+
+async function syncSavedProgressToSupabase(){
+  const identity=getIdentity();
+  if(!identity) return;
+  for(const day of state.completed){
+    const data=state.data["day"+day];
+    if(data) await saveChallengeDayToSupabase(day,data);
+  }
+  if(state.data.day5){
+    await saveLearningProfileToSupabase(state.data.day5);
+  }
 }
 function renderDiagnosticBanner(){
   const el=document.getElementById("diagnosticBanner");
@@ -535,10 +551,9 @@ function completeDay5(){
   if(!subject||!goal||!minutes||!measure){warn("d5warn",true);return}
   warn("d5warn",false);
   const profileData={subject,goal,minutes,measure};
-  const wasDone=state.completed.includes(5);
   markComplete(5,profileData);
-  if(!wasDone) saveLearningProfileToSupabase(profileData);
-  result("d5result",`✅ 你的30天方向已经完成，而且已连接到 HOW TO SCORE A 学习档案。`);
+  saveLearningProfileToSupabase(profileData);
+  result("d5result",`✅ 你的30天方向已经完成。系统正在同步到 HOW TO SCORE A 学习档案。`);
   showFinish();
 }
 function restoreDayValues(day){
@@ -627,6 +642,7 @@ function escapeHtml(s){
 refreshHeader();
 renderDiagnosticBanner();
 renderDay(currentDay);
+syncSavedProgressToSupabase();
 </script>
 </body>
 </html>
