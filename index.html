@@ -114,6 +114,15 @@ body{margin:0;font-family:Inter,"Microsoft YaHei",Arial,sans-serif;background:va
 .authForm{padding:42px}.authForm h2{margin:0 0 7px}.authForm .field{background:#fff}.authMsg{display:none;margin:12px 0;padding:12px 14px;border-radius:12px;font-size:13px;line-height:1.55}.authMsg.show{display:block}.authMsg.err{background:#fff1f1;border:1px solid #ffcaca;color:#9b1c1c}.authMsg.ok{background:#eefaf4;border:1px solid #c7ecd8;color:#12633f}.authMeta{font-size:12px;color:#6b7890;line-height:1.6;margin-top:14px}.authLoading{display:none;align-items:center;gap:8px;font-size:13px;color:#53627a;margin:10px 0}.authLoading.show{display:flex}.authSpinner{width:18px;height:18px;border:3px solid #dce6f5;border-top-color:#1769ff;border-radius:50%;animation:authSpin .8s linear infinite}@keyframes authSpin{to{transform:rotate(360deg)}}
 .authDenied{display:none}.authDenied.show{display:block}.authInfo{background:#f6f8fc;border:1px solid #e1e8f2;border-radius:14px;padding:13px;margin:10px 0;font-size:13px;line-height:1.7}.authTopUser{font-size:11px;font-weight:850;color:#53627a}.logoutBtn{border:0;background:#eef2f8;color:#30415e;padding:8px 11px;border-radius:10px;font-weight:850;cursor:pointer;margin-left:6px}
 @media(max-width:760px){.authShell{grid-template-columns:1fr}.authBrand{padding:28px}.authForm{padding:28px}.authBrand h1{font-size:28px}}
+
+/* ===== V23 Personalized Learning Route ===== */
+.personalRoute{display:none;margin:16px 0 18px;background:linear-gradient(135deg,#f0f5ff,#f8f3ff);border:1px solid #d9e1ff;border-radius:24px;padding:22px;box-shadow:0 12px 30px #1e3a8a10}
+.personalRoute.show{display:block}.personalRouteHead{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;flex-wrap:wrap}
+.personalRoute h2{margin:4px 0 7px}.personalRoute .routeTag{display:inline-flex;align-items:center;gap:6px;background:#fff;border:1px solid #dfe5ff;border-radius:999px;padding:8px 11px;font-size:12px;font-weight:900;color:#4351b8}
+.routeGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px}.routeStat{background:#fff;border:1px solid #e3e8f6;border-radius:15px;padding:13px}.routeStat small{display:block;color:#7a8497;font-weight:800;margin-bottom:4px}.routeStat b{font-size:15px;color:#1d2b47}
+.routePlan{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}.routeStep{background:#fff;border:1px solid #e3e8f6;border-radius:16px;padding:15px}.routeStep .n{width:30px;height:30px;border-radius:10px;display:grid;place-items:center;background:#eef1ff;color:#4a51c7;font-weight:950;margin-bottom:8px}.routeStep b{display:block;margin-bottom:5px}.routeStep p{margin:0 0 10px;color:#6b7486;font-size:13px;line-height:1.55}.routeStep button{border:0;background:#172b52;color:#fff;border-radius:10px;padding:9px 11px;font-weight:850;cursor:pointer}
+.routeEmpty{background:#fff;border:1px dashed #cfd8ef;border-radius:16px;padding:16px;margin-top:12px;line-height:1.65}.routeEmpty a{font-weight:900;color:#1769ff;text-decoration:none}
+@media(max-width:820px){.routeGrid{grid-template-columns:repeat(2,1fr)}.routePlan{grid-template-columns:1fr}}
 </style></head><body>
 <div id="authGate" class="authGate">
   <div class="authShell">
@@ -156,6 +165,13 @@ body{margin:0;font-family:Inter,"Microsoft YaHei",Arial,sans-serif;background:va
 <main class="wrap">
 <section class="hero"><div class="heroGrid"><div><div class="eyebrow">30-DAY TOP STUDENT TRANSFORMATION</div><h1>今天，不是来“上课”。<br>是来升级自己。 🚀</h1><p>每天一个短剧情 + 一个真实学习任务。系统带你走 30 天，最后把学习的控制权交回给你自己。</p><div style="display:flex;justify-content:space-between;font-size:12px;font-weight:850"><span id="dayLabel">DAY 1 / 30</span><span id="percent">0%</span></div><div class="bar"><i id="mainbar" style="width:0"></i></div></div><div class="xp"><div class="eyebrow">NEXT LEVEL</div><b id="xpBig">0 XP</b><p id="next">距离 Lv2 还差 250 XP</p><div class="bar"><i id="xpbar" style="width:0"></i></div></div></div></section>
 
+<section id="personalRoute" class="personalRoute">
+  <div class="personalRouteHead">
+    <div><div class="eyebrow" style="color:#5a55c7">MY PERSONAL LEARNING ROUTE</div><h2>🎯 我的专属学习路线</h2><p class="muted" id="routeIntro">正在读取你之前的学习诊断与5天挑战资料…</p></div>
+    <span class="routeTag" id="routeTypeTag">正在载入</span>
+  </div>
+  <div id="routeBody"></div>
+</section>
 
 
 <div style="display:flex;justify-content:flex-end;margin:10px 0 4px"><button class="btn light" onclick="openProfile()">👤 我的资料 / Avatar</button></div>
@@ -954,6 +970,57 @@ function showDenied(title,html){document.getElementById('authGate').style.displa
 function openScoreA(student,enrollment){document.getElementById('authGate').style.display='none';document.getElementById('scoreApp').style.display='block';const u=document.getElementById('authTopUser');if(u)u.textContent=(student.full_name||student.student_id||'Student')+' · '+(enrollment.expiry_date||'');}
 function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 
+const SCOREA_ROUTE_TYPES={
+  A:{name:'基础理解',desc:'先把“看过”变成“真正理解”，再增加题量。',steps:[['Feynman 理解训练','用自己的话解释知识点，找出真正卡住的位置。','method'],['ChatGPT AI 辅导老师','让 AI 讲解概念、追问理解，不直接代做答案。','chatgpt'],['错题与粗心分析','用错题确认概念是否真的修复。','mistakebox']]},
+  B:{name:'学习方法',desc:'把重复看书升级成主动回忆、测试、找错、重学。',steps:[['Feynman + 番茄学习法','建立“专注学习 + 自己讲出来”的学习循环。','method'],['30天考试冲刺','使用诊断 → 补弱 → 强化 → 模拟的完整闭环。','lib30'],['错题与粗心分析','每次错误都找出原因，再重新测试。','mistakebox']]},
+  C:{name:'时间管理',desc:'先解决“什么时候开始、做什么、怎样完成”，再追求更多学习量。',steps:[['时间管理','把模糊的“今晚读书”变成明确学习区块。','timebox'],['番茄工作法','用25分钟专注区块减少拖延和分心。','method'],['今日挑战','每天只解决一个最重要的学习问题。','challenge']]},
+  D:{name:'考试策略',desc:'重点不是继续盲目刷题，而是减少会做却丢掉的分数。',steps:[['错题与粗心分析','记录粗心、概念、步骤、审题与时间问题。','mistakebox'],['学霸考试高分系统','训练审题、时间分配、作答与最后检查。','libexam'],['30天考试冲刺','用模拟与复盘把考试策略练成习惯。','lib30']]},
+  E:{name:'自主学习',desc:'逐步把“父母提醒我学”转成“我知道下一步该做什么”。',steps:[['今日挑战','自己决定今天要解决的一个真实学习问题。','challenge'],['学霸成长路径','从 Lv1 到 Lv9 看清楚下一阶段要建立的行为。','libgrowth'],['ChatGPT AI 辅导老师','先自己思考，再把 AI 当教练而不是答案机器。','chatgpt']]}
+};
+
+function routeAction(action){
+  const tabs=document.querySelectorAll('.tab');
+  if(action==='challenge'){show('challenge',tabs[0]);document.getElementById('dailyGate')?.scrollIntoView({behavior:'smooth'});return}
+  if(['timebox','chatgpt','mistakebox'].includes(action)){show('training',tabs[1]);setTimeout(()=>openToolbox(action),60);return}
+  if(action==='method'){show('library',tabs[2]);setTimeout(()=>openLearningLibrary('method'),60);return}
+  if(action==='lib30'){show('library',tabs[2]);setTimeout(()=>openReadableDoc('lib30'),60);return}
+  if(action==='libexam'){show('library',tabs[2]);setTimeout(()=>openReadableDoc('libexam'),60);return}
+  if(action==='libgrowth'){show('library',tabs[2]);setTimeout(()=>openReadableDoc('libgrowth'),60);return}
+}
+
+async function loadPersonalizedLearning(email,student){
+  const box=document.getElementById('personalRoute'),body=document.getElementById('routeBody'),intro=document.getElementById('routeIntro'),tag=document.getElementById('routeTypeTag');
+  if(!box||!body)return; box.classList.add('show');
+  try{
+    const norm=(email||'').trim().toLowerCase();
+    const {data:diags,error:de}=await scoreASupabase.from('scorea_free_diagnostics').select('id,primary_type,secondary_type,score_a,score_b,score_c,score_d,score_e,created_at').eq('email',norm).order('created_at',{ascending:false}).limit(1);
+    if(de)throw de; const diag=diags?.[0]||null;
+    if(!diag){
+      tag.textContent='尚未完成诊断';intro.textContent='你的正式课程已经开通，但系统还没有找到同一 Email 的免费学习诊断。';
+      body.innerHTML=`<div class="routeEmpty"><b>先完成学习诊断，系统才能给你专属路线。</b><br>请使用与你现在登录相同的 Email 完成：<br><a href="how-to-score-a-free-diagnostic-supabase.html">① 3分钟学习能力诊断 →</a><br><a href="how-to-score-a-5-day-challenge-supabase.html">② 5天学霸启动挑战 →</a></div>`;return;
+    }
+    const [{data:profiles,error:pe},{data:days,error:ce}]=await Promise.all([
+      scoreASupabase.from('scorea_free_learning_profiles').select('main_subject,improvement_goal,daily_study_time,progress_measure,created_at').eq('email',norm).order('created_at',{ascending:false}).limit(1),
+      scoreASupabase.from('scorea_free_challenge_days').select('day_number').eq('email',norm).eq('diagnostic_id',diag.id)
+    ]);
+    if(pe)throw pe;if(ce)throw ce;
+    const profile=profiles?.[0]||null; const doneDays=new Set((days||[]).map(x=>x.day_number)).size;
+    const cfg=SCOREA_ROUTE_TYPES[diag.primary_type]||SCOREA_ROUTE_TYPES.B;
+    const secondary=SCOREA_ROUTE_TYPES[diag.secondary_type]?.name||diag.secondary_type||'—';
+    tag.textContent=`${diag.primary_type}型 · ${cfg.name}`;
+    intro.textContent=`${student?.full_name||'同学'}，系统已经读取你之前的诊断。你的第一优先方向是「${cfg.name}」，第二方向是「${secondary}」。${cfg.desc}`;
+    const stats=[
+      ['主要改善',cfg.name],['第二方向',secondary],['5天挑战',`${doneDays}/5 完成`],['重点科目',profile?.main_subject||'尚未填写']
+    ];
+    const statsHtml=`<div class="routeGrid">${stats.map(x=>`<div class="routeStat"><small>${esc(x[0])}</small><b>${esc(x[1])}</b></div>`).join('')}</div>`;
+    const profileHtml=profile?`<div class="routeGrid"><div class="routeStat"><small>30天目标</small><b>${esc(profile.improvement_goal)}</b></div><div class="routeStat"><small>每日学习</small><b>${esc(profile.daily_study_time)}</b></div><div class="routeStat" style="grid-column:span 2"><small>怎样判断进步</small><b>${esc(profile.progress_measure)}</b></div></div>`:`<div class="routeEmpty">你已经完成学习诊断，但系统还没有找到完整的 Day 5 学习档案。<a href="how-to-score-a-5-day-challenge-supabase.html">继续完成5天挑战 →</a></div>`;
+    const stepsHtml=`<div class="routePlan">${cfg.steps.map((s,i)=>`<div class="routeStep"><div class="n">${i+1}</div><b>${esc(s[0])}</b><p>${esc(s[1])}</p><button onclick="routeAction('${s[2]}')">现在开始 →</button></div>`).join('')}</div>`;
+    body.innerHTML=statsHtml+profileHtml+`<h3 style="margin:18px 0 6px">系统建议你先从这3个模块开始</h3>`+stepsHtml;
+  }catch(err){
+    console.error('Personal route load failed',err);tag.textContent='资料读取失败';intro.textContent='课程可以正常使用，但暂时无法读取之前的免费诊断资料。';body.innerHTML=`<div class="routeEmpty">${esc(err.message||'Unknown error')}</div>`;
+  }
+}
+
 async function verifyScoreAAccess(user){
   try{
     const {data:student,error:se}=await scoreASupabase.from('students').select('id,student_id,full_name,grade,status').eq('user_id',user.id).maybeSingle();
@@ -977,6 +1044,7 @@ async function verifyScoreAAccess(user){
 
     sessionStorage.setItem('scorea_verified',JSON.stringify({uid:user.id,student_id:student.student_id,expiry_date:enrollment.expiry_date,checked_at:new Date().toISOString()}));
     openScoreA(student,enrollment);
+    await loadPersonalizedLearning(user.email,student);
   }catch(err){console.error('Score A entitlement error',err);showDenied('权限验证出现问题',`无法完成课程权限验证。<br><small>${esc(err.message||'Unknown error')}</small>`)}
 }
 
