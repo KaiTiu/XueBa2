@@ -993,31 +993,84 @@ async function loadPersonalizedLearning(email,student){
   if(!box||!body)return; box.classList.add('show');
   try{
     const norm=(email||'').trim().toLowerCase();
-    const {data:diags,error:de}=await scoreASupabase.from('scorea_free_diagnostics').select('id,primary_type,secondary_type,score_a,score_b,score_c,score_d,score_e,created_at').eq('email',norm).order('created_at',{ascending:false}).limit(1);
-    if(de)throw de; const diag=diags?.[0]||null;
-    if(!diag){
-      tag.textContent='尚未完成诊断';intro.textContent='你的正式课程已经开通，但系统还没有找到同一 Email 的免费学习诊断。';
-      body.innerHTML=`<div class="routeEmpty"><b>先完成学习诊断，系统才能给你专属路线。</b><br>请使用与你现在登录相同的 Email 完成：<br><a href="how-to-score-a-free-diagnostic-supabase.html">① 3分钟学习能力诊断 →</a><br><a href="how-to-score-a-5-day-challenge-supabase.html">② 5天学霸启动挑战 →</a></div>`;return;
-    }
-    const [{data:profiles,error:pe},{data:days,error:ce}]=await Promise.all([
-      scoreASupabase.from('scorea_free_learning_profiles').select('main_subject,improvement_goal,daily_study_time,progress_measure,created_at').eq('email',norm).order('created_at',{ascending:false}).limit(1),
-      scoreASupabase.from('scorea_free_challenge_days').select('day_number').eq('email',norm).eq('diagnostic_id',diag.id)
+
+    const [
+      {data:diags,error:de},
+      {data:profiles,error:pe},
+      {data:days,error:ce}
+    ]=await Promise.all([
+      scoreASupabase
+        .from('scorea_free_diagnostics')
+        .select('id,primary_type,secondary_type,score_a,score_b,score_c,score_d,score_e,created_at')
+        .eq('email',norm)
+        .order('created_at',{ascending:false})
+        .limit(1),
+
+      scoreASupabase
+        .from('scorea_free_learning_profiles')
+        .select('diagnostic_id,primary_type,secondary_type,main_subject,improvement_goal,daily_study_time,progress_measure,created_at')
+        .eq('email',norm)
+        .order('created_at',{ascending:false})
+        .limit(1),
+
+      scoreASupabase
+        .from('scorea_free_challenge_days')
+        .select('day_number')
+        .eq('email',norm)
     ]);
-    if(pe)throw pe;if(ce)throw ce;
-    const profile=profiles?.[0]||null; const doneDays=new Set((days||[]).map(x=>x.day_number)).size;
+
+    if(de)throw de;
+    if(pe)throw pe;
+    if(ce)throw ce;
+
+    const profile=profiles?.[0]||null;
+    let diag=diags?.[0]||null;
+
+    // Fallback for students who completed the diagnostic before the API-key fix:
+    // the Day-5 learning profile already stores primary_type / secondary_type.
+    if(!diag && profile?.primary_type){
+      diag={
+        id:profile.diagnostic_id||null,
+        primary_type:profile.primary_type,
+        secondary_type:profile.secondary_type||null
+      };
+    }
+
+    if(!diag){
+      tag.textContent='尚未完成诊断';
+      intro.textContent='你的正式课程已经开通，但系统还没有找到与你当前登录 Email 对应的学习诊断或学习档案。';
+      body.innerHTML=`<div class="routeEmpty"><b>先完成学习诊断，系统才能给你专属路线。</b><br>请使用与你现在登录相同的 Email 完成：<br><a href="how-to-score-a-free-diagnostic-supabase.html">① 3分钟学习能力诊断 →</a><br><a href="how-to-score-a-5-day-challenge-supabase.html">② 5天学霸启动挑战 →</a></div>`;
+      return;
+    }
+
+    const doneDays=new Set((days||[]).map(x=>x.day_number)).size;
     const cfg=SCOREA_ROUTE_TYPES[diag.primary_type]||SCOREA_ROUTE_TYPES.B;
     const secondary=SCOREA_ROUTE_TYPES[diag.secondary_type]?.name||diag.secondary_type||'—';
+
     tag.textContent=`${diag.primary_type}型 · ${cfg.name}`;
-    intro.textContent=`${student?.full_name||'同学'}，系统已经读取你之前的诊断。你的第一优先方向是「${cfg.name}」，第二方向是「${secondary}」。${cfg.desc}`;
+    intro.textContent=`${student?.full_name||'同学'}，系统已经读取你之前的学习资料。你的第一优先方向是「${cfg.name}」，第二方向是「${secondary}」。${cfg.desc}`;
+
     const stats=[
-      ['主要改善',cfg.name],['第二方向',secondary],['5天挑战',`${doneDays}/5 完成`],['重点科目',profile?.main_subject||'尚未填写']
+      ['主要改善',cfg.name],
+      ['第二方向',secondary],
+      ['5天挑战',`${doneDays}/5 完成`],
+      ['重点科目',profile?.main_subject||'尚未填写']
     ];
+
     const statsHtml=`<div class="routeGrid">${stats.map(x=>`<div class="routeStat"><small>${esc(x[0])}</small><b>${esc(x[1])}</b></div>`).join('')}</div>`;
-    const profileHtml=profile?`<div class="routeGrid"><div class="routeStat"><small>30天目标</small><b>${esc(profile.improvement_goal)}</b></div><div class="routeStat"><small>每日学习</small><b>${esc(profile.daily_study_time)}</b></div><div class="routeStat" style="grid-column:span 2"><small>怎样判断进步</small><b>${esc(profile.progress_measure)}</b></div></div>`:`<div class="routeEmpty">你已经完成学习诊断，但系统还没有找到完整的 Day 5 学习档案。<a href="how-to-score-a-5-day-challenge-supabase.html">继续完成5天挑战 →</a></div>`;
+
+    const profileHtml=profile
+      ? `<div class="routeGrid"><div class="routeStat"><small>30天目标</small><b>${esc(profile.improvement_goal)}</b></div><div class="routeStat"><small>每日学习</small><b>${esc(profile.daily_study_time)}</b></div><div class="routeStat" style="grid-column:span 2"><small>怎样判断进步</small><b>${esc(profile.progress_measure)}</b></div></div>`
+      : `<div class="routeEmpty">系统已找到你的诊断，但还没有找到完整的 Day 5 学习档案。<a href="how-to-score-a-5-day-challenge-supabase.html">继续完成5天挑战 →</a></div>`;
+
     const stepsHtml=`<div class="routePlan">${cfg.steps.map((s,i)=>`<div class="routeStep"><div class="n">${i+1}</div><b>${esc(s[0])}</b><p>${esc(s[1])}</p><button onclick="routeAction('${s[2]}')">现在开始 →</button></div>`).join('')}</div>`;
+
     body.innerHTML=statsHtml+profileHtml+`<h3 style="margin:18px 0 6px">系统建议你先从这3个模块开始</h3>`+stepsHtml;
   }catch(err){
-    console.error('Personal route load failed',err);tag.textContent='资料读取失败';intro.textContent='课程可以正常使用，但暂时无法读取之前的免费诊断资料。';body.innerHTML=`<div class="routeEmpty">${esc(err.message||'Unknown error')}</div>`;
+    console.error('Personal route load failed',err);
+    tag.textContent='资料读取失败';
+    intro.textContent='课程可以正常使用，但暂时无法读取之前的免费诊断资料。';
+    body.innerHTML=`<div class="routeEmpty">${esc(err.message||'Unknown error')}</div>`;
   }
 }
 
