@@ -1,0 +1,527 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>How to Score A with AI | Parent Dashboard</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box}
+:root{
+  --navy:#102a57;--blue:#2667f0;--purple:#6c4be8;--green:#13865f;
+  --amber:#a46906;--red:#a13b3b;--ink:#14233c;--muted:#71809a;
+  --line:#dfe7f2;--soft:#f5f8fc;--white:#fff
+}
+body{margin:0;font-family:Inter,"Microsoft YaHei",Arial,sans-serif;background:#f4f7fc;color:var(--ink)}
+button,input{font:inherit}
+.hidden{display:none!important}
+.topbar{height:70px;background:#fff;border-bottom:1px solid #e5ebf4;display:flex;align-items:center;justify-content:space-between;padding:0 4vw;position:sticky;top:0;z-index:20}
+.brand{font-weight:950;color:#175fd4;font-size:20px}.brand small{display:block;font-size:10px;color:#748098;letter-spacing:.03em}
+.topActions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.topName{font-size:12px;font-weight:850;color:#52627a}
+.btn{border:0;border-radius:12px;padding:11px 14px;background:var(--blue);color:#fff;font-weight:900;cursor:pointer}.btn.light{background:#edf2f8;color:#31435f}.btn.dark{background:var(--navy)}.btn:disabled{opacity:.5;cursor:not-allowed}
+.authGate{min-height:100vh;display:grid;place-items:center;padding:28px;background:radial-gradient(circle at top left,#eaf2ff 0,#f7f9fd 42%,#f4f7fc 100%)}
+.authShell{width:min(940px,100%);display:grid;grid-template-columns:1.05fr .95fr;background:#fff;border:1px solid #e0e7f1;border-radius:28px;overflow:hidden;box-shadow:0 24px 70px #17315d20}
+.authBrand{padding:42px;background:linear-gradient(145deg,#0b2457,#7047eb);color:#fff}.authBrand h1{font-size:34px;margin:10px 0}.authBrand p{color:#dce6ff;line-height:1.75}.authPoint{padding:11px 0;border-bottom:1px solid #ffffff20;font-weight:800}
+.authForm{padding:42px}.authForm h2{margin:0 0 7px}.label{font-size:12px;font-weight:900;color:#53627a;display:block;margin:10px 0 6px}.field{width:100%;padding:12px;border:1px solid #dbe4f0;border-radius:12px;background:#fff}
+.msg{display:none;margin:12px 0;padding:12px 14px;border-radius:12px;font-size:13px;line-height:1.55}.msg.show{display:block}.msg.err{background:#fff1f1;border:1px solid #ffcaca;color:#9b1c1c}.msg.ok{background:#eefaf4;border:1px solid #c7ecd8;color:#12633f}
+.meta{font-size:12px;color:#6b7890;line-height:1.6;margin-top:13px}
+.wrap{max-width:1240px;margin:auto;padding:24px}
+.hero{background:linear-gradient(135deg,#eaf2ff,#faf6ff);border:1px solid #dbe4f6;border-radius:26px;padding:24px;box-shadow:0 12px 35px #17315d0b}
+.heroHead{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;flex-wrap:wrap}.eyebrow{font-size:11px;letter-spacing:.1em;font-weight:950;color:#5a65d2}.hero h1{margin:5px 0 7px;font-size:32px}.hero p{margin:0;color:#687891;line-height:1.65}
+.childSelect{min-width:270px}.childSelect select{width:100%;padding:11px;border:1px solid #d5deed;border-radius:12px;background:#fff;font-weight:800}
+.summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:18px}
+.summaryBox{background:#fff;border:1px solid #dfe7f2;border-radius:16px;padding:15px;min-height:90px}.summaryBox small{display:block;font-size:11px;color:#748199;font-weight:850;margin-bottom:6px}.summaryBox b{font-size:24px}.summaryBox span{display:block;font-size:11px;color:#8a96a8;margin-top:5px}
+.grid2{display:grid;grid-template-columns:1.2fr .8fr;gap:14px;margin-top:14px}.card{background:#fff;border:1px solid var(--line);border-radius:20px;padding:18px}.card h3{margin:0 0 6px}.sub{font-size:12px;color:#748199;line-height:1.6;margin-bottom:12px}
+.signal{margin:12px 0}.signalTop{display:flex;justify-content:space-between;font-size:12px;font-weight:900}.track{height:9px;background:#edf1f6;border-radius:999px;overflow:hidden;margin-top:6px}.track i{display:block;height:100%;background:#5675e8;width:0;transition:.3s}
+.insight{border-radius:15px;padding:13px 14px;margin-top:10px;line-height:1.65}.insight.good{background:#eefaf4;border:1px solid #cdebdc;color:#1d6049}.insight.next{background:#fff8e8;border:1px solid #f2dfad;color:#76540d}.insight.ask{background:#eef4ff;border:1px solid #d6e2fb;color:#294a7b}
+.parentOne{background:#16305e;color:#fff;border-radius:17px;padding:16px;margin-top:11px}.parentOne small{display:block;opacity:.72;font-weight:800;margin-bottom:5px}.parentOne b{font-size:18px;line-height:1.5}
+.infoRow{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.chip{padding:8px 10px;border-radius:999px;background:#eef3f9;border:1px solid #dde6f1;font-size:11px;font-weight:850;color:#3c526f}
+.trends{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}.trend{padding:7px 10px;border-radius:999px;background:#f1f4f9;border:1px solid #dfe6ef;font-size:11px;font-weight:850;color:#38506f}
+.reflection{padding:14px 0;border-bottom:1px solid #edf1f5}.reflection:last-child{border-bottom:0}.reflection .rmeta{font-size:11px;color:#8290a5;font-weight:800}.reflection .rtitle{font-weight:900;margin:4px 0}.reflection .question{font-size:12px;color:#6b7890;margin:5px 0}.reflection .answer{background:#f6f8fc;border-radius:12px;padding:11px;line-height:1.6}
+.empty{padding:16px;border:1px dashed #ccd7e7;border-radius:14px;color:#758299;background:#fafcff}
+.note{font-size:11px;color:#7f8ba0;margin-top:10px;line-height:1.6}
+.modalBack{position:fixed;inset:0;background:#0c183dcc;display:none;place-items:center;padding:18px;z-index:100}.modalBack.show{display:grid}.modal{width:min(500px,96vw);background:#fff;border-radius:22px;padding:22px;box-shadow:0 24px 70px #0004}.modal h3{margin-top:0}.modalActions{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
+@media(max-width:900px){.grid2{grid-template-columns:1fr}.summary{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:680px){.authShell{grid-template-columns:1fr}.authBrand,.authForm{padding:28px}.summary{grid-template-columns:1fr}.wrap{padding:14px}.topbar{height:auto;min-height:66px;padding:10px 14px}.hero h1{font-size:25px}.childSelect{min-width:100%}}
+</style>
+</head>
+<body>
+
+<div id="authGate" class="authGate">
+  <div class="authShell">
+    <section class="authBrand">
+      <div style="font-weight:950;font-size:18px">🎓 How to Score A with AI</div>
+      <div style="font-size:12px;opacity:.8">Parent Dashboard · 家长成长视图</div>
+      <h1>看见成长，不增加压力。</h1>
+      <p>家长登录后，只能查看自己被授权绑定的孩子。这里关注行动、思考、学习习惯和成长趋势，而不是拿孩子和别人比较。</p>
+      <div class="authPoint">✓ 独立 Parent Account</div>
+      <div class="authPoint">✓ 只显示已授权绑定的孩子</div>
+      <div class="authPoint">✓ Day / XP / 学习习惯成长</div>
+      <div class="authPoint">✓ 最近每日思考与家长陪伴建议</div>
+    </section>
+
+    <section class="authForm">
+      <div id="loginBox">
+        <div style="font-size:12px;font-weight:950;color:#1769ff;letter-spacing:1px">PARENT LOGIN</div>
+        <h2>家长登录</h2>
+        <p class="meta">第一次登录请使用 Admin 提供的 Temporary Password。</p>
+
+        <label class="label">Parent Email</label>
+        <input class="field" id="loginEmail" type="email" autocomplete="username" placeholder="parent@example.com">
+
+        <label class="label">Password</label>
+        <input class="field" id="loginPassword" type="password" autocomplete="current-password" placeholder="请输入 Password">
+
+        <button class="btn" id="loginBtn" style="width:100%;margin-top:8px" onclick="parentLogin()">登录 Parent Dashboard →</button>
+        <div id="loginMsg" class="msg"></div>
+      </div>
+
+      <div id="firstPasswordBox" class="hidden">
+        <div style="font-size:12px;font-weight:950;color:#a46906;letter-spacing:1px">FIRST LOGIN</div>
+        <h2>请先建立自己的新 Password</h2>
+        <p class="meta">Temporary Password 只用于第一次登录。设置成功后会自动登出，请使用自己的新 Password 重新登录。</p>
+
+        <label class="label">New Password</label>
+        <input class="field" id="firstNewPassword" type="password" autocomplete="new-password">
+
+        <label class="label">Confirm New Password</label>
+        <input class="field" id="firstConfirmPassword" type="password" autocomplete="new-password">
+
+        <button class="btn dark" style="width:100%;margin-top:8px" onclick="changeFirstPassword()">保存我的新 Password →</button>
+        <div id="firstPasswordMsg" class="msg"></div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<div id="app" class="hidden">
+  <header class="topbar">
+    <div class="brand">🎓 How to Score A with AI<small>Parent Dashboard · Growth, Not Pressure</small></div>
+    <div class="topActions">
+      <span id="parentTopName" class="topName"></span>
+      <button class="btn light" onclick="openPasswordModal()">🔐 修改 Password</button>
+      <button class="btn light" onclick="loadDashboard()">↻ 更新</button>
+      <button class="btn light" onclick="logout()">登出</button>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="hero">
+      <div class="heroHead">
+        <div>
+          <div class="eyebrow">PARENT DASHBOARD · GROWTH, NOT PRESSURE</div>
+          <h1>👨‍👩‍👧 <span id="studentName">孩子</span>的学习成长仪表板</h1>
+          <p>这里帮助家长看见孩子最近有没有行动、在想什么、哪里正在进步，以及下一步怎样陪。</p>
+          <div id="studentInfo" class="infoRow"></div>
+        </div>
+
+        <div id="childSelectWrap" class="childSelect hidden">
+          <label class="label">选择孩子</label>
+          <select id="childSelect" onchange="switchChild(this.value)"></select>
+        </div>
+      </div>
+
+      <div class="summary">
+        <div class="summaryBox"><small>当前学习进度</small><b id="sumDay">Day 1</b><span>正式 SCORE-A 学习进度</span></div>
+        <div class="summaryBox"><small>成长 XP</small><b id="sumXP">0 XP</b><span>代表参与与训练，不代表考试成绩</span></div>
+        <div class="summaryBox"><small>连续学习</small><b id="sumStreak">1 天</b><span>观察稳定行动习惯</span></div>
+        <div class="summaryBox"><small>过去 7 天思考</small><b id="sumWeek">0 / 7</b><span>来自每日必读 · 必思考</span></div>
+      </div>
+    </section>
+
+    <div class="grid2">
+      <section class="card">
+        <h3>📈 能力成长信号</h3>
+        <div class="sub">观察趋势即可，不需要拿这些数值和其他孩子比较。</div>
+
+        <div class="signal"><div class="signalTop"><span>专注力</span><b id="focusVal">0%</b></div><div class="track"><i id="focusBar"></i></div></div>
+        <div class="signal"><div class="signalTop"><span>时间管理</span><b id="timeVal">0%</b></div><div class="track"><i id="timeBar"></i></div></div>
+        <div class="signal"><div class="signalTop"><span>自主学习</span><b id="learnVal">0%</b></div><div class="track"><i id="learnBar"></i></div></div>
+
+        <div class="insight good"><b>✅ 最近做得好的地方</b><br><span id="goodText">等待学习记录。</span></div>
+        <div class="insight next"><b>🎯 下一步最值得改善</b><br><span id="nextText">一次只选一个最值得改善的问题。</span></div>
+      </section>
+
+      <section class="card">
+        <h3>🧭 本周家长只做一件事</h3>
+        <div class="sub">不是增加监督，而是选择一个最有帮助的陪伴行动。</div>
+        <div class="parentOne"><small>THIS WEEK</small><b id="parentAction">先肯定孩子愿意开始，再讨论结果。</b></div>
+        <div class="insight ask"><b>💬 今晚可以这样问</b><br><span id="parentQuestion">“这个星期，你觉得自己哪一个地方比以前做得更好了？”</span></div>
+      </section>
+    </div>
+
+    <section class="card" style="margin-top:14px">
+      <h3>🔎 系统观察到的学习趋势</h3>
+      <div class="sub">系统只根据孩子近期真实思考整理关键词，不给孩子贴标签。</div>
+      <div id="trendTags" class="trends"><span class="trend">等待真实思考记录</span></div>
+      <p id="trendText" style="line-height:1.7;color:#445873;margin-bottom:0">完成几次真实每日思考后，这里会开始显示重复出现的学习主题。</p>
+    </section>
+
+    <section class="card" style="margin-top:14px">
+      <h3>📖 最近 7 条阅读与思考</h3>
+      <div class="sub">重点不是写很多，而是孩子是否越来越会发现问题 → 说明原因 → 想下一步。</div>
+      <div id="reflectionList"><div class="empty">等待真实学习记录。</div></div>
+      <div class="note">SYSTEM TEST / Cycle 999 会自动隐藏，不会显示给家长。</div>
+    </section>
+  </main>
+</div>
+
+<div id="passwordModal" class="modalBack">
+  <div class="modal">
+    <h3>🔐 修改 Parent Password</h3>
+    <p class="meta">为了确认是你本人，请先输入当前 Password。</p>
+
+    <label class="label">Current Password</label>
+    <input class="field" id="currentPassword" type="password" autocomplete="current-password">
+
+    <label class="label">New Password</label>
+    <input class="field" id="newPassword" type="password" autocomplete="new-password">
+
+    <label class="label">Confirm New Password</label>
+    <input class="field" id="confirmPassword" type="password" autocomplete="new-password">
+
+    <div id="passwordMsg" class="msg"></div>
+    <div class="modalActions">
+      <button class="btn light" onclick="closePasswordModal()">取消</button>
+      <button class="btn dark" onclick="changePasswordFromDashboard()">保存新 Password</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL="https://htzkjfztqqsbzxahxfnt.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY="sb_publishable_-2O1fEqOGCQPSiMGQVSFrQ_bC3hf4WM";
+const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
+
+let CURRENT_USER=null;
+let DASH=null;
+let CURRENT_CHILD=0;
+
+function esc(v){
+  return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+function setText(id,val){const el=document.getElementById(id);if(el)el.textContent=val}
+function setBar(id,val){const el=document.getElementById(id);if(el)el.style.width=Math.max(0,Math.min(100,Number(val)||0))+"%"}
+function showMsg(id,text,type="err"){const el=document.getElementById(id);if(!el)return;el.textContent=text;el.className=`msg show ${type}`}
+function clearMsg(id){const el=document.getElementById(id);if(!el)return;el.textContent="";el.className="msg"}
+
+async function getSession(){
+  const {data,error}=await sb.auth.getSession();
+  if(error)throw error;
+  return data?.session||null;
+}
+
+async function apiPost(path,body={}){
+  const session=await getSession();
+  if(!session?.access_token)throw new Error("登录已过期，请重新登录。");
+  const r=await fetch(path,{
+    method:"POST",
+    headers:{
+      "Content-Type":"application/json",
+      "Authorization":"Bearer "+session.access_token
+    },
+    body:JSON.stringify(body)
+  });
+  const raw=await r.text();
+  let data;
+  try{data=JSON.parse(raw)}catch{data={error:raw}}
+  if(!r.ok || !data?.ok){
+    const err=new Error(data?.error||`HTTP ${r.status}`);
+    err.result=data;
+    throw err;
+  }
+  return data;
+}
+
+async function parentLogin(){
+  clearMsg("loginMsg");
+  const email=document.getElementById("loginEmail").value.trim().toLowerCase();
+  const password=document.getElementById("loginPassword").value;
+  const btn=document.getElementById("loginBtn");
+
+  if(!email||!password){
+    showMsg("loginMsg","请输入 Parent Email 和 Password。");
+    return;
+  }
+
+  btn.disabled=true;
+  btn.textContent="正在验证 Parent Account…";
+
+  try{
+    const {data,error}=await sb.auth.signInWithPassword({email,password});
+    if(error)throw error;
+    CURRENT_USER=data.user;
+
+    const role=String(CURRENT_USER?.app_metadata?.role||"").toLowerCase();
+    if(role!=="parent"){
+      await sb.auth.signOut();
+      throw new Error("这个账号不是 Parent Account。");
+    }
+
+    if(CURRENT_USER?.app_metadata?.must_change_password===true){
+      document.getElementById("loginBox").classList.add("hidden");
+      document.getElementById("firstPasswordBox").classList.remove("hidden");
+      return;
+    }
+
+    await openDashboard();
+  }catch(err){
+    showMsg("loginMsg","登录失败："+(err.message||"Unknown error"));
+  }finally{
+    btn.disabled=false;
+    btn.textContent="登录 Parent Dashboard →";
+  }
+}
+
+async function changeFirstPassword(){
+  clearMsg("firstPasswordMsg");
+  const a=document.getElementById("firstNewPassword").value;
+  const b=document.getElementById("firstConfirmPassword").value;
+
+  try{
+    if(a.length<8)throw new Error("New Password 至少需要 8 个字符。");
+    if(a!==b)throw new Error("两次输入的 New Password 不一致。");
+
+    await apiPost("/api/parent-change-temporary-password",{
+      new_password:a,
+      confirm_password:b
+    });
+
+    showMsg("firstPasswordMsg","✓ 新 Password 已建立。请使用新 Password 重新登录。","ok");
+    await sb.auth.signOut();
+
+    setTimeout(()=>{
+      document.getElementById("firstPasswordBox").classList.add("hidden");
+      document.getElementById("loginBox").classList.remove("hidden");
+      document.getElementById("loginPassword").value="";
+      document.getElementById("firstNewPassword").value="";
+      document.getElementById("firstConfirmPassword").value="";
+      showMsg("loginMsg","✓ Password 已更新，请重新登录。","ok");
+    },600);
+  }catch(err){
+    showMsg("firstPasswordMsg","更新失败："+(err.result?.error||err.message||"Unknown error"));
+  }
+}
+
+async function openDashboard(){
+  document.getElementById("authGate").classList.add("hidden");
+  document.getElementById("app").classList.remove("hidden");
+  await loadDashboard();
+}
+
+async function loadDashboard(){
+  try{
+    const data=await apiPost("/api/parent-dashboard-data");
+    DASH=data;
+    setText("parentTopName",(data.parent?.full_name||data.parent?.email||"Parent"));
+
+    if(!data.children?.length){
+      renderNoChildren();
+      return;
+    }
+
+    const sel=document.getElementById("childSelect");
+    sel.innerHTML=data.children.map((c,i)=>
+      `<option value="${i}">${esc(c.student?.student_id||"")} · ${esc(c.student?.full_name||"Student")}</option>`
+    ).join("");
+
+    document.getElementById("childSelectWrap").classList.toggle("hidden",data.children.length<=1);
+
+    if(CURRENT_CHILD>=data.children.length)CURRENT_CHILD=0;
+    sel.value=String(CURRENT_CHILD);
+    renderChild(data.children[CURRENT_CHILD]);
+  }catch(err){
+    alert("Parent Dashboard 读取失败："+(err.result?.error||err.message||"Unknown error"));
+  }
+}
+
+function switchChild(index){
+  CURRENT_CHILD=Number(index)||0;
+  if(DASH?.children?.[CURRENT_CHILD])renderChild(DASH.children[CURRENT_CHILD]);
+}
+
+function renderNoChildren(){
+  setText("studentName","尚未绑定学生");
+  document.getElementById("studentInfo").innerHTML='<span class="chip">请联系 Admin 建立 Parent ↔ Student 绑定</span>';
+  setText("sumDay","—");setText("sumXP","—");setText("sumStreak","—");setText("sumWeek","—");
+  document.getElementById("reflectionList").innerHTML='<div class="empty">此 Parent Account 目前没有 ACTIVE 的学生绑定。</div>';
+}
+
+function weekReflectionCount(rows){
+  const now=Date.now(),seven=7*24*60*60*1000;
+  return new Set((rows||[]).filter(r=>{
+    const t=new Date(r.completed_at||0).getTime();
+    return Number.isFinite(t)&&now>=t&&now-t<=seven;
+  }).map(r=>`${r.cycle_number}-${r.day_number}`)).size;
+}
+
+function trendAnalysis(rows){
+  const body=(rows||[]).slice(0,14).map(r=>
+    `${r.lesson_title||""} ${r.lesson_question||""} ${r.reflection_text||""}`
+  ).join(" ").toLowerCase();
+
+  const topics=[
+    ["粗心",["粗心","看错","抄错","检查"]],
+    ["时间管理",["时间","来不及","拖延","安排","开始"]],
+    ["专注",["专注","分心","手机","游戏","干扰"]],
+    ["错题与复盘",["错题","错误","做错","订正","复盘"]],
+    ["复习方法",["复习","记忆","feynman","讲出来","自测"]],
+    ["理解问题",["不会","不懂","理解","概念","卡住"]],
+    ["考试策略",["考试","审题","分数","答题","紧张"]],
+    ["主动学习",["主动","计划","目标","自己","下一步"]]
+  ];
+
+  return topics.map(([name,words])=>{
+    let score=0;
+    words.forEach(w=>score+=(body.split(w).length-1));
+    return [name,score];
+  }).filter(x=>x[1]>0).sort((a,b)=>b[1]-a[1]);
+}
+
+function renderChild(child){
+  const s=child.student||{};
+  const e=child.enrollment||{};
+  const p=child.progress||{};
+  const rows=child.reflections||[];
+
+  setText("studentName",s.full_name||s.student_id||"孩子");
+  document.getElementById("studentInfo").innerHTML=[
+    s.student_id?`<span class="chip">Student ID：${esc(s.student_id)}</span>`:"",
+    s.grade?`<span class="chip">${esc(s.grade)}</span>`:"",
+    child.relationship?`<span class="chip">${esc(child.relationship)}</span>`:"",
+    e.expiry_date?`<span class="chip">到期：${esc(e.expiry_date)}</span>`:"",
+    e.computed_status?`<span class="chip">课程：${esc(e.computed_status)}</span>`:""
+  ].filter(Boolean).join("");
+
+  setText("sumDay",p.current_day?`Day ${p.current_day}`:"尚未建立");
+  setText("sumXP",`${Number(p.xp)||0} XP`);
+  setText("sumStreak",`${Math.max(0,Number(p.streak)||0)} 天`);
+  setText("sumWeek",`${weekReflectionCount(rows)} / 7`);
+
+  const scores=[
+    ["专注力",Number(p.focus)||0],
+    ["时间管理",Number(p.time_management)||0],
+    ["自主学习",Number(p.self_learning)||0]
+  ].sort((a,b)=>b[1]-a[1]);
+
+  setText("focusVal",`${Number(p.focus)||0}%`);
+  setText("timeVal",`${Number(p.time_management)||0}%`);
+  setText("learnVal",`${Number(p.self_learning)||0}%`);
+  setBar("focusBar",p.focus);setBar("timeBar",p.time_management);setBar("learnBar",p.self_learning);
+
+  const anyProgress=!!p.current_day || Number(p.xp)>0 || Number(p.completed_days_count)>0;
+  setText("goodText",anyProgress
+    ?`${scores[0][0]}目前是相对较明显的成长信号（${scores[0][1]}%）。可以具体肯定这个行为，而不是只称赞“聪明”。`
+    :"目前还是起步阶段。先观察孩子是否愿意自己开始、自己完成第一步。");
+
+  setText("nextText",anyProgress
+    ?`${scores[2][0]}目前相对需要更多训练（${scores[2][1]}%）。本周只针对这一项做一个小改善。`
+    :"先建立“开始行动”的习惯，不需要同时要求成绩、速度、专注和自律全部改善。");
+
+  const low=scores[2][0];
+  const actionMap={
+    "时间管理":[
+      "和孩子一起确定一个固定开始时间，只提醒一次，完成后再讨论效果。",
+      "“你觉得今天几点开始最容易做到？我们要怎样让开始变得更容易？”"
+    ],
+    "专注力":[
+      "帮助孩子减少一个最明显的干扰，例如手机、聊天或桌面杂物。",
+      "“你今天学习时，哪一个东西最容易让你分心？你想怎样处理？”"
+    ],
+    "自主学习":[
+      "少给一个答案，多问一个问题，让孩子先提出自己的下一步。",
+      "“如果下一次再遇到同样的问题，你准备先做哪一步？”"
+    ]
+  };
+  const a=actionMap[low]||actionMap["自主学习"];
+  setText("parentAction",a[0]);setText("parentQuestion",a[1]);
+
+  const ranked=trendAnalysis(rows);
+  document.getElementById("trendTags").innerHTML=ranked.length
+    ?ranked.slice(0,4).map(([name,count])=>`<span class="trend">${esc(name)} · ${count}次线索</span>`).join("")
+    :'<span class="trend">等待更多真实记录</span>';
+
+  setText("trendText",!rows.length
+    ?"目前还没有真实思考记录。孩子完成正式课程里的「今日必读 · 必思考」后，这里会开始整理趋势。"
+    :ranked.length
+      ?`最近的思考里，「${ranked[0][0]}」出现得比较多${ranked[1]?`，其次是「${ranked[1][0]}」`:""}。这只是学习线索，不代表给孩子贴标签。`
+      :"孩子已经开始留下真实思考，但目前没有明显重复主题。先继续观察，不需要太早下结论。");
+
+  const list=document.getElementById("reflectionList");
+  if(!rows.length){
+    list.innerHTML='<div class="empty">目前还没有真实的每日思考记录。</div>';
+  }else{
+    list.innerHTML=rows.slice(0,7).map(r=>{
+      const when=r.completed_at?new Date(r.completed_at).toLocaleDateString("zh-MY",{month:"short",day:"numeric"}):"";
+      return `<div class="reflection">
+        <div class="rmeta">第 ${esc(r.cycle_number)} 轮 · Day ${esc(r.day_number)}${when?` · ${esc(when)}`:""} · ${esc(r.lesson_type||"每日必读")}</div>
+        <div class="rtitle">${esc(r.lesson_title||"今日思考")}</div>
+        ${r.lesson_question?`<div class="question">💭 ${esc(r.lesson_question)}</div>`:""}
+        <div class="answer">✍️ ${esc(r.reflection_text||"")}</div>
+      </div>`;
+    }).join("");
+  }
+}
+
+function openPasswordModal(){
+  clearMsg("passwordMsg");
+  document.getElementById("currentPassword").value="";
+  document.getElementById("newPassword").value="";
+  document.getElementById("confirmPassword").value="";
+  document.getElementById("passwordModal").classList.add("show");
+}
+function closePasswordModal(){document.getElementById("passwordModal").classList.remove("show")}
+
+async function changePasswordFromDashboard(){
+  clearMsg("passwordMsg");
+  const current=document.getElementById("currentPassword").value;
+  const next=document.getElementById("newPassword").value;
+  const confirm=document.getElementById("confirmPassword").value;
+
+  try{
+    const session=await getSession();
+    const email=session?.user?.email;
+    if(!email)throw new Error("无法读取当前 Parent Email。");
+    if(!current)throw new Error("请输入 Current Password。");
+    if(next.length<8)throw new Error("New Password 至少需要 8 个字符。");
+    if(next!==confirm)throw new Error("两次输入的 New Password 不一致。");
+
+    const {error}=await sb.auth.signInWithPassword({email,password:current});
+    if(error)throw new Error("Current Password 不正确。");
+
+    await apiPost("/api/parent-change-temporary-password",{
+      new_password:next,
+      confirm_password:confirm
+    });
+
+    showMsg("passwordMsg","✓ Password 已更新。系统会登出，请使用新 Password 登录。","ok");
+    setTimeout(async()=>{await sb.auth.signOut();location.reload()},900);
+  }catch(err){
+    showMsg("passwordMsg","更新失败："+(err.result?.error||err.message||"Unknown error"));
+  }
+}
+
+async function logout(){await sb.auth.signOut();location.reload()}
+
+async function boot(){
+  try{
+    const session=await getSession();
+    if(!session?.user)return;
+    CURRENT_USER=session.user;
+
+    const role=String(CURRENT_USER?.app_metadata?.role||"").toLowerCase();
+    if(role!=="parent"){await sb.auth.signOut();return}
+
+    if(CURRENT_USER?.app_metadata?.must_change_password===true){
+      document.getElementById("loginBox").classList.add("hidden");
+      document.getElementById("firstPasswordBox").classList.remove("hidden");
+      return;
+    }
+
+    await openDashboard();
+  }catch(err){console.error(err)}
+}
+boot();
+</script>
+</body>
+</html>
