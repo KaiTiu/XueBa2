@@ -97,6 +97,11 @@ async function createAuthUser(email, password, fullName, grade) {
         full_name: fullName,
         grade,
       },
+      app_metadata: {
+        role: "student",
+        must_change_password: true,
+        temporary_password_issued_at: new Date().toISOString(),
+      },
     }),
   });
 }
@@ -309,6 +314,8 @@ module.exports = async function handler(req, res) {
         grade,
         email,
         status: "ACTIVE",
+        password_type: "TEMPORARY",
+        must_change_password: true,
       },
       enrollment: {
         course_code: "SCORE-A",
