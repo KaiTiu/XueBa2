@@ -280,7 +280,9 @@ body{margin:0;font-family:Inter,"Microsoft YaHei",Arial,sans-serif;background:va
   <div style="display:flex;gap:8px;flex-wrap:wrap">
     <button class="btn" id="readDoneBtn" onclick="markDailyRead()">✓ 保存思考并完成今日必读</button>
     <button class="btn light" id="dailySourceBtn" onclick="openDailySource()">📚 打开完整资料</button>
+    <button class="btn light" id="dailySyncBtn" onclick="retryDailyReflectionSync()">☁️ 同步到云端</button>
   </div>
+  <div id="dailyCloudStatus" class="cloudSyncNote" style="margin-top:8px">☁️ 云端状态：等待同步</div>
 
   <div class="rewardRow" style="margin:14px 0">
     <span class="reward" id="gateRead">① 📖 必读+思考：未完成</span>
@@ -1022,7 +1024,7 @@ const DAILY_LESSONS=[{"type":"🧠 学霸思维","title":"成长型思维：我�
 function selectedChallenges(){return [...document.querySelectorAll("#uChallenge input:checked")].map(x=>x.value)}
 function saveBasicGate(){U.basic={name:uName.value.trim(),grade:uGrade.value.trim(),school:uSchool.value.trim(),minutes:uMinutes.value,strong:uStrong.value.trim(),weak:uWeak.value.trim(),challenge:selectedChallenges()};usave();if(!profileComplete()){alert("请填写所有 * 必填资料，并至少选择一个学习问题");return}closeProfile();render30()}
 function firstEntryGate(){if(!profileComplete())setTimeout(openProfile,200)}function scrollDailyLesson(){show("challenge",document.querySelectorAll(".tab")[0]);setTimeout(()=>{let b=document.getElementById("dailyLessonBox");if(b){b.scrollIntoView({behavior:"smooth",block:"center"});b.classList.add("lessonFocus");setTimeout(()=>b.classList.remove("lessonFocus"),2600)}},80)}
-function markDailyRead(){
+async function markDailyRead(){
   let k=ck(),ta=document.getElementById("dailyThink"),thought=(ta?.value||"").trim();
   if(thought.length<12){alert("请先用自己的话完成今天的思考，至少写 12 个字。不要只按“完成”。");ta?.focus();return}
   CYCLE.readThought[k]=thought;
@@ -1035,10 +1037,36 @@ function markDailyRead(){
     }
   }
   csave();renderDailyGate();render();
-  if(typeof syncDailyReflectionToSupabase==="function"){
-    syncDailyReflectionToSupabase(thought).catch(err=>console.warn("Daily reflection cloud sync failed",err));
+
+  const cloud=document.getElementById("dailyCloudStatus");
+  if(cloud)cloud.textContent="☁️ 云端状态：正在同步…";
+  try{
+    const ok=await syncDailyReflectionToSupabase(thought);
+    if(cloud)cloud.textContent=ok
+      ?"✓ 云端状态：今日思考已保存到 Supabase"
+      :"⚠ 云端状态：尚未登录，已先保存在本机";
+  }catch(err){
+    console.error("Daily reflection cloud sync failed",err);
+    if(cloud)cloud.textContent="✗ 云端同步失败："+(err.message||"Unknown error");
   }
   showReward("📖","今日必读 + 思考完成","不是只读过，而是已经用自己的话想过一次。+15 XP");
+}
+
+async function retryDailyReflectionSync(){
+  const k=ck(),thought=(CYCLE.readThought[k]||document.getElementById("dailyThink")?.value||"").trim();
+  if(thought.length<12){alert("今天还没有可同步的思考内容，请先完成至少 12 个字。");return}
+  const cloud=document.getElementById("dailyCloudStatus");
+  if(cloud)cloud.textContent="☁️ 云端状态：正在重新同步…";
+  try{
+    const ok=await syncDailyReflectionToSupabase(thought);
+    if(cloud)cloud.textContent=ok
+      ?"✓ 云端状态：同步成功；同一天重复同步只会更新同一条记录"
+      :"⚠ 云端状态：没有有效登录";
+  }catch(err){
+    console.error("Manual daily reflection sync failed",err);
+    if(cloud)cloud.textContent="✗ 云端同步失败："+(err.message||"Unknown error");
+    alert("云端同步失败："+(err.message||"Unknown error"));
+  }
 }
 function openDailySource(){
   let l=DAILY_LESSONS[CYCLE.day-1],tabs=document.querySelectorAll(".tab");
@@ -1071,6 +1099,8 @@ function markTimeToday(){let k=ck();if(!CYCLE.time[k]){CYCLE.time[k]=true;let rk
   if(ta){ta.value=CYCLE.readThought[k]||"";ta.disabled=done}
   let rb=document.getElementById("readDoneBtn");
   if(rb){rb.textContent=done?"✓ 今日必读与思考已完成":"✓ 保存思考并完成今日必读";rb.disabled=done}
+  let sb=document.getElementById("dailySyncBtn");
+  if(sb){sb.style.display=(CYCLE.readThought[k]||"").trim().length>=12?"inline-flex":"none"}
   gateStatus.innerHTML=gateOK()?"🔓 <b>今日挑战已解锁！</b>":"🔒 完成「必读+思考、时间管理、AI练习」后解锁今日挑战。";
   document.querySelectorAll("#challenge > .card").forEach(x=>{if(x.id!=="dailyGate")x.classList.toggle("challengeLocked",!gateOK())});
 }
@@ -1305,17 +1335,39 @@ function reflectionLocalRows(){
   return rows;
 }
 
+async function getDailyReflectionContext(){
+  const {data:authData,error:authErr}=await scoreASupabase.auth.getUser();
+  if(authErr)throw authErr;
+  const user=authData?.user;
+  if(!user)throw new Error("找不到登录账号，请重新登录正式课程。");
+
+  let student=SCOREA_STUDENT_PROFILE;
+  if(!student || student.user_id===user.id===false){
+    const {data,error}=await scoreASupabase
+      .from("students")
+      .select("id,user_id,student_id,full_name,grade,status")
+      .eq("user_id",user.id)
+      .maybeSingle();
+    if(error)throw error;
+    student=data;
+  }
+  if(!student)throw new Error("找不到这个登录账号对应的 Student Profile。");
+  SCOREA_AUTH_USER=user;
+  SCOREA_STUDENT_PROFILE=student;
+  return {user,student};
+}
+
 async function syncDailyReflectionToSupabase(thought){
-  if(!SCOREA_AUTH_USER || !SCOREA_STUDENT_PROFILE) return false;
+  const {user,student}=await getDailyReflectionContext();
   const lesson=DAILY_LESSONS[CYCLE.day-1]||{};
   const payload={
-    user_id:SCOREA_AUTH_USER.id,
-    student_id:SCOREA_STUDENT_PROFILE.id,
-    student_email:(SCOREA_AUTH_USER.email||"").toLowerCase(),
-    student_name:SCOREA_STUDENT_PROFILE.full_name||SCOREA_STUDENT_PROFILE.student_id||null,
-    grade:SCOREA_STUDENT_PROFILE.grade||null,
-    cycle_number:CYCLE.cycle,
-    day_number:CYCLE.day,
+    user_id:user.id,
+    student_id:student.id,
+    student_email:(user.email||"").toLowerCase(),
+    student_name:student.full_name||student.student_id||null,
+    grade:student.grade||null,
+    cycle_number:Number(CYCLE.cycle)||1,
+    day_number:Number(CYCLE.day)||1,
     lesson_type:lesson.type||null,
     lesson_title:lesson.title||`Day ${CYCLE.day}`,
     lesson_read:lesson.read||null,
@@ -1325,15 +1377,18 @@ async function syncDailyReflectionToSupabase(thought){
     completed_at:new Date().toISOString(),
     updated_at:new Date().toISOString()
   };
-  const {error}=await scoreASupabase
+
+  const {data,error}=await scoreASupabase
     .from("scorea_daily_reflections")
-    .upsert(payload,{onConflict:"user_id,cycle_number,day_number"});
-  if(error) throw error;
+    .upsert(payload,{onConflict:"user_id,cycle_number,day_number"})
+    .select("id,cycle_number,day_number,updated_at")
+    .single();
+
+  if(error)throw error;
   const s=document.getElementById("reflectionCloudStatus");
-  if(s)s.textContent="✓ 最新思考已同步到学习成长记录。";
+  if(s)s.textContent=`✓ 最新思考已同步：第 ${data.cycle_number} 轮 · Day ${data.day_number}`;
   return true;
 }
-
 async function syncExistingReflectionHistory(){
   if(!SCOREA_AUTH_USER || !SCOREA_STUDENT_PROFILE) return;
   const local=reflectionLocalRows();
@@ -1648,7 +1703,7 @@ async function loadPersonalizedLearning(email,student){
 
 async function verifyScoreAAccess(user){
   try{
-    const {data:student,error:se}=await scoreASupabase.from('students').select('id,student_id,full_name,grade,status').eq('user_id',user.id).maybeSingle();
+    const {data:student,error:se}=await scoreASupabase.from('students').select('id,user_id,student_id,full_name,grade,status').eq('user_id',user.id).maybeSingle();
     if(se)throw se;
     if(!student)return showDenied('找不到学生资料','这个登录账号尚未连接 Student Profile。请联系管理员建立学生资料。');
     if(student.status!=='ACTIVE')return showDenied('学生账号目前不可使用',`Student ID：<b>${esc(student.student_id)}</b><br>学生状态：<b>${esc(student.status)}</b>`);

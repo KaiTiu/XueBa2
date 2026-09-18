@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Score A Daily Reflection Test</title>
+<style>
+body{font-family:system-ui,-apple-system,Segoe UI,Arial;background:#f4f7ff;margin:0;padding:22px;color:#14213d}
+.card{max-width:760px;margin:35px auto;background:#fff;border-radius:22px;padding:26px;box-shadow:0 18px 55px rgba(32,49,100,.11)}
+input{width:100%;box-sizing:border-box;padding:12px;margin:6px 0 12px;border:1px solid #d9e1ee;border-radius:11px;font:inherit}
+button{width:100%;padding:14px;border:0;border-radius:12px;background:#5963ef;color:#fff;font-weight:850;font-size:16px;cursor:pointer}
+pre{white-space:pre-wrap;background:#f8fafc;border:1px solid #e3e8f0;border-radius:12px;padding:14px;min-height:100px}
+.good{color:#087454;font-weight:900}.bad{color:#b42318;font-weight:900}small{color:#66758a}
+</style></head>
+<body><div class="card">
+<h1>HOW TO SCORE A｜每日思考 Supabase 测试</h1>
+<p>这个测试永远使用同一个位置：<b>Cycle 999 · Day 30</b>。重复测试只会更新同一条记录，不会不断累积。</p>
+<label>Email</label><input id="email" type="email" placeholder="正式课程测试账号 Email">
+<label>Password</label><input id="password" type="password" placeholder="Password">
+<button onclick="runTest()">登录并测试写入</button>
+<p id="status"></p><pre id="detail">等待测试…</pre>
+<small>成功后去 Supabase → scorea_daily_reflections 查看。重复按测试，不会新增第二条同样的测试记录。</small>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const db=window.supabase.createClient('https://htzkjfztqqsbzxahxfnt.supabase.co','sb_publishable_-2O1fEqOGCQPSiMGQVSFrQ_bC3hf4WM');
+async function runTest(){
+ const email=document.getElementById('email').value.trim(),password=document.getElementById('password').value;
+ const status=document.getElementById('status'),detail=document.getElementById('detail');
+ status.textContent='正在登录与测试…';status.className='';detail.textContent='Working...';
+ try{
+   const {data:login,error:le}=await db.auth.signInWithPassword({email,password});
+   if(le)throw le;
+   const user=login.user;
+   const {data:student,error:se}=await db.from('students').select('id,student_id,full_name,grade,status').eq('user_id',user.id).maybeSingle();
+   if(se)throw se;
+   if(!student)throw new Error('找不到 Student Profile');
+   const payload={
+     user_id:user.id,student_id:student.id,student_email:(user.email||'').toLowerCase(),
+     student_name:student.full_name||student.student_id,grade:student.grade||null,
+     cycle_number:999,day_number:30,lesson_type:'SYSTEM TEST',
+     lesson_title:'Supabase Daily Reflection Connection Test',
+     lesson_read:'This is a fixed system test record.',
+     lesson_question:'Can this authenticated student save one daily reflection?',
+     reflection_text:'这是每日思考云端连接测试记录，重复测试只更新这一条。',
+     source_key:'system-test',completed_at:new Date().toISOString(),updated_at:new Date().toISOString()
+   };
+   const {data,error}=await db.from('scorea_daily_reflections')
+      .upsert(payload,{onConflict:'user_id,cycle_number,day_number'})
+      .select('id,user_id,student_id,cycle_number,day_number,lesson_type,updated_at')
+      .single();
+   if(error)throw error;
+   status.textContent='✓ 写入成功';status.className='good';
+   detail.textContent=JSON.stringify(data,null,2);
+ }catch(err){
+   status.textContent='✗ 写入失败';status.className='bad';
+   detail.textContent=JSON.stringify({message:err.message,code:err.code||null,details:err.details||null,hint:err.hint||null},null,2);
+ }
+}
+</script></body></html>
