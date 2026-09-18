@@ -307,7 +307,8 @@ body{margin:0;font-family:Inter,"Microsoft YaHei",Arial,sans-serif;background:va
 
   <div class="field" style="margin-top:12px">
     <label><b>✍️ 我的思考（至少 12 个字）</b></label>
-    <textarea id="dailyThink" oninput="saveDailyThoughtDraft(this.value)" onblur="autoCompleteDailyReadIfReady()" placeholder="不要抄原文。用自己的话写：我学到什么？这和我有什么关系？我今天准备怎样做？"></textarea>
+    <textarea id="dailyThink" oninput="saveDailyThoughtDraft(this.value);updateDailyThoughtCount()" onblur="autoCompleteDailyReadIfReady()" placeholder="不要抄原文。用自己的话写：我学到什么？这和我有什么关系？我今天准备怎样做？"></textarea>
+    <div id="dailyThinkCount" class="mini muted" style="margin-top:6px">有效字数：0 / 12</div>
   </div>
   <div style="display:flex;gap:8px;flex-wrap:wrap">
     <button class="btn" id="readDoneBtn" onclick="markDailyRead()">✓ 保存思考并完成今日必读</button>
@@ -1094,12 +1095,26 @@ function selectedChallenges(){return [...document.querySelectorAll("#uChallenge 
 function saveBasicGate(){U.basic={name:uName.value.trim(),grade:uGrade.value.trim(),school:uSchool.value.trim(),minutes:uMinutes.value,strong:uStrong.value.trim(),weak:uWeak.value.trim(),challenge:selectedChallenges()};usave();if(!profileComplete()){alert("请填写所有 * 必填资料，并至少选择一个学习问题");return}closeProfile();render30()}
 function firstEntryGate(){if(!profileComplete())setTimeout(openProfile,200)}function scrollDailyLesson(){show("challenge",document.querySelectorAll(".tab")[0]);setTimeout(()=>{let b=document.getElementById("dailyLessonBox");if(b){b.scrollIntoView({behavior:"smooth",block:"center"});b.classList.add("lessonFocus");setTimeout(()=>b.classList.remove("lessonFocus"),2600)}},80)}
 
+
+function dailyMeaningfulCount(value){
+  // Count Chinese characters, letters and numbers; ignore spaces and punctuation.
+  const m=String(value||"").match(/[\p{L}\p{N}]/gu);
+  return m ? m.length : 0;
+}
+function updateDailyThoughtCount(){
+  const box=document.getElementById("dailyThink");
+  const el=document.getElementById("dailyThinkCount");
+  if(!box||!el)return;
+  const n=dailyMeaningfulCount(box.value);
+  el.textContent=`有效字数：${n} / 12${n>=12?" ✓":""}`;
+  el.style.color=n>=12?"#15805f":"";
+}
 function saveDailyThoughtDraft(value){
   const k=ck();
   CYCLE.readThought[k]=String(value??"");
   csave();
   const cloud=document.getElementById("dailyCloudStatus");
-  const len=(CYCLE.readThought[k]||"").trim().length;
+  const len=dailyMeaningfulCount(CYCLE.readThought[k]||"");
   if(cloud && !CYCLE.read[k]){
     cloud.textContent=len>=12
       ?"✓ 草稿已自动保存；离开输入框后会自动完成「必读+思考」"
@@ -1117,9 +1132,9 @@ function dailyThoughtText(){
 
 async function completeDailyReadCore(showPopup=true){
   const k=ck(),thought=dailyThoughtText();
-  if(thought.length<12){
+  if(dailyMeaningfulCount(thought)<12){
     const ta=document.getElementById("dailyThink");
-    alert("请先用自己的话完成今天的思考，至少写 12 个字。");
+    alert("请先用自己的话完成今天的思考，至少写 12 个有效字（标点和空格不计算）。");
     ta?.focus();
     return false;
   }
@@ -1161,7 +1176,7 @@ async function autoCompleteDailyReadIfReady(){
   const k=ck();
   if(CYCLE.read[k]) return true;
   const thought=dailyThoughtText();
-  if(thought.length<12){
+  if(dailyMeaningfulCount(thought)<12){
     if(thought) {
       CYCLE.readThought[k]=thought;
       csave();
@@ -1186,11 +1201,18 @@ function gateMissingItems(){
 
 async function markDailyRead(){
   preserveDailyDraft();
-  await completeDailyReadCore(true);
+  const wasDone=!!CYCLE.read[ck()];
+  const ok=await completeDailyReadCore(false);
+  if(!ok)return;
+  if(wasDone){
+    showReward("✏️","思考已更新","你的修改已经保存，并会同步到同一天的云端记录，不会新增重复记录。");
+  }else{
+    showReward("📖","今日必读 + 思考完成","你的思考已经保存，今天的第一关完成。+15 XP");
+  }
 }
 async function retryDailyReflectionSync(){
   const k=ck(),thought=(CYCLE.readThought[k]||document.getElementById("dailyThink")?.value||"").trim();
-  if(thought.length<12){alert("今天还没有可同步的思考内容，请先完成至少 12 个字。");return}
+  if(dailyMeaningfulCount(thought)<12){alert("今天还没有可同步的思考内容，请先完成至少 12 个有效字（标点不计算）。");return}
   const cloud=document.getElementById("dailyCloudStatus");
   if(cloud)cloud.textContent="☁️ 云端状态：正在重新同步…";
   try{
@@ -1232,7 +1254,7 @@ function confirmAIPractice(){preserveDailyDraft();let k=ck();if(!CYCLE.ai[k]){CY
 function markTimeToday(){preserveDailyDraft();let k=ck();if(!CYCLE.time[k]){CYCLE.time[k]=true;let rk="time-"+k;if(!S.rewarded[rk]){S.rewarded[rk]=true;S.xp+=15;S.time=Math.min(100,S.time+3);localStorage.setItem(K,JSON.stringify(S));}}csave();renderDailyGate();render()}function gateOK(){
   const k=ck();
   const thought=(CYCLE.readThought[k]||"").trim();
-  if(thought.length>=12 && !CYCLE.read[k]){
+  if(dailyMeaningfulCount(thought)>=12 && !CYCLE.read[k]){
     CYCLE.read[k]=true;
     csave();
   }
@@ -1252,11 +1274,19 @@ function markTimeToday(){preserveDailyDraft();let k=ck();if(!CYCLE.time[k]){CYCL
   gateTime.textContent=CYCLE.time[k]?"② ⏰ 时间管理：✓ 已完成":"② ⏰ 时间管理：未完成";
   gateAI.textContent=CYCLE.ai[k]?"③ 🤖 ChatGPT：✓ 已完成":"③ 🤖 ChatGPT：未完成";
   let ta=document.getElementById("dailyThink");
-  if(ta){ta.value=CYCLE.readThought[k]||"";ta.disabled=done}
+  if(ta){
+    ta.value=CYCLE.readThought[k]||"";
+    ta.disabled=false;
+    ta.readOnly=false;
+  }
+  updateDailyThoughtCount();
   let rb=document.getElementById("readDoneBtn");
-  if(rb){rb.textContent=done?"✓ 今日必读与思考已完成":"✓ 保存思考并完成今日必读";rb.disabled=done}
+  if(rb){
+    rb.textContent=done?"✏️ 更新思考并同步":"✓ 保存思考并完成今日必读";
+    rb.disabled=false;
+  }
   let sb=document.getElementById("dailySyncBtn");
-  if(sb){sb.style.display=(CYCLE.readThought[k]||"").trim().length>=12?"inline-flex":"none"}
+  if(sb){sb.style.display=dailyMeaningfulCount(CYCLE.readThought[k]||"")>=12?"inline-flex":"none"}
   const missing=gateMissingItems();
   gateStatus.innerHTML=gateOK()
     ?"🔓 <b>今日挑战已解锁！</b>"
