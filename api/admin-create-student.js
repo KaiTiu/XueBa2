@@ -169,8 +169,48 @@ module.exports = async function handler(req, res) {
       });
     }
 
-    // 3) Validate input.
+    // 3) Read request body.
     const body = req.body || {};
+
+    // 4) Confirm SCORE-A course exists.
+    const courseRows = await serviceRest(
+      "courses?course_code=eq.SCORE-A&is_active=eq.true&select=id,course_code&limit=1",
+      { method: "GET" }
+    );
+    const course = courseRows?.[0];
+    if (!course) {
+      throw new Error("找不到 ACTIVE 的 SCORE-A course。");
+    }
+
+    // SAFE DRY RUN:
+    // Verify Admin session + server secret + SCORE-A course BEFORE validating
+    // student form fields. This creates nothing and consumes no Student ID.
+    if (body.dry_run === true) {
+      const existingStudents = await serviceRest(
+        "students?student_id=like.SCORE-A*&select=student_id&order=student_id.desc&limit=1",
+        { method: "GET" }
+      );
+      const highest = existingStudents?.[0]?.student_id || null;
+      let nextPreview = "SCORE-A00001";
+      if (highest) {
+        const m = String(highest).match(/(\d+)$/);
+        const n = m ? Number(m[1]) + 1 : 1;
+        nextPreview = "SCORE-A" + String(n).padStart(5, "0");
+      }
+
+      return send(res, 200, {
+        ok: true,
+        mode: "dry_run",
+        message: "Admin API is ready. No student was created.",
+        admin_email: caller.email || null,
+        service_role_configured: true,
+        course_code: course.course_code,
+        current_highest_student_id: highest,
+        next_student_id_preview: nextPreview
+      });
+    }
+
+    // 5) Validate real student creation input.
     const email = String(body.email || "").trim().toLowerCase();
     const password = String(body.password || "");
     const fullName = String(body.full_name || "").trim();
@@ -202,45 +242,7 @@ module.exports = async function handler(req, res) {
       });
     }
 
-    // 4) Confirm SCORE-A course exists.
-    const courseRows = await serviceRest(
-      "courses?course_code=eq.SCORE-A&is_active=eq.true&select=id,course_code&limit=1",
-      { method: "GET" }
-    );
-    const course = courseRows?.[0];
-    if (!course) {
-      throw new Error("找不到 ACTIVE 的 SCORE-A course。");
-    }
-
-    // SAFE DRY RUN:
-    // Verifies Admin session + server secret + SCORE-A course without creating anything
-    // and without consuming the Student ID sequence.
-    if (body.dry_run === true) {
-      const existingStudents = await serviceRest(
-        "students?student_id=like.SCORE-A*&select=student_id&order=student_id.desc&limit=1",
-        { method: "GET" }
-      );
-      const highest = existingStudents?.[0]?.student_id || null;
-      let nextPreview = "SCORE-A00001";
-      if (highest) {
-        const m = String(highest).match(/(\d+)$/);
-        const n = m ? Number(m[1]) + 1 : 1;
-        nextPreview = "SCORE-A" + String(n).padStart(5, "0");
-      }
-
-      return send(res, 200, {
-        ok: true,
-        mode: "dry_run",
-        message: "Admin API is ready. No student was created.",
-        admin_email: caller.email || null,
-        service_role_configured: true,
-        course_code: course.course_code,
-        current_highest_student_id: highest,
-        next_student_id_preview: nextPreview
-      });
-    }
-
-    // 5) Reserve the next Student ID from PostgreSQL sequence.
+    // 6) Reserve the next Student ID from PostgreSQL sequence.
     const studentId = await serviceRest("rpc/next_scorea_student_id", {
       method: "POST",
       body: JSON.stringify({}),
