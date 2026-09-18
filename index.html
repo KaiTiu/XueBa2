@@ -1776,16 +1776,20 @@ function setCourseCloudStatus(msg){
 
 function prepareLocalProgressForUser(uid){
   const owner=localStorage.getItem("scoreAProgressOwnerUid");
-  if(owner && owner!==uid){
-    // A different student is using this browser. Never inherit the previous student's local progress.
+
+  // IMPORTANT:
+  // If this browser has no owner marker OR belongs to another student,
+  // never inherit old browser progress. New students must always start fresh.
+  if(!owner || owner!==uid){
     S=freshScoreAState();
     CYCLE=freshCycleState();
     U=freshToolState();
+
     localStorage.setItem(K,JSON.stringify(S));
     localStorage.setItem("scoreA30Cycle",JSON.stringify(CYCLE));
     localStorage.setItem(UK,JSON.stringify(U));
   }
-  // owner === null is treated as legacy migration: keep the old local data for this first cloud migration.
+
   localStorage.setItem("scoreAProgressOwnerUid",uid);
   normalizeRestoredProgress();
 }
@@ -1869,12 +1873,27 @@ async function restoreCourseProgressFromCloud(){
       loadBasic();
       setCourseCloudStatus("☁️ 云端进度已恢复");
     }else{
-      // First migration: use this student's current local progress and create the first cloud row.
+      // NEW STUDENT:
+      // No cloud row exists, so always create a completely fresh Day 1 / 0 XP state.
+      // Never migrate leftover browser progress from another student.
+      S=freshScoreAState();
+      CYCLE=freshCycleState();
+      U=freshToolState();
       normalizeRestoredProgress();
+
+      localStorage.setItem(K,JSON.stringify(S));
+      localStorage.setItem("scoreA30Cycle",JSON.stringify(CYCLE));
+      localStorage.setItem(UK,JSON.stringify(U));
       localStorage.setItem("scoreAProgressOwnerUid",SCOREA_AUTH_USER.id);
+
+      render();
+      render30();
+      renderDailyGate();
+      loadBasic();
+
       SCOREA_PROGRESS_RESTORING=false;
       await syncCourseProgressToSupabase();
-      setCourseCloudStatus("☁️ 首次进度已迁移");
+      setCourseCloudStatus("☁️ 新学生进度已建立");
       return;
     }
   }finally{
