@@ -307,7 +307,7 @@ body{margin:0;font-family:Inter,"Microsoft YaHei",Arial,sans-serif;background:va
 
   <div class="field" style="margin-top:12px">
     <label><b>✍️ 我的思考（至少 12 个字）</b></label>
-    <textarea id="dailyThink" placeholder="不要抄原文。用自己的话写：我学到什么？这和我有什么关系？我今天准备怎样做？"></textarea>
+    <textarea id="dailyThink" oninput="saveDailyThoughtDraft(this.value)" onblur="autoCompleteDailyReadIfReady()" placeholder="不要抄原文。用自己的话写：我学到什么？这和我有什么关系？我今天准备怎样做？"></textarea>
   </div>
   <div style="display:flex;gap:8px;flex-wrap:wrap">
     <button class="btn" id="readDoneBtn" onclick="markDailyRead()">✓ 保存思考并完成今日必读</button>
@@ -1093,34 +1093,101 @@ const DAILY_LESSONS=[{"type":"🧠 学霸思维","title":"成长型思维：我�
 function selectedChallenges(){return [...document.querySelectorAll("#uChallenge input:checked")].map(x=>x.value)}
 function saveBasicGate(){U.basic={name:uName.value.trim(),grade:uGrade.value.trim(),school:uSchool.value.trim(),minutes:uMinutes.value,strong:uStrong.value.trim(),weak:uWeak.value.trim(),challenge:selectedChallenges()};usave();if(!profileComplete()){alert("请填写所有 * 必填资料，并至少选择一个学习问题");return}closeProfile();render30()}
 function firstEntryGate(){if(!profileComplete())setTimeout(openProfile,200)}function scrollDailyLesson(){show("challenge",document.querySelectorAll(".tab")[0]);setTimeout(()=>{let b=document.getElementById("dailyLessonBox");if(b){b.scrollIntoView({behavior:"smooth",block:"center"});b.classList.add("lessonFocus");setTimeout(()=>b.classList.remove("lessonFocus"),2600)}},80)}
-async function markDailyRead(){
-  let k=ck(),ta=document.getElementById("dailyThink"),thought=(ta?.value||"").trim();
-  if(thought.length<12){alert("请先用自己的话完成今天的思考，至少写 12 个字。不要只按“完成”。");ta?.focus();return}
+
+function saveDailyThoughtDraft(value){
+  const k=ck();
+  CYCLE.readThought[k]=String(value??"");
+  csave();
+  const cloud=document.getElementById("dailyCloudStatus");
+  const len=(CYCLE.readThought[k]||"").trim().length;
+  if(cloud && !CYCLE.read[k]){
+    cloud.textContent=len>=12
+      ?"✓ 草稿已自动保存；离开输入框后会自动完成「必读+思考」"
+      :"☁️ 草稿已自动保存（至少写 12 个字才算完成）";
+  }
+}
+
+function dailyThoughtText(){
+  const k=ck();
+  const box=document.getElementById("dailyThink");
+  const live=(box?.value||"").trim();
+  const saved=(CYCLE.readThought[k]||"").trim();
+  return live||saved;
+}
+
+async function completeDailyReadCore(showPopup=true){
+  const k=ck(),thought=dailyThoughtText();
+  if(thought.length<12){
+    const ta=document.getElementById("dailyThink");
+    alert("请先用自己的话完成今天的思考，至少写 12 个字。");
+    ta?.focus();
+    return false;
+  }
+
   CYCLE.readThought[k]=thought;
+
   if(!CYCLE.read[k]){
     CYCLE.read[k]=true;
-    let rk="read-"+k;
+    const rk="read-"+k;
     if(!S.rewarded[rk]){
-      S.rewarded[rk]=true;S.xp+=15;S.learn=Math.min(100,S.learn+3);
+      S.rewarded[rk]=true;
+      S.xp+=15;
+      S.learn=Math.min(100,S.learn+3);
       localStorage.setItem(K,JSON.stringify(S));
     }
   }
-  csave();renderDailyGate();render();
 
-  const cloud=document.getElementById("dailyCloudStatus");
-  if(cloud)cloud.textContent="☁️ 云端状态：正在同步…";
+  csave();
+
+  // Save to cloud, but never let a network problem block the student's course progress.
   try{
-    const ok=await syncDailyReflectionToSupabase(thought);
-    if(cloud)cloud.textContent=ok
-      ?"✓ 云端状态：今日思考已保存到 Supabase"
-      :"⚠ 云端状态：尚未登录，已先保存在本机";
+    if(typeof syncDailyReflectionToSupabase==="function"){
+      await syncDailyReflectionToSupabase(thought);
+    }
   }catch(err){
-    console.error("Daily reflection cloud sync failed",err);
-    if(cloud)cloud.textContent="✗ 云端同步失败："+(err.message||"Unknown error");
+    console.warn("Daily reflection cloud sync failed; local completion preserved.",err);
   }
-  showReward("📖","今日必读 + 思考完成","不是只读过，而是已经用自己的话想过一次。+15 XP");
+
+  renderDailyGate();
+  render();
+
+  if(showPopup){
+    showReward("📖","今日必读 + 思考完成","你的思考已经保存，今天的第一关完成。+15 XP");
+  }
+  return true;
 }
 
+async function autoCompleteDailyReadIfReady(){
+  const k=ck();
+  if(CYCLE.read[k]) return true;
+  const thought=dailyThoughtText();
+  if(thought.length<12){
+    if(thought) {
+      CYCLE.readThought[k]=thought;
+      csave();
+    }
+    return false;
+  }
+  return await completeDailyReadCore(false);
+}
+
+function preserveDailyDraft(){
+  const box=document.getElementById("dailyThink");
+  if(box) saveDailyThoughtDraft(box.value);
+}
+
+function gateMissingItems(){
+  const k=ck(),missing=[];
+  if(!CYCLE.read[k]) missing.push("必读 + 思考");
+  if(!CYCLE.time[k]) missing.push("时间管理");
+  if(!CYCLE.ai[k]) missing.push("AI 练习");
+  return missing;
+}
+
+async function markDailyRead(){
+  preserveDailyDraft();
+  await completeDailyReadCore(true);
+}
 async function retryDailyReflectionSync(){
   const k=ck(),thought=(CYCLE.readThought[k]||document.getElementById("dailyThink")?.value||"").trim();
   if(thought.length<12){alert("今天还没有可同步的思考内容，请先完成至少 12 个字。");return}
@@ -1146,7 +1213,14 @@ function openDailySource(){
     else if(["libexam","lib30","libwriting","libgrowth"].includes(l.source))openReadableDoc(l.source);
   },60);
 }
-function goDailyTime(){show("training",document.querySelectorAll(".tab")[1]);openToolbox("timebox")}function goDailyAI(){
+async function goDailyTime(){
+  preserveDailyDraft();
+  await autoCompleteDailyReadIfReady();
+  show("training",document.querySelectorAll(".tab")[1]);
+  openToolbox("timebox");
+}async function goDailyAI(){
+  preserveDailyDraft();
+  await autoCompleteDailyReadIfReady();
   show("training",document.querySelectorAll(".tab")[1]);
   openToolbox("chatgpt");
   CYCLE.aiOpened=ck();
@@ -1154,8 +1228,21 @@ function goDailyTime(){show("training",document.querySelectorAll(".tab")[1]);ope
   CYCLE.aiOpenedAt[ck()]=new Date().toISOString();
   csave();
 }
-function confirmAIPractice(){let k=ck();if(!CYCLE.ai[k]){CYCLE.ai[k]=true;CYCLE.aiCompletedAt=CYCLE.aiCompletedAt||{};CYCLE.aiCompletedAt[k]=new Date().toISOString();let rk="ai-"+k;if(!S.rewarded[rk]){S.rewarded[rk]=true;S.xp+=15;S.learn=Math.min(100,S.learn+3);S.focus=Math.min(100,S.focus+1);localStorage.setItem(K,JSON.stringify(S));}}csave();renderDailyGate();render();showReward("🤖","AI 练习已完成","系统已记录完成状态和时间。+15 XP") }
-function markTimeToday(){let k=ck();if(!CYCLE.time[k]){CYCLE.time[k]=true;let rk="time-"+k;if(!S.rewarded[rk]){S.rewarded[rk]=true;S.xp+=15;S.time=Math.min(100,S.time+3);localStorage.setItem(K,JSON.stringify(S));}}csave();renderDailyGate();render()}function gateOK(){return !!(CYCLE.read[ck()]&&CYCLE.time[ck()]&&CYCLE.ai[ck()])}function renderDailyGate(){
+function confirmAIPractice(){preserveDailyDraft();let k=ck();if(!CYCLE.ai[k]){CYCLE.ai[k]=true;CYCLE.aiCompletedAt=CYCLE.aiCompletedAt||{};CYCLE.aiCompletedAt[k]=new Date().toISOString();let rk="ai-"+k;if(!S.rewarded[rk]){S.rewarded[rk]=true;S.xp+=15;S.learn=Math.min(100,S.learn+3);S.focus=Math.min(100,S.focus+1);localStorage.setItem(K,JSON.stringify(S));}}csave();renderDailyGate();render();showReward("🤖","AI 练习已完成","系统已记录完成状态和时间。+15 XP") }
+function markTimeToday(){preserveDailyDraft();let k=ck();if(!CYCLE.time[k]){CYCLE.time[k]=true;let rk="time-"+k;if(!S.rewarded[rk]){S.rewarded[rk]=true;S.xp+=15;S.time=Math.min(100,S.time+3);localStorage.setItem(K,JSON.stringify(S));}}csave();renderDailyGate();render()}function gateOK(){
+  const k=ck();
+  const thought=(CYCLE.readThought[k]||"").trim();
+  if(thought.length>=12 && !CYCLE.read[k]){
+    CYCLE.read[k]=true;
+    csave();
+  }
+  return !!(CYCLE.read[k]&&CYCLE.time[k]&&CYCLE.ai[k]);
+}function renderDailyGate(){
+  const liveBox=document.getElementById("dailyThink");
+  if(liveBox && !liveBox.disabled && liveBox.value.trim()){
+    CYCLE.readThought[ck()]=liveBox.value;
+    csave();
+  }
   let l=DAILY_LESSONS[CYCLE.day-1],box=document.getElementById("dailyLessonBox");if(!box)return;
   box.innerHTML=`<div class="lessonType">${l.type}</div><h3>Day ${CYCLE.day}｜${l.title}</h3>
   <div class="compareLine"><b>📖 今天读：</b>${l.read}</div>
@@ -1170,7 +1257,10 @@ function markTimeToday(){let k=ck();if(!CYCLE.time[k]){CYCLE.time[k]=true;let rk
   if(rb){rb.textContent=done?"✓ 今日必读与思考已完成":"✓ 保存思考并完成今日必读";rb.disabled=done}
   let sb=document.getElementById("dailySyncBtn");
   if(sb){sb.style.display=(CYCLE.readThought[k]||"").trim().length>=12?"inline-flex":"none"}
-  gateStatus.innerHTML=gateOK()?"🔓 <b>今日挑战已解锁！</b>":"🔒 完成「必读+思考、时间管理、AI练习」后解锁今日挑战。";
+  const missing=gateMissingItems();
+  gateStatus.innerHTML=gateOK()
+    ?"🔓 <b>今日挑战已解锁！</b>"
+    :`🔒 还差：<b>${missing.join("、")}</b>。完成后自动解锁；思考草稿会自动保存。`;
   document.querySelectorAll("#challenge > .card").forEach(x=>{if(x.id!=="dailyGate")x.classList.toggle("challengeLocked",!gateOK())});
 }
 function cycleQuestTitle(day){if(CYCLE.cycle<=1)return QUEST30[day-1];let e=getEpisode(day);return `第 ${CYCLE.cycle} 轮 · ${e[1]}`}
@@ -1382,7 +1472,14 @@ function render(){
   renderDailyGate();
 }
 function choose(i,b){
-  if(!gateOK()){alert("🔒 请先完成上面的必读+思考、时间管理和 AI 练习，才可以回答今日挑战。");return}
+  preserveDailyDraft();
+  if(!gateOK()){
+    const missing=gateMissingItems();
+    alert("🔒 还差："+missing.join("、")+"。\n\n完成后今日挑战会自动解锁，你已经写下的思考不会消失。");
+    const gate=document.getElementById("dailyGate");
+    if(gate)gate.scrollIntoView({behavior:"smooth",block:"start"});
+    return;
+  }
   pick=i;document.querySelectorAll(".choice").forEach(x=>x.classList.remove("sel"));b.classList.add("sel");
   let e=getEpisode(CYCLE.day),f=document.getElementById("feedback");f.style.display="block";
   if(i===e[5]){
