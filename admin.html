@@ -340,6 +340,35 @@ input{width:100%;padding:12px 13px;border:1px solid #d8e1ed;border-radius:12px;o
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<div id="parentPasswordModal" class="modalBack hidden" onclick="if(event.target===this)closeParentResetPassword()">
+  <div class="modalCard" style="width:min(520px,96vw)">
+    <div class="modalTop">
+      <div>
+        <div class="pill">PARENT ACCOUNT</div>
+        <h2 style="margin-bottom:4px">🔑 Reset Temporary Password</h2>
+        <div class="muted" id="parentPasswordName">Parent</div>
+      </div>
+      <button class="closeBtn" onclick="closeParentResetPassword()">✕</button>
+    </div>
+
+    <div style="padding-top:14px">
+      <div class="formField">
+        <label>新的 Temporary Password</label>
+        <input id="parentTempPassword" type="password" placeholder="至少 8 个字符">
+        <div class="accountHint">Parent 下次登录必须先建立自己的新 Password。</div>
+      </div>
+
+      <div id="parentPasswordResult" class="manageResult hidden" style="margin-top:12px"></div>
+
+      <div class="createActions" style="margin-top:14px">
+        <button class="btn" onclick="resetParentTemporaryPassword()">Reset Temporary Password</button>
+        <button class="btn light" onclick="closeParentResetPassword()">取消</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
 const SUPABASE_URL='https://htzkjfztqqsbzxahxfnt.supabase.co';
 const SUPABASE_KEY='sb_publishable_-2O1fEqOGCQPSiMGQVSFrQ_bC3hf4WM';
@@ -481,7 +510,7 @@ async function loadDashboard(){
     if(parentLinkBox){
       parentLinkBox.innerHTML=parentLinks.length?`
         <div style="overflow:auto"><table>
-        <thead><tr><th>Parent</th><th>Relationship</th><th>Student</th><th>Status</th></tr></thead>
+        <thead><tr><th>Parent</th><th>Relationship</th><th>Student</th><th>Status</th><th>Account</th></tr></thead>
         <tbody>${parentLinks.map(l=>{
           const p=profileMap.get(l.parent_user_id), s=studentMap.get(l.student_id);
           return `<tr>
@@ -489,6 +518,7 @@ async function loadDashboard(){
             <td>${esc(l.relationship||"parent")}</td>
             <td>${s?`${esc(s.student_id)} · ${esc(s.full_name)}`:"—"}</td>
             <td><span class="tag ${String(l.status||"").toUpperCase()==="ACTIVE"?"active":""}">${esc(l.status||"—")}</span></td>
+            <td><button class="btn light" onclick='openParentResetPassword(${JSON.stringify(l.parent_user_id)}, ${JSON.stringify(p?.full_name||"Parent")})'>🔑 Reset Temp Password</button></td>
           </tr>`;
         }).join("")}</tbody></table></div>`
         :'<div class="empty">还没有 Parent ↔ Student 绑定。</div>';
@@ -826,6 +856,61 @@ Parent 第一次登录必须先设置自己的新 Password。`;
   }finally{
     btn.disabled=false;
     btn.textContent="建立 Parent Account + 绑定学生";
+  }
+}
+
+
+let CURRENT_PARENT_RESET=null;
+
+function openParentResetPassword(userId,fullName){
+  CURRENT_PARENT_RESET={user_id:userId,full_name:fullName||"Parent"};
+  $("parentPasswordName").textContent=CURRENT_PARENT_RESET.full_name;
+  $("parentTempPassword").value="";
+  const box=$("parentPasswordResult");
+  box.className="manageResult hidden";
+  box.textContent="";
+  $("parentPasswordModal").classList.remove("hidden");
+}
+
+function closeParentResetPassword(){
+  $("parentPasswordModal").classList.add("hidden");
+  CURRENT_PARENT_RESET=null;
+}
+
+async function resetParentTemporaryPassword(){
+  const box=$("parentPasswordResult");
+  const temporaryPassword=$("parentTempPassword").value;
+
+  if(!CURRENT_PARENT_RESET?.user_id){
+    box.className="manageResult bad";
+    box.textContent="找不到 Parent Account。";
+    return;
+  }
+
+  if(temporaryPassword.length<8){
+    box.className="manageResult bad";
+    box.textContent="Temporary Password 至少需要 8 个字符。";
+    return;
+  }
+
+  if(!confirm(`确认重设 ${CURRENT_PARENT_RESET.full_name} 的 Temporary Password？`)) return;
+
+  box.className="manageResult";
+  box.textContent="正在重设 Parent Temporary Password…";
+
+  try{
+    await adminAccountRequest({
+      action:"reset_temp_password",
+      user_id:CURRENT_PARENT_RESET.user_id,
+      temporary_password:temporaryPassword
+    });
+
+    box.className="manageResult good";
+    box.textContent="✓ Parent Temporary Password 已重设。\n\nParent 下次登录时必须先建立自己的新 Password。";
+    $("parentTempPassword").value="";
+  }catch(err){
+    box.className="manageResult bad";
+    box.textContent="✗ Reset 失败\n"+(err.result?.error||err.message||"Unknown error");
   }
 }
 
