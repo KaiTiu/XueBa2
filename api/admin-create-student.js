@@ -212,6 +212,34 @@ module.exports = async function handler(req, res) {
       throw new Error("找不到 ACTIVE 的 SCORE-A course。");
     }
 
+    // SAFE DRY RUN:
+    // Verifies Admin session + server secret + SCORE-A course without creating anything
+    // and without consuming the Student ID sequence.
+    if (body.dry_run === true) {
+      const existingStudents = await serviceRest(
+        "students?student_id=like.SCORE-A*&select=student_id&order=student_id.desc&limit=1",
+        { method: "GET" }
+      );
+      const highest = existingStudents?.[0]?.student_id || null;
+      let nextPreview = "SCORE-A00001";
+      if (highest) {
+        const m = String(highest).match(/(\d+)$/);
+        const n = m ? Number(m[1]) + 1 : 1;
+        nextPreview = "SCORE-A" + String(n).padStart(5, "0");
+      }
+
+      return send(res, 200, {
+        ok: true,
+        mode: "dry_run",
+        message: "Admin API is ready. No student was created.",
+        admin_email: caller.email || null,
+        service_role_configured: true,
+        course_code: course.course_code,
+        current_highest_student_id: highest,
+        next_student_id_preview: nextPreview
+      });
+    }
+
     // 5) Reserve the next Student ID from PostgreSQL sequence.
     const studentId = await serviceRest("rpc/next_scorea_student_id", {
       method: "POST",
