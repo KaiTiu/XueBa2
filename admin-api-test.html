@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Score A Admin API Safe Test</title>
+<style>
+body{font-family:system-ui,-apple-system,Segoe UI,Arial;background:#f4f7fc;margin:0;padding:22px;color:#11213e}
+.card{max-width:760px;margin:5vh auto;background:#fff;border:1px solid #dfe7f2;border-radius:22px;padding:25px;box-shadow:0 18px 55px rgba(30,50,90,.09)}
+input{width:100%;box-sizing:border-box;padding:12px 13px;margin:6px 0 12px;border:1px solid #d7e0ed;border-radius:12px;font:inherit}
+button{width:100%;padding:14px;border:0;border-radius:12px;background:#245eea;color:#fff;font-weight:900;font-size:16px;cursor:pointer}
+pre{white-space:pre-wrap;background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:14px;min-height:130px}
+.good{color:#087454;font-weight:900}.bad{color:#b42318;font-weight:900}
+.note{color:#66758a;font-size:13px;line-height:1.6}
+</style>
+</head>
+<body>
+<div class="card">
+<h1>HOW TO SCORE A｜Admin API 安全测试</h1>
+<p class="note">这个测试只验证 Admin 身份、Vercel Secret 和 Supabase 后台权限。<b>不会建立学生，也不会消耗 SCORE-A 编号。</b></p>
+<label>Admin Email</label>
+<input id="email" type="email" value="tiuwf84@gmail.com">
+<label>Admin Password</label>
+<input id="password" type="password" placeholder="Admin Password">
+<button onclick="runTest()">登录并进行安全测试</button>
+<p id="status"></p>
+<pre id="detail">等待测试…</pre>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const db=window.supabase.createClient('https://htzkjfztqqsbzxahxfnt.supabase.co','sb_publishable_-2O1fEqOGCQPSiMGQVSFrQ_bC3hf4WM');
+
+async function runTest(){
+  const status=document.getElementById("status");
+  const detail=document.getElementById("detail");
+  status.textContent="正在测试…"; status.className="";
+  detail.textContent="Working...";
+  try{
+    const email=document.getElementById("email").value.trim();
+    const password=document.getElementById("password").value;
+    const {data,error}=await db.auth.signInWithPassword({email,password});
+    if(error) throw error;
+    const token=data?.session?.access_token;
+    if(!token) throw new Error("No access token returned.");
+
+    const r=await fetch("/api/admin-create-student",{
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json",
+        "Authorization":"Bearer "+token
+      },
+      body:JSON.stringify({dry_run:true})
+    });
+    const raw=await r.text();
+    let result;
+    try{result=JSON.parse(raw)}catch{result={raw}}
+    if(!r.ok) throw Object.assign(new Error(result?.error||raw||("HTTP "+r.status)),{result});
+    status.textContent="✓ 安全测试成功"; status.className="good";
+    detail.textContent=JSON.stringify(result,null,2);
+  }catch(err){
+    status.textContent="✗ 安全测试失败"; status.className="bad";
+    detail.textContent=JSON.stringify(err.result||{message:err.message},null,2);
+  }
+}
+</script>
+</body>
+</html>
