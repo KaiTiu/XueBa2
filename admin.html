@@ -258,6 +258,36 @@ input{width:100%;padding:12px 13px;border:1px solid #d8e1ed;border-radius:12px;o
     <div style="margin-top:20px">
       <h3 style="margin-bottom:8px">🔗 Parent ↔ Student 绑定</h3>
       <div id="parentLinkTable"><div class="empty">等待读取…</div></div>
+
+      <div style="margin-top:18px;padding-top:16px;border-top:1px solid #e7edf5">
+        <h3 style="margin:0 0 5px">➕ 给现有 Parent 绑定另一个孩子</h3>
+        <div class="muted" style="margin-bottom:12px">不需要重新建立 Parent Account。一个 Parent 可以绑定多个孩子。</div>
+
+        <div class="parentAdminGrid">
+          <div class="formField">
+            <label>现有 Parent</label>
+            <select id="existingParentSelect"><option value="">请选择 Parent</option></select>
+          </div>
+          <div class="formField">
+            <label>另一个 Student</label>
+            <select id="existingParentStudent"><option value="">请选择 Student</option></select>
+          </div>
+          <div class="formField">
+            <label>Relationship</label>
+            <select id="existingParentRelationship">
+              <option value="parent">Parent</option>
+              <option value="mother">Mother</option>
+              <option value="father">Father</option>
+              <option value="guardian">Guardian</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="createActions" style="margin-top:12px">
+          <button class="btn" id="linkExistingParentBtn" onclick="linkExistingParentToStudent()">绑定另一个孩子</button>
+        </div>
+        <div id="linkExistingParentResult" class="parentAdminResult hidden"></div>
+      </div>
     </div>
   </section>
 
@@ -505,6 +535,18 @@ async function loadDashboard(){
 
     const profileMap=new Map(parentProfiles.map(p=>[p.user_id,p]));
     const studentMap=new Map(students.map(s=>[s.id,s]));
+    const existingParentSelect=$("existingParentSelect");
+    if(existingParentSelect){
+      existingParentSelect.innerHTML='<option value="">请选择 Parent</option>'+
+        parentProfiles.map(p=>`<option value="${esc(p.user_id)}">${esc(p.full_name)}${p.phone?` · ${esc(p.phone)}`:""}</option>`).join("");
+    }
+
+    const existingParentStudent=$("existingParentStudent");
+    if(existingParentStudent){
+      existingParentStudent.innerHTML='<option value="">请选择 Student</option>'+
+        students.map(s=>`<option value="${esc(s.id)}">${esc(s.student_id)} · ${esc(s.full_name)} · ${esc(s.grade||"")}</option>`).join("");
+    }
+
     const parentLinkBox=$("parentLinkTable");
 
     if(parentLinkBox){
@@ -756,6 +798,66 @@ async function manageEnrollment(action,days=null){
   }
 }
 
+
+
+async function linkExistingParentToStudent(){
+  const parentUserId=$("existingParentSelect").value;
+  const studentId=$("existingParentStudent").value;
+  const relationship=$("existingParentRelationship").value;
+  const box=$("linkExistingParentResult");
+  const btn=$("linkExistingParentBtn");
+
+  if(!parentUserId||!studentId){
+    box.className="parentAdminResult bad";
+    box.textContent="请选择现有 Parent 和要新增绑定的 Student。";
+    return;
+  }
+
+  btn.disabled=true;
+  btn.textContent="正在绑定…";
+  box.className="parentAdminResult";
+  box.textContent="正在建立 Parent ↔ Student 绑定…";
+
+  try{
+    const {data:sessionData,error:sessionError}=await db.auth.getSession();
+    if(sessionError)throw sessionError;
+    const token=sessionData?.session?.access_token;
+    if(!token)throw new Error("Admin session 已过期，请重新登录。");
+
+    const r=await fetch("/api/admin-link-parent-student",{
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json",
+        "Authorization":"Bearer "+token
+      },
+      body:JSON.stringify({
+        parent_user_id:parentUserId,
+        student_id:studentId,
+        relationship
+      })
+    });
+
+    const raw=await r.text();
+    let result;
+    try{result=JSON.parse(raw)}catch{result={error:raw}}
+    if(!r.ok||!result?.ok){
+      throw Object.assign(new Error(result?.error||`HTTP ${r.status}`),{result});
+    }
+
+    box.className="parentAdminResult good";
+    box.textContent=result.already_linked
+      ?`✓ ${result.parent.full_name} 已经绑定 ${result.student.student_id} · ${result.student.full_name}。`
+      :`✓ 已成功绑定另一个孩子\n\nParent：${result.parent.full_name}\nStudent：${result.student.student_id} · ${result.student.full_name}`;
+
+    await loadDashboard();
+  }catch(err){
+    box.className="parentAdminResult bad";
+    box.textContent="✗ 绑定失败\n"+(err.result?.error||err.message||"Unknown error");
+  }finally{
+    btn.disabled=false;
+    btn.textContent="绑定另一个孩子";
+  }
+}
 
 function clearParentForm(){
   $("newParentName").value="";

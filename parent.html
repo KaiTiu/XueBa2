@@ -41,6 +41,25 @@ button,input{font:inherit}
 .empty{padding:16px;border:1px dashed #ccd7e7;border-radius:14px;color:#758299;background:#fafcff}
 .note{font-size:11px;color:#7f8ba0;margin-top:10px;line-height:1.6}
 .modalBack{position:fixed;inset:0;background:#0c183dcc;display:none;place-items:center;padding:18px;z-index:100}.modalBack.show{display:grid}.modal{width:min(500px,96vw);background:#fff;border-radius:22px;padding:22px;box-shadow:0 24px 70px #0004}.modal h3{margin-top:0}.modalActions{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}
+
+.guideShell{margin-top:14px;background:#fff;border:1px solid var(--line);border-radius:22px;padding:20px}
+.guideHero{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;flex-wrap:wrap}
+.guideHero h3{margin:0 0 6px}.guideHero p{margin:0;color:#748199;line-height:1.65}
+.guideSearch{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+.guideSearch input{flex:1;min-width:240px;padding:12px 14px;border:1px solid #d7e0ed;border-radius:12px}
+.guideQuick{display:flex;gap:7px;flex-wrap:wrap;margin:12px 0}
+.guideQuick button{border:1px solid #dce5f1;background:#f6f9fd;color:#365071;padding:8px 10px;border-radius:999px;font-weight:850;cursor:pointer}
+.guideQuick button:hover{background:#edf3fb}
+.guideTopic{border:1px solid #e0e7f0;border-radius:15px;margin-top:9px;overflow:hidden;background:#fff}
+.guideTopicHead{width:100%;border:0;background:#fff;display:flex;justify-content:space-between;gap:12px;align-items:center;padding:14px 15px;text-align:left;cursor:pointer}
+.guideTopicHead small{display:block;color:#7d8aa0;font-size:9px;letter-spacing:.09em;margin-bottom:3px}
+.guideTopicHead b{font-size:14px;color:#233957}
+.guideChevron{font-size:21px;color:#59708f;flex:none}
+.guideTopicBody{display:none;border-top:1px solid #edf1f6;padding:14px 16px;background:#fbfcff;line-height:1.72;color:#3a4e69}
+.guideTopic.open .guideTopicBody{display:block}.guideTopic.open .guideChevron{transform:rotate(45deg)}
+.guideTopicBody p{margin:7px 0}.guideBullet{padding-left:2px;margin:6px 0}.guideSpacer{height:5px}
+.guideNoResult{display:none;padding:16px;border:1px dashed #ccd7e7;border-radius:14px;color:#758299;background:#fafcff;margin-top:12px}
+
 @media(max-width:900px){.grid2{grid-template-columns:1fr}.summary{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:680px){.authShell{grid-template-columns:1fr}.authBrand,.authForm{padding:28px}.summary{grid-template-columns:1fr}.wrap{padding:14px}.topbar{height:auto;min-height:66px;padding:10px 14px}.hero h1{font-size:25px}.childSelect{min-width:100%}}
 </style>
@@ -99,6 +118,7 @@ button,input{font:inherit}
     <div class="brand">🎓 How to Score A with AI<small>Parent Dashboard · Growth, Not Pressure</small></div>
     <div class="topActions">
       <span id="parentTopName" class="topName"></span>
+      <button class="btn light" onclick="scrollToParentGuide()">📘 家长指南</button>
       <button class="btn light" onclick="openPasswordModal()">🔐 修改 Password</button>
       <button class="btn light" onclick="loadDashboard()">↻ 更新</button>
       <button class="btn light" onclick="logout()">登出</button>
@@ -162,6 +182,496 @@ button,input{font:inherit}
       <div class="sub">重点不是写很多，而是孩子是否越来越会发现问题 → 说明原因 → 想下一步。</div>
       <div id="reflectionList"><div class="empty">等待真实学习记录。</div></div>
       <div class="note">SYSTEM TEST / Cycle 999 会自动隐藏，不会显示给家长。</div>
+    </section>
+
+    <section id="parentGuideSection" class="guideShell">
+      <div class="guideHero">
+        <div>
+          <div class="eyebrow">PARENT COACHING GUIDE</div>
+          <h3>👨‍👩‍👧 家长陪伴指南</h3>
+          <p>从「监督孩子学习」走向「陪伴孩子成长」。不用一次读完，遇到问题就直接搜索。</p>
+        </div>
+        <button class="btn light" onclick="clearGuideSearch()">显示全部主题</button>
+      </div>
+
+      <div class="guideSearch">
+        <input id="parentGuideSearch" type="search" placeholder="例如：拖延、粗心、奖励、比较、AI、情绪、考试成绩…" oninput="filterParentGuide(this.value)">
+        <button class="btn" onclick="filterParentGuide(document.getElementById('parentGuideSearch').value)">查找</button>
+      </div>
+
+      <div class="guideQuick">
+        <button onclick="quickGuide('不愿意学习')">孩子不愿学习</button>
+        <button onclick="quickGuide('做错题')">做错题</button>
+        <button onclick="quickGuide('比较')">不要比较</button>
+        <button onclick="quickGuide('奖励')">奖励制度</button>
+        <button onclick="quickGuide('成长报告')">成长报告</button>
+        <button onclick="quickGuide('AI')">AI 怎么用</button>
+        <button onclick="quickGuide('情绪')">家长情绪</button>
+        <button onclick="quickGuide('学习环境')">学习环境</button>
+      </div>
+
+      <div id="guideNoResult" class="guideNoResult">没有找到对应主题。可以换一个关键词，例如「拖延」「比较」「奖励」「AI」「情绪」。</div>
+      <div id="parentGuideTopics">
+        <article class="guideTopic" data-guide-index="0" data-search="一、家长陪伴的核心理念 - 孩子真正需要的，不只是有人每天问： 「功课做完了吗？」 「今天读书了吗？」 「为什么又错？」 「为什么别人可以，你不可以？」  - 孩子更需要一个能够帮助他逐渐建立： [自主、责任、方法、信心与反思能力的家庭环境。]  - 因此，score a 家长陪伴系统的核心不是：**control 控制** 而是：[连接孩子 → 引导思考 → 提供支持 → 共同反思 → 持续成长]  - 我们的最终目标不是培养一个： 「父母监督才会学习的孩子。 」 而是逐渐培养一个： 「即使父母不在旁边，也知道自己应该怎样学习的孩子。 」 ">
+  <button class="guideTopicHead" type="button" onclick="toggleGuideTopic(0)">
+    <span><small>SECTION 01</small><b>一、家长陪伴的核心理念</b></span>
+    <span class="guideChevron">＋</span>
+  </button>
+  <div class="guideTopicBody" id="guideTopicBody0">
+    <div class="guideBullet">• 孩子真正需要的，不只是有人每天问：</div>
+<p>「功课做完了吗？」</p>
+<p>「今天读书了吗？」</p>
+<p>「为什么又错？」</p>
+<p>「为什么别人可以，你不可以？」</p>
+<div class="guideSpacer"></div>
+<div class="guideBullet">• 孩子更需要一个能够帮助他逐渐建立：</div>
+<p>[自主、责任、方法、信心与反思能力的家庭环境。]</p>
+<div class="guideSpacer"></div>
+<div class="guideBullet">• 因此，Score A 家长陪伴系统的核心不是：<strong>Control 控制</strong></div>
+<p>而是：[连接孩子 → 引导思考 → 提供支持 → 共同反思 → 持续成长]</p>
+<div class="guideSpacer"></div>
+<div class="guideBullet">• 我们的最终目标不是培养一个： 「父母监督才会学习的孩子。 」</div>
+<p>而是逐渐培养一个： 「即使父母不在旁边，也知道自己应该怎样学习的孩子。 」</p>
+<div class="guideSpacer"></div>
+  </div>
+</article>
+<article class="guideTopic" data-guide-index="1" data-search="二、家长的五个正确角色 角色 1：支持者 supporter - 家长首先提供的是稳定支持，而不是持续施压。 - 孩子遇到困难时，不急着责备，先了解： 「发生了什么？」 「哪里最困难？」 「你已经尝试过什么方法？」   角色 2：引导者 guide - 不要马上替孩子解决问题，可以问： 「你觉得下一步可以怎样做？」 「有没有另一种方法？」 「你需要我帮你一起想，还是想先自己试？」 - 让孩子练习自己学会解决问题。  角色 3：观察者 observer - 家长关注的不应该只有：**考试分数。** - 也应该观察： 【孩子是否越来越主动？】 【是否开始规划？】 【是否愿意订正？】 【是否能够坚持？】 【是否懂得寻求帮助？】 【是否愿意挑战问题？】 - 这些都是重要的成长信号。  角色 4：环境建设者 environment builder - 很多时候，孩子的学习问题不只是意志力问题。 - 家庭可以一起建立： 【固定学习空间】 【合理手机规则】 【规律作息】 【安静环境】 【阅读时间】 【家庭共同学习时间】 【让好的行为更容易发生。】  角色 5：成长伙伴 growth partner - 父母也可以让孩子看到，成年人同样需要学习，例如： 【爸爸学习新的工作技能。】 【妈妈阅读一本书。】 【一家人一起讨论新知识。】 - 让孩子理解：**学习不是学生时期的任务，而是一生的能力。** ">
+  <button class="guideTopicHead" type="button" onclick="toggleGuideTopic(1)">
+    <span><small>SECTION 02</small><b>二、家长的五个正确角色</b></span>
+    <span class="guideChevron">＋</span>
+  </button>
+  <div class="guideTopicBody" id="guideTopicBody1">
+    <p>角色 1：支持者 Supporter</p>
+<div class="guideBullet">• 家长首先提供的是稳定支持，而不是持续施压。</div>
+<div class="guideBullet">• 孩子遇到困难时，不急着责备，先了解：</div>
+<p>「发生了什么？」</p>
+<p>「哪里最困难？」</p>
+<p>「你已经尝试过什么方法？」</p>
+<div class="guideSpacer"></div>
+<div class="guideSpacer"></div>
+<p>角色 2：引导者 Guide</p>
+<div class="guideBullet">• 不要马上替孩子解决问题，可以问：</div>
+<p>「你觉得下一步可以怎样做？」</p>
+<p>「有没有另一种方法？」</p>
+<p>「你需要我帮你一起想，还是想先自己试？」</p>
+<div class="guideBullet">• 让孩子练习自己学会解决问题。</div>
+<div class="guideSpacer"></div>
+<p>角色 3：观察者 Observer</p>
+<div class="guideBullet">• 家长关注的不应该只有：<strong>考试分数。</strong></div>
+<div class="guideBullet">• 也应该观察：</div>
+<p>【孩子是否越来越主动？】</p>
+<p>【是否开始规划？】</p>
+<p>【是否愿意订正？】</p>
+<p>【是否能够坚持？】</p>
+<p>【是否懂得寻求帮助？】</p>
+<p>【是否愿意挑战问题？】</p>
+<div class="guideBullet">• 这些都是重要的成长信号。</div>
+<div class="guideSpacer"></div>
+<p>角色 4：环境建设者 Environment Builder</p>
+<div class="guideBullet">• 很多时候，孩子的学习问题不只是意志力问题。</div>
+<div class="guideBullet">• 家庭可以一起建立：</div>
+<p>【固定学习空间】</p>
+<p>【合理手机规则】</p>
+<p>【规律作息】</p>
+<p>【安静环境】</p>
+<p>【阅读时间】</p>
+<p>【家庭共同学习时间】</p>
+<p>【让好的行为更容易发生。】</p>
+<div class="guideSpacer"></div>
+<p>角色 5：成长伙伴 Growth Partner</p>
+<div class="guideBullet">• 父母也可以让孩子看到，成年人同样需要学习，例如：</div>
+<p>【爸爸学习新的工作技能。】</p>
+<p>【妈妈阅读一本书。】</p>
+<p>【一家人一起讨论新知识。】</p>
+<div class="guideBullet">• 让孩子理解：<strong>学习不是学生时期的任务，而是一生的能力。</strong></div>
+<div class="guideSpacer"></div>
+  </div>
+</article>
+<article class="guideTopic" data-guide-index="2" data-search="三、score a 家长沟通五步法 建议建立属于品牌自己的标准亲子沟通流程：l.e.a.r.n. 家长方法 - l — listen 先听 《不要孩子刚开口就纠正。》 《让孩子先把事情说完。》 - e — empathise 《理解处境》 《理解不等于同意所有行为。》 ~ 可以说： 「我明白这部分对你来说有点难」然后才讨论解决方法。 - a — ask 《用问题引导》 《不要一直命令。》 多问： 「你觉得问题在哪里？」 「下一次可以怎样改善？」 - r — respond 《共同寻找方法》 《当孩子已经思考过，再提供建议。》 - n — next step 《确定下一步》 《每一次沟通最后只确定一个或几个可执行行动。》 ~ 例如： 「明天先把这5 道错题重新做一次。 」 ~ 而不是： 「以后你一定要认真一点。 」">
+  <button class="guideTopicHead" type="button" onclick="toggleGuideTopic(2)">
+    <span><small>SECTION 03</small><b>三、Score A 家长沟通五步法</b></span>
+    <span class="guideChevron">＋</span>
+  </button>
+  <div class="guideTopicBody" id="guideTopicBody2">
+    <p>建议建立属于品牌自己的标准亲子沟通流程：L.E.A.R.N. 家长方法</p>
+<div class="guideBullet">• L — Listen 先听</div>
+<p>《不要孩子刚开口就纠正。》</p>
+<p>《让孩子先把事情说完。》</p>
+<div class="guideBullet">• E — Empathise</div>
+<p>《理解处境》</p>
+<p>《理解不等于同意所有行为。》</p>
+<p>~ 可以说： 「我明白这部分对你来说有点难」然后才讨论解决方法。</p>
+<div class="guideBullet">• A — Ask</div>
+<p>《用问题引导》</p>
+<p>《不要一直命令。》</p>
+<p>多问： 「你觉得问题在哪里？」</p>
+<p>「下一次可以怎样改善？」</p>
+<div class="guideBullet">• R — Respond</div>
+<p>《共同寻找方法》</p>
+<p>《当孩子已经思考过，再提供建议。》</p>
+<div class="guideBullet">• N — Next Step</div>
+<p>《确定下一步》</p>
+<p>《每一次沟通最后只确定一个或几个可执行行动。》</p>
+<p>~ 例如： 「明天先把这5 道错题重新做一次。 」</p>
+<p>~ 而不是： 「以后你一定要认真一点。 」</p>
+  </div>
+</article>
+<article class="guideTopic" data-guide-index="3" data-search="四、必须避免的家长话术 情境 1：孩子考试成绩下降，  不建议 「为什么只有65 分？」 「你到底有没有读书？」 「我花这么多钱给你补习有什么用？」 「你看看别人都拿多少分。 」 - 这些话很容易把讨论从：**解决学习问题** 变成：**证明孩子好不好。** -    建议： 「我们先看看这次主要失分在哪里。 」 「你觉得哪一个部分最困难？」 「如果下一次只改善一个问题，你觉得应该先改善什么？」 - 重点：**成绩 → 数据 → 原因 → 改善** ">
+  <button class="guideTopicHead" type="button" onclick="toggleGuideTopic(3)">
+    <span><small>SECTION 04</small><b>四、必须避免的家长话术</b></span>
+    <span class="guideChevron">＋</span>
+  </button>
+  <div class="guideTopicBody" id="guideTopicBody3">
+    <p>情境 1：孩子考试成绩下降，  不建议</p>
+<p>「为什么只有65 分？」</p>
+<p>「你到底有没有读书？」</p>
+<p>「我花这么多钱给你补习有什么用？」</p>
+<p>「你看看别人都拿多少分。 」</p>
+<div class="guideBullet">• 这些话很容易把讨论从：<strong>解决学习问题</strong></div>
+<p>变成：<strong>证明孩子好不好。</strong></p>
+<div class="guideBullet">•    建议： 「我们先看看这次主要失分在哪里。 」</div>
+<p>「你觉得哪一个部分最困难？」</p>
+<p>「如果下一次只改善一个问题，你觉得应该先改善什么？」</p>
+<div class="guideBullet">• 重点：<strong>成绩 → 数据 → 原因 → 改善</strong></div>
+<div class="guideSpacer"></div>
+  </div>
+</article>
+<article class="guideTopic" data-guide-index="4" data-search="五、孩子做错题时  -   不建议： 「这么简单也会错？」 「我不是教过了吗？」 「怎么又错同样的东西？」 -    建议： 「我们先找找这次为什么会错。 」 「这是不会、看错、粗心，还是方法不对？」 「你现在知道问题在哪里了吗？」 「要不要再试一道类似的题？」 - 传递的信息是：**错误不是身份标签，而是学习信息。**     ">
+  <button class="guideTopicHead" type="button" onclick="toggleGuideTopic(4)">
+    <span><small>SECTION 05</small><b>五、孩子做错题时</b></span>
+    <span class="guideChevron">＋</span>
+  </button>
+  <div class="guideTopicBody" id="guideTopicBody4">
+    <div class="guideSpacer"></div>
+<div class="guideBullet">•   不建议： 「这么简单也会错？」</div>
+<p>「我不是教过了吗？」</p>
+<p>「怎么又错同样的东西？」</p>
+<div class="guideBullet">•    建议： 「我们先找找这次为什么会错。 」</div>
+<p>「这是不会、看错、粗心，还是方法不对？」</p>
+<p>「你现在知道问题在哪里了吗？」</p>
+<p>「要不要再试一道类似的题？」</p>
+<div class="guideBullet">• 传递的信息是：<strong>错误不是身份标签，而是学习信息。</strong></div>
+<div class="guideSpacer"></div>
+<div class="guideSpacer"></div>
+<div class="guideSpacer"></div>
+<div class="guideSpacer"></div>
+<div class="guideSpacer"></div>
+  </div>
+</article>
+<article class="guideTopic" data-guide-index="5" data-search="六、孩子不愿意学习时 -   不建议： 「快点去读书！ 」 「整天只会玩手机。 」 「你再这样以后就知道。 」 -    建议： 「你今天好像比较难开始，是哪里卡住了？」 「我们先选今天最重要的一件学习任务。 」 「你想先从比较容易的开始，还是先解决最困难的？」 - 如果孩子明显疲累，也应该考虑： 【是否睡眠不足？】 【任务是否过多？】 【学习内容是否太难？】 【是否已经连续学习太久？】 - 不能把所有问题都归结成：**懒惰** ">
+  <button class="guideTopicHead" type="button" onclick="toggleGuideTopic(5)">
+    <span><small>SECTION 06</small><b>六、孩子不愿意学习时</b></span>
+    <span class="guideChevron">＋</span>
+  </button>
+  <div class="guideTopicBody" id="guideTopicBody5">
+    <div class="guideBullet">•   不建议： 「快点去读书！ 」</div>
+<p>「整天只会玩手机。 」</p>
+<p>「你再这样以后就知道。 」</p>
+<div class="guideBullet">•    建议： 「你今天好像比较难开始，是哪里卡住了？」</div>
+<p>「我们先选今天最重要的一件学习任务。 」</p>
+<p>「你想先从比较容易的开始，还是先解决最困难的？」</p>
+<div class="guideBullet">• 如果孩子明显疲累，也应该考虑：</div>
+<p>【是否睡眠不足？】</p>
+<p>【任务是否过多？】</p>
+<p>【学习内容是否太难？】</p>
+<p>【是否已经连续学习太久？】</p>
+<div class="guideBullet">• 不能把所有问题都归结成：<strong>懒惰</strong></div>
+<div class="guideSpacer"></div>
+  </div>
+</article>
+<article class="guideTopic" data-guide-index="6" data-search="七、孩子主动学习时 - 这是家长特别应该抓住的教育时刻。 -   不要只说： 「很好。 」 或 「乖。 」 -    可以具体反馈： 「我注意到今天不用提醒，你自己就开始学习了。 」 「刚才那题很难，但你没有马上放弃。 」 「你发现答案错了以后自己重新检查，这个习惯很好。 」 - 重点：**肯定具体行为，而不是给孩子固定标签。** - 让孩子知道：哪些行为值得继续。     ">
+  <button class="guideTopicHead" type="button" onclick="toggleGuideTopic(6)">
+    <span><small>SECTION 07</small><b>七、孩子主动学习时</b></span>
+    <span class="guideChevron">＋</span>
+  </button>
+  <div class="guideTopicBody" id="guideTopicBody6">
+    <div class="guideBullet">• 这是家长特别应该抓住的教育时刻。</div>
+<div class="guideBullet">•   不要只说：</div>
+<p>「很好。 」 或 「乖。 」</p>
+<div class="guideBullet">•    可以具体反馈：</div>
+<p>「我注意到今天不用提醒，你自己就开始学习了。 」</p>
+<p>「刚才那题很难，但你没有马上放弃。 」</p>
+<p>「你发现答案错了以后自己重新检查，这个习惯很好。 」</p>
+<div class="guideBullet">• 重点：<strong>肯定具体行为，而不是给孩子固定标签。</strong></div>
+<div class="guideBullet">• 让孩子知道：哪些行为值得继续。</div>
+<div class="guideSpacer"></div>
+<div class="guideSpacer"></div>
+<div class="guideSpacer"></div>
+<div class="guideSpacer"></div>
+<div class="guideSpacer"></div>
+  </div>
+</article>
+<article class="guideTopic" data-guide-index="7" data-search="八、孩子取得高分时 -   不建议只强调： 「终于拿 a 了！ 」 「这才是我的孩子。 」 - 避免让孩子觉得：**只有成绩好才值得被肯定。** -    建议： 「恭喜你，这次进步很明显。你觉得哪个学习方法帮助最大？」 「这次你坚持复习、重新做错题，这些努力应该被看见。 」 - 然后问：**「这次有什么方法以后可以继续？」** - 把一次成绩转化成：**可重复的学习经验。** ">
+  <button class="guideTopicHead" type="button" onclick="toggleGuideTopic(7)">
+    <span><small>SECTION 08</small><b>八、孩子取得高分时</b></span>
+    <span class="guideChevron">＋</span>
+  </button>
+  <div class="guideTopicBody" id="guideTopicBody7">
+    <div class="guideBullet">•   不建议只强调：</div>
+<p>「终于拿 A 了！ 」</p>
+<p>「这才是我的孩子。 」</p>
+<div class="guideBullet">• 避免让孩子觉得：<strong>只有成绩好才值得被肯定。</strong></div>
+<div class="guideBullet">•    建议： 「恭喜你，这次进步很明显。你觉得哪个学习方法帮助最大？」</div>
+<p>「这次你坚持复习、重新做错题，这些努力应该被看见。 」</p>
+<div class="guideBullet">• 然后问：<strong>「这次有什么方法以后可以继续？」</strong></div>
+<div class="guideBullet">• 把一次成绩转化成：<strong>可重复的学习经验。</strong></div>
+<div class="guideSpacer"></div>
+  </div>
+</article>
+<article class="guideTopic" data-guide-index="8" data-search="九、孩子成绩没有达到目标时 正确流程： step 1：先处理事实 「这次是72 分，我们原本目标是 80 分。 」 不夸大，也不羞辱。 step 2：分析 「主要失分在哪里？」 step 3：找一个优先问题，例如： 【粗心。】 【grammar。】 【时间不足。】 step 4：制定行动 「下一阶段先把这个问题改善。 」 让孩子知道：**结果不理想，可以分析和调整。**     ">
+  <button class="guideTopicHead" type="button" onclick="toggleGuideTopic(8)">
+    <span><small>SECTION 09</small><b>九、孩子成绩没有达到目标时</b></span>
+    <span class="guideChevron">＋</span>
+  </button>
+  <div class="guideTopicBody" id="guideTopicBody8">
+    <p>正确流程：</p>
+<p>STEP 1：先处理事实</p>
+<p>「这次是72 分，我们原本目标是 80 分。 」</p>
+<p>不夸大，也不羞辱。</p>
+<p>STEP 2：分析</p>
+<p>「主要失分在哪里？」</p>
+<p>STEP 3：找一个优先问题，例如：</p>
+<p>【粗心。】</p>
+<p>【Grammar。】</p>
+<p>【时间不足。】</p>
+<p>STEP 4：制定行动</p>
+<p>「下一阶段先把这个问题改善。 」</p>
+<p>让孩子知道：<strong>结果不理想，可以分析和调整。</strong></p>
+<div class="guideSpacer"></div>
+<div class="guideSpacer"></div>
+<div class="guideSpacer"></div>
+<div class="guideSpacer"></div>
+<div class="guideSpacer"></div>
+  </div>
+</article>
+<article class="guideTopic" data-guide-index="9" data-search="十、孩子主动要求挑战难题时 - 这是非常重要的成长信号，例如孩子说： 「可以给我更难的吗？」 -  家长不要马上转化成新的压力： 「那以后每天做 20 题难题。 」 -   正确回应： 「很好，你想挑战看看。先试试，遇到不会的地方我们再分析。 」 或者： 「你为什么想挑战更难的题？」 - 让孩子表达： 【好奇心，目标，学习动机】 - 这代表孩子开始从： 【被动完成，走向主动挑战，家长应该保护这种内在学习动力。】 ">
+  <button class="guideTopicHead" type="button" onclick="toggleGuideTopic(9)">
+    <span><small>SECTION 10</small><b>十、孩子主动要求挑战难题时</b></span>
+    <span class="guideChevron">＋</span>
+  </button>
+  <div class="guideTopicBody" id="guideTopicBody9">
+    <div class="guideBullet">• 这是非常重要的成长信号，例如孩子说：</div>
+<p>「可以给我更难的吗？」</p>
+<div class="guideBullet">•  家长不要马上转化成新的压力：</div>
+<p>「那以后每天做 20 题难题。 」</p>
+<div class="guideBullet">•   正确回应：</div>
+<p>「很好，你想挑战看看。先试试，遇到不会的地方我们再分析。 」</p>
+<p>或者： 「你为什么想挑战更难的题？」</p>
+<div class="guideBullet">• 让孩子表达：</div>
+<p>【好奇心，目标，学习动机】</p>
+<div class="guideBullet">• 这代表孩子开始从：</div>
+<p>【被动完成，走向主动挑战，家长应该保护这种内在学习动力。】</p>
+<div class="guideSpacer"></div>
+  </div>
+</article>
+<article class="guideTopic" data-guide-index="10" data-search="十一、正确使用奖励 - 奖励可以使用，但不要让孩子形成： **学习 = 为了拿奖品。** - 不建议长期使用： 「拿 a 就买手机。 」 「做完功课就给钱。 」 - 更建议奖励： 【坚持，进步，努力，完成挑战，主动学习】 - 完成 30 天学习计划： o 家庭一起进行一次喜欢的活动。 o 让奖励更多成为：**成长里程碑的庆祝**，而不是交易。     ">
+  <button class="guideTopicHead" type="button" onclick="toggleGuideTopic(10)">
+    <span><small>SECTION 11</small><b>十一、正确使用奖励</b></span>
+    <span class="guideChevron">＋</span>
+  </button>
+  <div class="guideTopicBody" id="guideTopicBody10">
+    <div class="guideBullet">• 奖励可以使用，但不要让孩子形成：</div>
+<p><strong>学习 = 为了拿奖品。</strong></p>
+<div class="guideBullet">• 不建议长期使用：</div>
+<p>「拿 A 就买手机。 」</p>
+<p>「做完功课就给钱。 」</p>
+<div class="guideBullet">• 更建议奖励：</div>
+<p>【坚持，进步，努力，完成挑战，主动学习】</p>
+<div class="guideBullet">• 完成 30 天学习计划：</div>
+<p>o 家庭一起进行一次喜欢的活动。</p>
+<p>o 让奖励更多成为：<strong>成长里程碑的庆祝</strong>，而不是交易。</p>
+<div class="guideSpacer"></div>
+<div class="guideSpacer"></div>
+<div class="guideSpacer"></div>
+<div class="guideSpacer"></div>
+<div class="guideSpacer"></div>
+  </div>
+</article>
+<article class="guideTopic" data-guide-index="11" data-search="十二、关于比较 - 原则：不和别人比较，尽量和： **过去的自己比较。** - 例如： 「为什么你表哥可以拿90？」 改成： 「上一次你是68，这一次 74。我们看看这 6 分是怎样进步的。 」 - 孩子需要建立的是：**个人成长** 而不是：**持续不断的竞争** ">
+  <button class="guideTopicHead" type="button" onclick="toggleGuideTopic(11)">
+    <span><small>SECTION 12</small><b>十二、关于比较</b></span>
+    <span class="guideChevron">＋</span>
+  </button>
+  <div class="guideTopicBody" id="guideTopicBody11">
+    <div class="guideBullet">• 原则：不和别人比较，尽量和：</div>
+<p><strong>过去的自己比较。</strong></p>
+<div class="guideBullet">• 例如： 「为什么你表哥可以拿90？」</div>
+<p>改成： 「上一次你是68，这一次 74。我们看看这 6 分是怎样进步的。 」</p>
+<div class="guideBullet">• 孩子需要建立的是：<strong>个人成长</strong> 而不是：<strong>持续不断的竞争</strong></div>
+<div class="guideSpacer"></div>
+  </div>
+</article>
+<article class="guideTopic" data-guide-index="12" data-search="十三、家长如何使用成长报告 - 成长报告不是： 「成绩审判书。 」 而是：**亲子成长对话工具** - 每次报告出来后，建议家长与孩子进行一次 10–15 分钟成长对话。顺序： 1）先让孩子说：「你觉得自己这个月最大的进步是什么？」 2）看数据， 连续学习：___天 计划完成：___% 解决错题：___题 3）找进步点：「哪些地方比以前好？」 4）找一个改善点，不要一次找十个问题。 只选：1–2 个最值得改善的问题。 5）设下一阶段目标：「下个月你最想改善什么？」 ">
+  <button class="guideTopicHead" type="button" onclick="toggleGuideTopic(12)">
+    <span><small>SECTION 13</small><b>十三、家长如何使用成长报告</b></span>
+    <span class="guideChevron">＋</span>
+  </button>
+  <div class="guideTopicBody" id="guideTopicBody12">
+    <div class="guideBullet">• 成长报告不是： 「成绩审判书。 」 而是：<strong>亲子成长对话工具</strong></div>
+<div class="guideBullet">• 每次报告出来后，建议家长与孩子进行一次 10–15 分钟成长对话。顺序：</div>
+<p>1）先让孩子说：「你觉得自己这个月最大的进步是什么？」</p>
+<p>2）看数据， 连续学习：___天</p>
+<p>计划完成：___%</p>
+<p>解决错题：___题</p>
+<p>3）找进步点：「哪些地方比以前好？」</p>
+<p>4）找一个改善点，不要一次找十个问题。</p>
+<p>只选：1–2 个最值得改善的问题。</p>
+<p>5）设下一阶段目标：「下个月你最想改善什么？」</p>
+<div class="guideSpacer"></div>
+  </div>
+</article>
+<article class="guideTopic" data-guide-index="13" data-search="十四、每周 5 分钟家长检查 建议每周固定一次，家长问五个问题： ① 这个星期你觉得自己哪里进步了？ ② 什么地方最困难？ ③ 你解决了什么问题？ ④ 下星期你最想改善什么？ ⑤ 有什么是需要爸爸妈妈支持你的？ 注意：最后一个问题非常重要。不是：我要怎样管你？而是：我可以怎样支持你？ ">
+  <button class="guideTopicHead" type="button" onclick="toggleGuideTopic(13)">
+    <span><small>SECTION 14</small><b>十四、每周 5 分钟家长检查</b></span>
+    <span class="guideChevron">＋</span>
+  </button>
+  <div class="guideTopicBody" id="guideTopicBody13">
+    <p>建议每周固定一次，家长问五个问题：</p>
+<p>① 这个星期你觉得自己哪里进步了？</p>
+<p>② 什么地方最困难？</p>
+<p>③ 你解决了什么问题？</p>
+<p>④ 下星期你最想改善什么？</p>
+<p>⑤ 有什么是需要爸爸妈妈支持你的？</p>
+<p>注意：最后一个问题非常重要。不是：我要怎样管你？而是：我可以怎样支持你？</p>
+<div class="guideSpacer"></div>
+  </div>
+</article>
+<article class="guideTopic" data-guide-index="14" data-search="十五、家长成长陪伴表 - 每周记录： o 孩子本周目标： o 孩子自己完成程度： o 观察到的进步： o 目前困难： o 孩子主动学习行为： o 孩子主动提问/挑战： o 本周需要家长提供的支持： o 家长本周做得好的地方： o 家长下周需要改善： - 这最后两栏非常重要，因为：成长的不只是孩子，家长也需要反思自己的陪伴方式。** ">
+  <button class="guideTopicHead" type="button" onclick="toggleGuideTopic(14)">
+    <span><small>SECTION 15</small><b>十五、家长成长陪伴表</b></span>
+    <span class="guideChevron">＋</span>
+  </button>
+  <div class="guideTopicBody" id="guideTopicBody14">
+    <div class="guideBullet">• 每周记录：</div>
+<p>o 孩子本周目标：</p>
+<p>o 孩子自己完成程度：</p>
+<p>o 观察到的进步：</p>
+<p>o 目前困难：</p>
+<p>o 孩子主动学习行为：</p>
+<p>o 孩子主动提问/挑战：</p>
+<p>o 本周需要家长提供的支持：</p>
+<p>o 家长本周做得好的地方：</p>
+<p>o 家长下周需要改善：</p>
+<div class="guideBullet">• 这最后两栏非常重要，因为：成长的不只是孩子，家长也需要反思自己的陪伴方式。**</div>
+<div class="guideSpacer"></div>
+  </div>
+</article>
+<article class="guideTopic" data-guide-index="15" data-search="十六、家庭学习环境标准 - 建议家庭共同建立： o 学习时间 ~ 有基本规律，但保留弹性。 o 手机规则 ~ 规则尽量家庭共同讨论，而不是临时处罚。 o 学习空间 ~ 尽量减少干扰。 o 休息 ~ 学习计划必须包含休息。 o 睡眠 ~ 不要为了完成系统任务长期牺牲睡眠。 o 运动 ~ 保持正常活动。 o 家庭关系 ~ 考试期间也不要让所有家庭对话都围绕成绩 ">
+  <button class="guideTopicHead" type="button" onclick="toggleGuideTopic(15)">
+    <span><small>SECTION 16</small><b>十六、家庭学习环境标准</b></span>
+    <span class="guideChevron">＋</span>
+  </button>
+  <div class="guideTopicBody" id="guideTopicBody15">
+    <div class="guideBullet">• 建议家庭共同建立：</div>
+<p>o 学习时间 ~ 有基本规律，但保留弹性。</p>
+<p>o 手机规则 ~ 规则尽量家庭共同讨论，而不是临时处罚。</p>
+<p>o 学习空间 ~ 尽量减少干扰。</p>
+<p>o 休息 ~ 学习计划必须包含休息。</p>
+<p>o 睡眠 ~ 不要为了完成系统任务长期牺牲睡眠。</p>
+<p>o 运动 ~ 保持正常活动。</p>
+<p>o 家庭关系 ~ 考试期间也不要让所有家庭对话都围绕成绩</p>
+<div class="guideSpacer"></div>
+  </div>
+</article>
+<article class="guideTopic" data-guide-index="16" data-search="十七、家长使用 ai 的正确方式 - 家长可以利用how to score a with ai 系统询问： 「孩子最近一直在数学应用题失分，我应该怎样帮助他反思？」 「这是孩子过去四周的学习记录，请帮我整理趋势。 」 「我应该怎样和孩子讨论这次考试结果？」 [但是：ai 不应该被用来给孩子贴标签。] - 家长应该避免询问 ai 以下问题： 「根据这些记录判断我的孩子是不是懒惰。 」 「判断孩子以后能不能成功。 」 「告诉我孩子是不是学霸。 」 - ai 应该是帮助家长：理解问题和寻找方法。而不是：定义孩子的角色。 ">
+  <button class="guideTopicHead" type="button" onclick="toggleGuideTopic(16)">
+    <span><small>SECTION 17</small><b>十七、家长使用 AI 的正确方式</b></span>
+    <span class="guideChevron">＋</span>
+  </button>
+  <div class="guideTopicBody" id="guideTopicBody16">
+    <div class="guideBullet">• 家长可以利用How to Score A with AI 系统询问：</div>
+<p>「孩子最近一直在数学应用题失分，我应该怎样帮助他反思？」</p>
+<p>「这是孩子过去四周的学习记录，请帮我整理趋势。 」</p>
+<p>「我应该怎样和孩子讨论这次考试结果？」</p>
+<p>[但是：AI 不应该被用来给孩子贴标签。]</p>
+<div class="guideBullet">• 家长应该避免询问 AI 以下问题：</div>
+<p>「根据这些记录判断我的孩子是不是懒惰。 」</p>
+<p>「判断孩子以后能不能成功。 」</p>
+<p>「告诉我孩子是不是学霸。 」</p>
+<div class="guideBullet">• AI 应该是帮助家长：理解问题和寻找方法。而不是：定义孩子的角色。</div>
+<div class="guideSpacer"></div>
+  </div>
+</article>
+<article class="guideTopic" data-guide-index="17" data-search="十八、家长情绪管理原则 - 家长在非常生气的时候，不建议马上进行教育，可以先暂缓讨论，等双方比较稳定以后, 再回到：事实 –》原因 –》解决方法 –》 而不是：情绪 –》责备 –》争吵 –》孩子逃避 - 亲子教育的目标不是：**赢一场争论。** 正确的亲子教育应该是：**帮助孩子逐渐学会为自己的行为负责。** ">
+  <button class="guideTopicHead" type="button" onclick="toggleGuideTopic(17)">
+    <span><small>SECTION 18</small><b>十八、家长情绪管理原则</b></span>
+    <span class="guideChevron">＋</span>
+  </button>
+  <div class="guideTopicBody" id="guideTopicBody17">
+    <div class="guideBullet">• 家长在非常生气的时候，不建议马上进行教育，可以先暂缓讨论，等双方比较稳定以后,</div>
+<p>再回到：事实 –》原因 –》解决方法 –》</p>
+<p>而不是：情绪 –》责备 –》争吵 –》孩子逃避</p>
+<div class="guideBullet">• 亲子教育的目标不是：<strong>赢一场争论。</strong></div>
+<p>正确的亲子教育应该是：<strong>帮助孩子逐渐学会为自己的行为负责。</strong></p>
+<div class="guideSpacer"></div>
+  </div>
+</article>
+<article class="guideTopic" data-guide-index="18" data-search="十九、how to score a with ai 家庭教育三条底线 - 第一条: **不羞辱。** o 不使用： 「笨」, 「没用」, 「懒到没救」等人格标签。  - 第二条: **不比较。** o 不要通过贬低孩子来赞美其他孩子。  - 第三条: **不把爱与成绩绑定。** o 孩子需要知道：考试成绩可以讨论、行为需要负责、学习方法可以改善。 o 但是，家庭关系不应该因为一次考试成绩而改变。 ">
+  <button class="guideTopicHead" type="button" onclick="toggleGuideTopic(18)">
+    <span><small>SECTION 19</small><b>十九、How to Score A with AI 家庭教育三条底线</b></span>
+    <span class="guideChevron">＋</span>
+  </button>
+  <div class="guideTopicBody" id="guideTopicBody18">
+    <div class="guideBullet">• 第一条: <strong>不羞辱。</strong></div>
+<p>o 不使用： 「笨」, 「没用」, 「懒到没救」等人格标签。</p>
+<div class="guideSpacer"></div>
+<div class="guideBullet">• 第二条: <strong>不比较。</strong></div>
+<p>o 不要通过贬低孩子来赞美其他孩子。</p>
+<div class="guideSpacer"></div>
+<div class="guideBullet">• 第三条: <strong>不把爱与成绩绑定。</strong></div>
+<p>o 孩子需要知道：考试成绩可以讨论、行为需要负责、学习方法可以改善。</p>
+<p>o 但是，家庭关系不应该因为一次考试成绩而改变。</p>
+<div class="guideSpacer"></div>
+  </div>
+</article>
+<article class="guideTopic" data-guide-index="19" data-search="二十、家长陪伴的最终目标 - how to score a with ai 家长陪伴系统最终不是希望培养： o 一个永远需要家长监督的学生，而是希望经过几年以后，家长越来越少需要监督。 o 孩子越来越能够： 自己设定目标 自己规划/学习 自己发现问题 自己寻找帮助 自己修正错误 自己承担责任 - 家长的角色则逐渐从： manager 管理者 –》coach 引导者 –》supporter 支持者 –》growth partner 成长伙伴        ">
+  <button class="guideTopicHead" type="button" onclick="toggleGuideTopic(19)">
+    <span><small>SECTION 20</small><b>二十、家长陪伴的最终目标</b></span>
+    <span class="guideChevron">＋</span>
+  </button>
+  <div class="guideTopicBody" id="guideTopicBody19">
+    <div class="guideBullet">• How to Score A with AI 家长陪伴系统最终不是希望培养：</div>
+<p>o 一个永远需要家长监督的学生，而是希望经过几年以后，家长越来越少需要监督。</p>
+<p>o 孩子越来越能够：</p>
+<p>自己设定目标</p>
+<p>自己规划/学习</p>
+<p>自己发现问题</p>
+<p>自己寻找帮助</p>
+<p>自己修正错误</p>
+<p>自己承担责任</p>
+<div class="guideBullet">• 家长的角色则逐渐从：</div>
+<p>Manager 管理者 –》Coach 引导者 –》Supporter 支持者 –》Growth Partner 成长伙伴</p>
+<div class="guideSpacer"></div>
+<div class="guideSpacer"></div>
+<div class="guideSpacer"></div>
+<div class="guideSpacer"></div>
+<div class="guideSpacer"></div>
+<div class="guideSpacer"></div>
+<div class="guideSpacer"></div>
+<div class="guideSpacer"></div>
+  </div>
+</article>
+<article class="guideTopic" data-guide-index="20" data-search="how to score a with ai 家庭成长理念 ➔ 我们帮助孩子不只是考得更好，而是学会如何学习。 ➔ 我们帮助家长不只是监督孩子，而是学会如何陪伴。 ➔ 我们希望孩子逐渐： 从「要我学习」 走向： 「我要学习。 」 从「我怕做错。 」走向： 「做错了，我知道怎样改善。 」 从「这个太难，我不要。 」走向： 「我想挑战看看。 」 - 而我们希望父母逐渐： 从「你为什么还没有做好？」走向： 「你觉得问题在哪里？」 从「我告诉你应该怎样做。 」走向： 「你觉得下一步可以怎样做？」 从「我要监督你。 」走向： 「有什么是我可以支持你的？」 - 最终形成： 会学习的孩子，会陪伴的父母，持续成长的家庭 - 这就是how to score a with ai 家庭学习文化真正希望建立的长期价值。">
+  <button class="guideTopicHead" type="button" onclick="toggleGuideTopic(20)">
+    <span><small>SECTION 21</small><b>How to Score A with AI 家庭成长理念</b></span>
+    <span class="guideChevron">＋</span>
+  </button>
+  <div class="guideTopicBody" id="guideTopicBody20">
+    <p>➔ 我们帮助孩子不只是考得更好，而是学会如何学习。</p>
+<p>➔ 我们帮助家长不只是监督孩子，而是学会如何陪伴。</p>
+<p>➔ 我们希望孩子逐渐：</p>
+<p>从「要我学习」 走向： 「我要学习。 」</p>
+<p>从「我怕做错。 」走向： 「做错了，我知道怎样改善。 」</p>
+<p>从「这个太难，我不要。 」走向： 「我想挑战看看。 」</p>
+<div class="guideBullet">• 而我们希望父母逐渐：</div>
+<p>从「你为什么还没有做好？」走向： 「你觉得问题在哪里？」</p>
+<p>从「我告诉你应该怎样做。 」走向： 「你觉得下一步可以怎样做？」</p>
+<p>从「我要监督你。 」走向： 「有什么是我可以支持你的？」</p>
+<div class="guideBullet">• 最终形成： 会学习的孩子，会陪伴的父母，持续成长的家庭</div>
+<div class="guideBullet">• 这就是How to Score A with AI 家庭学习文化真正希望建立的长期价值。</div>
+  </div>
+</article>
+      </div>
     </section>
   </main>
 </div>
@@ -461,6 +971,44 @@ function renderChild(child){
       </div>`;
     }).join("");
   }
+}
+
+
+function scrollToParentGuide(){
+  document.getElementById("parentGuideSection")?.scrollIntoView({behavior:"smooth",block:"start"});
+  setTimeout(()=>document.getElementById("parentGuideSearch")?.focus(),350);
+}
+
+function toggleGuideTopic(index){
+  const el=document.querySelector(`[data-guide-index="${index}"]`);
+  if(el)el.classList.toggle("open");
+}
+
+function filterParentGuide(value){
+  const q=String(value||"").trim().toLowerCase();
+  let shown=0;
+  document.querySelectorAll(".guideTopic").forEach(el=>{
+    const hit=!q || (el.dataset.search||"").includes(q);
+    el.style.display=hit?"":"none";
+    if(hit)shown++;
+    if(q && hit)el.classList.add("open");
+    if(!q)el.classList.remove("open");
+  });
+  const no=document.getElementById("guideNoResult");
+  if(no)no.style.display=shown?"none":"block";
+}
+
+function quickGuide(keyword){
+  const input=document.getElementById("parentGuideSearch");
+  if(input)input.value=keyword;
+  filterParentGuide(keyword);
+  scrollToParentGuide();
+}
+
+function clearGuideSearch(){
+  const input=document.getElementById("parentGuideSearch");
+  if(input)input.value="";
+  filterParentGuide("");
 }
 
 function openPasswordModal(){
