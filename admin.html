@@ -57,6 +57,14 @@ input{width:100%;padding:12px 13px;border:1px solid #d8e1ed;border-radius:12px;o
 .manageResult.good{background:#eefaf4;border-color:#cfe9db;color:#165e47}
 .manageResult.bad{background:#fff1f1;border-color:#efcaca;color:#982b2b}
 
+.accountBox{margin-top:14px;padding-top:14px;border-top:1px solid #e8edf4}
+.accountBox h3{margin:4px 0 10px}
+.accountGrid{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:end}
+.accountGrid input{width:100%;padding:11px 12px;border:1px solid #d8e1ed;border-radius:11px}
+.accountHint{font-size:12px;color:#718096;line-height:1.55;margin-top:7px}
+.tempFlag{display:inline-block;padding:5px 8px;border-radius:999px;font-size:11px;font-weight:900;background:#fff5d8;color:#8a5a00;margin-left:6px}
+
+
 
 .createStudentCard{margin-top:14px}
 .formGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
@@ -226,6 +234,37 @@ input{width:100%;padding:12px 13px;border:1px solid #d8e1ed;border-radius:12px;o
       <div class="muted">若课程仍有效，会从现有到期日继续往后加；若已到期，则从今天重新计算。PAUSED 状态延长后仍保持 PAUSED。</div>
     </div>
 
+    <div class="accountBox">
+      <h3>👤 学生登录账号</h3>
+
+      <div class="formField">
+        <label>目前 Email <span id="accountTempFlag" class="tempFlag hidden">等待更改 Password</span></label>
+        <input id="currentStudentEmail" type="text" readonly placeholder="正在读取…">
+      </div>
+
+      <div style="height:10px"></div>
+
+      <div class="formField">
+        <label>修改 Email</label>
+        <div class="accountGrid">
+          <input id="newAccountEmail" type="email" placeholder="输入正确的新 Email">
+          <button class="btn light" onclick="updateStudentEmail()">✏️ 更新 Email</button>
+        </div>
+        <div class="accountHint">Student ID、课程权限和学习进度不会改变。系统也会尝试同步现有 Email-based 学习记录。</div>
+      </div>
+
+      <div style="height:14px"></div>
+
+      <div class="formField">
+        <label>Reset Temporary Password</label>
+        <div class="accountGrid">
+          <input id="resetTempPassword" type="text" placeholder="设置新的 Temporary Password，至少 8 个字符">
+          <button class="btn warn" onclick="resetStudentTemporaryPassword()">🔑 Reset</button>
+        </div>
+        <div class="accountHint">Reset 后，学生下一次登录必须先建立自己的新 Password。管理员不需要知道学生之后的正式 Password。</div>
+      </div>
+    </div>
+
     <div id="manageResult" class="manageResult hidden"></div>
   </div>
 </div>
@@ -325,6 +364,7 @@ async function loadDashboard(){
           <td><button class="manageBtn" ${e?"":"disabled"} onclick='openEnrollmentManager(${JSON.stringify({
             student_id:s.student_id,
             full_name:s.full_name,
+            user_id:s.user_id,
             enrollment_id:e?.id||null,
             status:e?effectiveEnrollmentStatus(e):"NONE",
             raw_status:e?.status||"",
@@ -377,15 +417,143 @@ function openEnrollmentManager(info){
   $("pauseBtn").disabled=CURRENT_ENROLLMENT.status==="PAUSED";
   $("resumeBtn").disabled=CURRENT_ENROLLMENT.status==="ACTIVE";
 
+  $("currentStudentEmail").value="";
+  $("currentStudentEmail").placeholder="正在读取…";
+  $("newAccountEmail").value="";
+  $("resetTempPassword").value="";
+  $("accountTempFlag").classList.add("hidden");
+
   const box=$("manageResult");
   box.className="manageResult hidden";
   box.textContent="";
   $("enrollmentModal").classList.remove("hidden");
+
+  loadStudentAccount();
 }
 
 function closeEnrollmentManager(){
   $("enrollmentModal").classList.add("hidden");
   CURRENT_ENROLLMENT=null;
+}
+
+
+async function adminAccountRequest(payload){
+  const {data:sessionData,error:sessionError}=await db.auth.getSession();
+  if(sessionError)throw sessionError;
+  const token=sessionData?.session?.access_token;
+  if(!token)throw new Error("Admin session 已过期，请重新登录。");
+
+  const r=await fetch("/api/admin-manage-student-account",{
+    method:"POST",
+    headers:{
+      "Content-Type":"application/json",
+      "Authorization":"Bearer "+token
+    },
+    body:JSON.stringify(payload)
+  });
+
+  const raw=await r.text();
+  let result;
+  try{result=JSON.parse(raw)}catch{result={error:raw}}
+  if(!r.ok || !result?.ok){
+    throw Object.assign(new Error(result?.error||`HTTP ${r.status}`),{result});
+  }
+  return result;
+}
+
+async function loadStudentAccount(){
+  if(!CURRENT_ENROLLMENT?.user_id)return;
+  try{
+    const result=await adminAccountRequest({
+      action:"get_account",
+      user_id:CURRENT_ENROLLMENT.user_id
+    });
+
+    $("currentStudentEmail").value=result.account?.email||"";
+    $("currentStudentEmail").placeholder="";
+    if(result.account?.must_change_password===true){
+      $("accountTempFlag").classList.remove("hidden");
+    }else{
+      $("accountTempFlag").classList.add("hidden");
+    }
+  }catch(err){
+    console.error("Load student account failed",err);
+    $("currentStudentEmail").placeholder="读取失败";
+    const box=$("manageResult");
+    box.className="manageResult bad";
+    box.textContent="✗ 无法读取学生登录账号\n"+(err.result?.error||err.message||"Unknown error");
+  }
+}
+
+async function updateStudentEmail(){
+  if(!CURRENT_ENROLLMENT?.user_id)return;
+  const newEmail=$("newAccountEmail").value.trim().toLowerCase();
+  if(!newEmail || !newEmail.includes("@")){
+    alert("请输入有效的新 Email。");
+    return;
+  }
+
+  const current=$("currentStudentEmail").value.trim();
+  if(!confirm(`确认修改 ${CURRENT_ENROLLMENT.full_name} 的登录 Email？\n\n目前：${current}\n新的：${newEmail}`))return;
+
+  const box=$("manageResult");
+  box.className="manageResult";
+  box.textContent="正在更新 Email…";
+
+  try{
+    const result=await adminAccountRequest({
+      action:"update_email",
+      user_id:CURRENT_ENROLLMENT.user_id,
+      new_email:newEmail
+    });
+
+    $("currentStudentEmail").value=result.account?.email||newEmail;
+    $("newAccountEmail").value="";
+
+    box.className="manageResult good";
+    box.textContent=
+`✓ ${result.message}
+旧 Email：${result.account?.old_email||current}
+新 Email：${result.account?.email||newEmail}`+
+(result.warnings?.length?`\n\n注意：\n${result.warnings.join("\n")}`:"");
+  }catch(err){
+    console.error("Update student email failed",err);
+    box.className="manageResult bad";
+    box.textContent="✗ Email 更新失败\n"+(err.result?.error||err.message||"Unknown error");
+  }
+}
+
+async function resetStudentTemporaryPassword(){
+  if(!CURRENT_ENROLLMENT?.user_id)return;
+  const temporaryPassword=$("resetTempPassword").value;
+  if(temporaryPassword.length<8){
+    alert("Temporary Password 至少需要 8 个字符。");
+    return;
+  }
+
+  if(!confirm(`确认为 ${CURRENT_ENROLLMENT.full_name} Reset Temporary Password？\n\n学生下一次登录必须重新建立自己的新 Password。`))return;
+
+  const box=$("manageResult");
+  box.className="manageResult";
+  box.textContent="正在 Reset Temporary Password…";
+
+  try{
+    const result=await adminAccountRequest({
+      action:"reset_temp_password",
+      user_id:CURRENT_ENROLLMENT.user_id,
+      temporary_password:temporaryPassword
+    });
+
+    $("resetTempPassword").value="";
+    $("accountTempFlag").classList.remove("hidden");
+
+    box.className="manageResult good";
+    box.textContent="✓ "+result.message;
+  }catch(err){
+    console.error("Reset temporary password failed",err);
+    box.className="manageResult bad";
+    box.textContent="✗ Temporary Password Reset 失败\n"+(err.result?.error||err.message||"Unknown error");
+  }
 }
 
 async function manageEnrollment(action,days=null){
