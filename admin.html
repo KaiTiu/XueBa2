@@ -114,6 +114,7 @@ input{width:100%;padding:12px 13px;border:1px solid #d8e1ed;border-radius:12px;o
     </div>
     <div class="rowActions">
       <span class="pill" id="refreshStatus">READY</span>
+      <button class="btn light" onclick="openAdminPasswordModal()">🔐 修改 Password</button>
       <button class="btn light" onclick="loadDashboard()">↻ 更新资料</button>
       <button class="btn light" onclick="logout()">登出</button>
     </div>
@@ -399,6 +400,47 @@ input{width:100%;padding:12px 13px;border:1px solid #d8e1ed;border-radius:12px;o
   </div>
 </div>
 
+
+<div id="adminPasswordModal" class="modalBack hidden" onclick="if(event.target===this)closeAdminPasswordModal()">
+  <div class="modalCard" style="width:min(520px,96vw)">
+    <div class="modalTop">
+      <div>
+        <div class="pill">ADMIN SECURITY</div>
+        <h2 style="margin:5px 0 0">🔐 修改 Admin Password</h2>
+      </div>
+      <button class="closeBtn" onclick="closeAdminPasswordModal()">✕</button>
+    </div>
+
+    <div style="padding-top:14px">
+      <div class="formField">
+        <label>Current Password</label>
+        <input id="adminCurrentPassword" type="password" autocomplete="current-password" placeholder="输入目前的 Admin Password">
+      </div>
+
+      <div class="formField" style="margin-top:12px">
+        <label>New Password</label>
+        <input id="adminNewPassword" type="password" autocomplete="new-password" placeholder="至少 8 个字符">
+      </div>
+
+      <div class="formField" style="margin-top:12px">
+        <label>Confirm New Password</label>
+        <input id="adminConfirmPassword" type="password" autocomplete="new-password" placeholder="再次输入新 Password">
+      </div>
+
+      <div class="accountHint" style="margin-top:10px">
+        建议 Admin Password 不要与 Gmail、Facebook 或其他服务共用。
+      </div>
+
+      <div id="adminPasswordResult" class="manageResult hidden" style="margin-top:12px"></div>
+
+      <div class="createActions" style="margin-top:14px">
+        <button class="btn" id="adminPasswordSaveBtn" onclick="changeAdminPassword()">保存新 Password</button>
+        <button class="btn light" onclick="closeAdminPasswordModal()">取消</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
 const SUPABASE_URL='https://htzkjfztqqsbzxahxfnt.supabase.co';
 const SUPABASE_KEY='sb_publishable_-2O1fEqOGCQPSiMGQVSFrQ_bC3hf4WM';
@@ -431,6 +473,95 @@ function showDashboard(user){
   $("loginView").classList.add("hidden");
   $("dashView").classList.remove("hidden");
   $("adminEmail").textContent=user.email||"";
+}
+
+
+function openAdminPasswordModal(){
+  $("adminCurrentPassword").value="";
+  $("adminNewPassword").value="";
+  $("adminConfirmPassword").value="";
+  const box=$("adminPasswordResult");
+  box.className="manageResult hidden";
+  box.textContent="";
+  $("adminPasswordModal").classList.remove("hidden");
+}
+
+function closeAdminPasswordModal(){
+  $("adminPasswordModal").classList.add("hidden");
+}
+
+async function changeAdminPassword(){
+  const currentPassword=$("adminCurrentPassword").value;
+  const newPassword=$("adminNewPassword").value;
+  const confirmPassword=$("adminConfirmPassword").value;
+  const box=$("adminPasswordResult");
+  const btn=$("adminPasswordSaveBtn");
+
+  box.className="manageResult hidden";
+  box.textContent="";
+
+  if(!currentPassword){
+    box.className="manageResult bad";
+    box.textContent="请输入 Current Password。";
+    return;
+  }
+
+  if(newPassword.length<8){
+    box.className="manageResult bad";
+    box.textContent="New Password 至少需要 8 个字符。";
+    return;
+  }
+
+  if(newPassword!==confirmPassword){
+    box.className="manageResult bad";
+    box.textContent="两次输入的 New Password 不一致。";
+    return;
+  }
+
+  if(currentPassword===newPassword){
+    box.className="manageResult bad";
+    box.textContent="New Password 不要与 Current Password 相同。";
+    return;
+  }
+
+  btn.disabled=true;
+  btn.textContent="正在更新…";
+
+  try{
+    const {data:sessionData,error:sessionError}=await db.auth.getSession();
+    if(sessionError)throw sessionError;
+
+    const email=sessionData?.session?.user?.email;
+    if(!email)throw new Error("无法读取当前 Admin Email，请重新登录。");
+
+    // Re-authenticate with the current password first.
+    const {error:reauthError}=await db.auth.signInWithPassword({
+      email,
+      password:currentPassword
+    });
+    if(reauthError)throw new Error("Current Password 不正确。");
+
+    // Update only the signed-in Admin's own password.
+    const {error:updateError}=await db.auth.updateUser({
+      password:newPassword
+    });
+    if(updateError)throw updateError;
+
+    box.className="manageResult good";
+    box.textContent="✓ Admin Password 已更新。\n\n系统会自动登出，请使用新的 Password 重新登录。";
+
+    setTimeout(async()=>{
+      await db.auth.signOut();
+      location.reload();
+    },1200);
+
+  }catch(err){
+    box.className="manageResult bad";
+    box.textContent="✗ 修改失败\n"+(err.message||"Unknown error");
+  }finally{
+    btn.disabled=false;
+    btn.textContent="保存新 Password";
+  }
 }
 
 async function logout(){
