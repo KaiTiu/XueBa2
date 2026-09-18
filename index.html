@@ -1,5 +1,5 @@
 <!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<!-- Personal Learning Route V3: requested content revisions + second-layer personalization -->
+<!-- Score A V4: Word 2 revisions + Daily Read & Think gate + personalized learning route -->
 <title>How to Score A with AI｜21-Day 学霸觉醒</title>
 <style>
 *{box-sizing:border-box} :root{--b:#1769ff;--n:#081a3d;--p:#7047eb;--g:#16a66f;--y:#ffd42a;--bg:#f4f7fc;--m:#6b7890}
@@ -73,6 +73,20 @@ body{margin:0;font-family:Inter,"Microsoft YaHei",Arial,sans-serif;background:va
 .questMini .d{font-size:10px;font-weight:950;color:#65738a}.questMini b{display:block;margin-top:4px;font-size:12px;line-height:1.35}.questMini .state{position:absolute;right:9px;top:8px}
 @media(max-width:800px){.map30List{grid-template-columns:1fr 1fr}}
 
+.parentReflectGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:12px 0}
+.parentReflectStat{background:#f7f9fd;border:1px solid #e1e8f2;border-radius:14px;padding:13px}
+.parentReflectStat small{display:block;color:#738197;font-weight:800;font-size:11px;margin-bottom:5px}
+.parentReflectStat b{font-size:20px;color:#10213e}
+.reflectTimeline{display:grid;gap:10px;margin-top:14px}
+.reflectEntry{border:1px solid #dfe7f2;border-radius:15px;padding:13px;background:#fbfcff}
+.reflectEntry .meta{font-size:11px;font-weight:850;color:#6c7890;margin-bottom:6px}
+.reflectEntry .title{font-weight:900;color:#17233f;margin-bottom:7px}
+.reflectEntry .answer{line-height:1.65;white-space:pre-wrap}
+.reflectEmpty{padding:16px;border:1px dashed #ccd6e4;border-radius:14px;background:#fafcff;color:#6b778c}
+.cloudSyncNote{font-size:11px;color:#6e7d91;margin-top:8px}
+@media(max-width:720px){.parentReflectGrid{grid-template-columns:1fr}}
+
+
 
 #dailyGate{border:2px solid #d8c9ff;background:linear-gradient(180deg,#fff,#fbf9ff)}
 #dailyLessonBox{display:block!important;min-height:150px;margin:14px 0}
@@ -105,6 +119,65 @@ body{margin:0;font-family:Inter,"Microsoft YaHei",Arial,sans-serif;background:va
 .readerStepBody{flex:1}.readerStepBody h3{margin:3px 0 7px}
 .readerFooterTip{background:#eaf9f2;border:1px solid #bfead7;border-radius:16px;padding:15px;margin-top:14px;line-height:1.7}
 @media(max-width:650px){.readerHero{padding:19px}.readerHero h2{font-size:23px}.readerNav{position:static}.readerNav button{flex:1 1 45%}}
+
+/* ===== Parent Guide Quick Finder V2 ===== */
+.parentFinder{background:linear-gradient(145deg,#f8fbff,#f3f6ff);border:1px solid #dfe7f5;border-radius:22px;padding:18px;margin-bottom:16px}
+.parentFinderTop{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;flex-wrap:wrap}
+.parentFinderTop h3{margin:0;color:#10213e;font-size:20px}.parentFinderTop p{margin:6px 0 0;color:#63728a;line-height:1.6}
+.parentSearch{width:min(430px,100%);display:flex;align-items:center;gap:8px;background:#fff;border:1px solid #dce5f1;border-radius:14px;padding:9px 12px}
+.parentSearch input{border:0;outline:0;width:100%;font:inherit;background:transparent;color:#17233f}
+.parentSearch .clear{border:0;background:#eef2f8;color:#52627d;border-radius:999px;width:28px;height:28px;cursor:pointer;font-weight:900}
+.parentQuickTitle{font-size:12px;font-weight:900;letter-spacing:.08em;color:#6d7890;margin:16px 0 8px;text-transform:uppercase}
+.parentScenarioBar{display:flex;gap:8px;flex-wrap:wrap}.parentScenarioBar button{border:1px solid #d8e2f0;background:#fff;border-radius:999px;padding:8px 11px;font-weight:850;color:#27405f;cursor:pointer}.parentScenarioBar button:hover{border-color:#8098c5;background:#f5f8ff}
+.parentGroup{margin-top:17px}.parentGroupTitle{font-size:13px;font-weight:950;color:#344966;margin:0 0 8px;display:flex;gap:7px;align-items:center}.parentGuideGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.parentGuideCard{border:1px solid #dfe7f2;background:#fff;border-radius:16px;padding:13px 14px;text-align:left;cursor:pointer;display:grid;grid-template-columns:42px 1fr;gap:11px;align-items:flex-start;transition:.18s;min-height:94px}.parentGuideCard:hover{transform:translateY(-1px);border-color:#9aadd1;box-shadow:0 8px 20px rgba(27,50,91,.07)}.parentGuideCard.active{border-color:#173a73;background:#f3f7ff;box-shadow:0 0 0 2px #173a7312}.parentGuideCard.hidden{display:none}
+.parentLetter{width:42px;height:42px;border-radius:13px;background:#edf2fb;display:grid;place-items:center;font-weight:950;color:#173a73;font-size:17px}.parentGuideCard.active .parentLetter{background:#173a73;color:#fff}.parentGuideCard b{display:block;color:#132443;font-size:15px;margin-bottom:4px}.parentGuideCard small{display:block;color:#6b7890;line-height:1.45;font-size:11px}.parentGuideCard .use{display:block;color:#3e5577;margin-top:5px;font-size:11px;font-weight:750}
+
+.parentLibraryShell{display:grid;grid-template-columns:310px minmax(0,1fr);gap:18px;align-items:start}
+.parentLibrarySide{position:sticky;top:12px;background:#f7f9fd;border:1px solid #dfe7f2;border-radius:20px;padding:14px;max-height:calc(100vh - 28px);overflow:auto}
+.parentLibrarySide h3{margin:0 0 6px;color:#142847;font-size:17px}
+.parentLibrarySide p{margin:0 0 12px;color:#6c7890;font-size:12px;line-height:1.55}
+.parentLibrarySearch{display:flex;gap:7px;align-items:center;background:#fff;border:1px solid #d8e1ee;border-radius:12px;padding:9px 10px;margin-bottom:12px}
+.parentLibrarySearch input{border:0;outline:0;background:transparent;width:100%;font:inherit;font-size:13px}
+.parentLibraryGroupTitle{font-size:11px;font-weight:950;color:#77849a;letter-spacing:.04em;margin:14px 4px 7px}
+.parentLibraryMenu{display:grid;gap:7px}
+.parentLibraryMenu button{width:100%;border:1px solid #e0e7f1;background:#fff;border-radius:13px;padding:10px 11px;text-align:left;cursor:pointer;display:grid;grid-template-columns:31px 1fr;gap:9px;align-items:start;color:#1d3151}
+.parentLibraryMenu button:hover{border-color:#8da4c9;background:#f8fbff}
+.parentLibraryMenu button.active{background:#173a73;color:#fff;border-color:#173a73;box-shadow:0 7px 18px rgba(23,58,115,.14)}
+.parentLibraryMenu button.hidden{display:none}
+.parentLibraryLetter{width:31px;height:31px;border-radius:9px;display:grid;place-items:center;background:#edf2fa;color:#173a73;font-weight:950}
+.parentLibraryMenu button.active .parentLibraryLetter{background:#fff;color:#173a73}
+.parentLibraryMenu b{display:block;font-size:13px;line-height:1.35}.parentLibraryMenu small{display:block;font-size:10px;line-height:1.4;margin-top:3px;opacity:.75}
+.parentLibraryMain{min-width:0}
+.parentLibraryWelcome{background:linear-gradient(135deg,#eef4ff,#f8f5ff);border:1px solid #dbe4f5;border-radius:20px;padding:18px;margin-bottom:14px}
+.parentLibraryWelcome h3{margin:0 0 7px;color:#142847}.parentLibraryWelcome p{margin:0;color:#66758d;line-height:1.6}
+.parentLibraryScenarios{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}
+.parentLibraryScenarios button{border:1px solid #d4deed;background:#fff;border-radius:999px;padding:8px 10px;font-weight:850;color:#284263;cursor:pointer}
+.parentLibraryScenarios button:hover{background:#173a73;color:#fff;border-color:#173a73}
+.parentLibraryPanel{display:none}.parentLibraryPanel.active{display:block}
+.parentLibraryHead{background:#fff;border:1px solid #dfe7f2;border-radius:20px;padding:18px;margin-bottom:12px}
+.parentLibraryHead .eyebrow{font-size:11px;font-weight:950;color:#576ce0;letter-spacing:.08em}
+.parentLibraryHead h2{margin:5px 0 7px;color:#10213e;font-size:25px}.parentLibraryHead p{margin:0;color:#64738a;line-height:1.65}
+.parentLibraryWhen{margin-top:11px;padding:10px 12px;border-radius:12px;background:#fff7df;border:1px solid #f1ddb0;color:#76540d;font-size:12px;font-weight:780}
+.parentTopic{background:#fff;border:1px solid #dfe7f2;border-radius:18px;padding:17px;margin-bottom:11px;scroll-margin-top:15px}
+.parentTopic h3{margin:0 0 12px;color:#132746;font-size:18px;border-bottom:1px solid #edf1f6;padding-bottom:10px}
+.parentTopicLine{line-height:1.72;color:#263a58;margin:6px 0}
+.parentTopicBullet{position:relative;padding-left:18px;line-height:1.7;color:#263a58;margin:6px 0}
+.parentTopicBullet:before{content:"•";position:absolute;left:3px;color:#5a63f1;font-weight:950}
+.parentTopicGood{background:#edf9f4;border-left:4px solid #2a9d72;border-radius:10px;padding:10px 12px;margin:8px 0;line-height:1.65;color:#175c46}
+.parentTopicBad{background:#fff3f2;border-left:4px solid #df665d;border-radius:10px;padding:10px 12px;margin:8px 0;line-height:1.65;color:#7f2e29}
+.parentTopicStep{background:#f2f5ff;border-left:4px solid #6570e8;border-radius:10px;padding:10px 12px;margin:8px 0;line-height:1.65;color:#2d3e7c;font-weight:750}
+.parentGuideBack{margin-top:12px;border:0;background:#eef3fb;color:#27405f;border-radius:12px;padding:10px 13px;font-weight:850;cursor:pointer}
+.parentLibraryNoResult{display:none;padding:12px;border:1px dashed #ccd7e7;border-radius:12px;color:#6c7890;background:#fff}
+@media(max-width:900px){.parentLibraryShell{grid-template-columns:1fr}.parentLibrarySide{position:static;max-height:none}.parentLibraryMenu{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:620px){.parentLibraryMenu{grid-template-columns:1fr}.parentLibraryHead h2{font-size:21px}}
+
+.parentNoResult{display:none;background:#fff7e8;border:1px solid #f1d7a5;border-radius:14px;padding:13px;margin-top:12px;color:#7a5419}
+.parentPanelHead{background:#f6f9ff;border:1px solid #dce7f7;border-radius:18px;padding:16px 18px;margin:10px 0 14px}.parentPanelHead .eyebrow{font-size:11px;font-weight:950;color:#586d91;letter-spacing:.08em;text-transform:uppercase}.parentPanelHead h3{font-size:22px;margin:5px 0 8px;color:#10213e}.parentPanelHead p{margin:0;color:#53657f;line-height:1.65}.parentPanelHead .when{margin-top:10px;background:#fff;border-radius:12px;padding:10px 12px;color:#243a5b;border:1px solid #e1e8f2}.parentPanelHead .when b{color:#173a73}
+.parentSubnav{display:flex;gap:7px;flex-wrap:wrap;margin:0 0 13px}.parentSubnav button{border:1px solid #dde5f0;background:#fff;border-radius:999px;padding:8px 10px;font-size:12px;font-weight:850;color:#304765;cursor:pointer}.parentSubnav button:hover{background:#eef4ff;border-color:#9fb2d2}
+.parentBackBtn{border:0;background:#eef3fb;color:#25446e;border-radius:11px;padding:9px 12px;font-weight:850;cursor:pointer;margin:8px 0 2px}
+@media(max-width:720px){.parentGuideGrid{grid-template-columns:1fr}.parentSearch{width:100%}.parentFinder{padding:14px}.parentGuideCard{min-height:auto}}
+
 .dateStamp{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;background:#eef6ff;border:1px solid #cfe0ff;border-radius:14px;padding:12px 14px;margin:10px 0 14px}.dateStamp b{color:#0d4fa8}
 
 /* ===== V21 Supabase Login + Entitlement Gate ===== */
@@ -193,17 +266,24 @@ body{margin:0;font-family:Inter,"Microsoft YaHei",Arial,sans-serif;background:va
 <div class="card" id="dailyGate">
   <div class="eyebrow" style="color:#7047eb">DAILY UNLOCK TRAINING</div>
   <h2>🔐 解锁今日训练</h2>
-  <p class="muted">先完成今天的学习方法、时间管理和 AI 练习，才进入今天的游戏挑战。</p>
+  <p class="muted"><b>每天先完成「必读 + 思考」</b>：系统会从资料库挑一个最值得今天读的重点。不是按一下“读完”就算完成，你需要用自己的话回答思考题，才可以解锁。</p>
 
   <div class="dailyLessonInline" id="dailyLessonBox">
-    <div class="lessonType">🎓 今日学霸思维 / 读书法</div>
+    <div class="lessonType">📚 今日必读 · 必思考</div>
     <h3>正在载入今天的内容…</h3>
   </div>
 
-  <button class="btn" id="readDoneBtn" onclick="markDailyRead()">✓ 我已读完并理解</button>
+  <div class="field" style="margin-top:12px">
+    <label><b>✍️ 我的思考（至少 12 个字）</b></label>
+    <textarea id="dailyThink" placeholder="不要抄原文。用自己的话写：我学到什么？这和我有什么关系？我今天准备怎样做？"></textarea>
+  </div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap">
+    <button class="btn" id="readDoneBtn" onclick="markDailyRead()">✓ 保存思考并完成今日必读</button>
+    <button class="btn light" id="dailySourceBtn" onclick="openDailySource()">📚 打开完整资料</button>
+  </div>
 
   <div class="rewardRow" style="margin:14px 0">
-    <span class="reward" id="gateRead">① 📖 阅读：未完成</span>
+    <span class="reward" id="gateRead">① 📖 必读+思考：未完成</span>
     <span class="reward" id="gateTime">② ⏰ 时间管理：未完成</span>
     <span class="reward" id="gateAI">③ 🤖 ChatGPT：未完成</span>
   </div>
@@ -215,7 +295,7 @@ body{margin:0;font-family:Inter,"Microsoft YaHei",Arial,sans-serif;background:va
   </div>
 
   <div id="gateStatus" class="notice" style="margin-top:12px">
-    🔒 完成以上 3 项后解锁今日挑战。
+    🔒 完成「必读+思考、时间管理、AI练习」后解锁今日挑战。
   </div>
 </div>
 
@@ -243,7 +323,7 @@ body{margin:0;font-family:Inter,"Microsoft YaHei",Arial,sans-serif;background:va
 
 
 <section id="library" class="panel">
- <div class="card"><h2>📚 学霸学习资料库</h2><p class="muted">需要方法、考试策略或家长指导时，再进入这里查阅。基础版与进阶版提示词已合并。</p>
+ <div class="card"><h2>📚 学霸学习资料库</h2><p class="muted">这里的资料不再只是“有需要才看”。系统每天会自动抽取一个重点放进「今日必读 · 必思考」，学生必须写出自己的理解后才解锁今日挑战；想深入时再回到这里看完整章节。</p>
  <div class="libraryGrid"><button class="libCard" onclick="openLearningLibrary('mindset')"><b>🧠 学霸思维 20 项</b><span class="muted">普通学生思维 → 学霸思维</span></button><button class="libCard" onclick="openLearningLibrary('method')"><b>🍅 番茄 + Feynman 读书法</b><span class="muted">专注、理解、练习与复习</span></button>
   <button class="libCard" onclick="openReadableDoc('lib30')"><b>🚀 30 天考试冲刺执行指南</b><span class="muted">诊断 → 修复 → 强化 → 模拟 → 冲刺</span></button>
   <button class="libCard" onclick="openReadableDoc('libexam')"><b>🎓 学霸考试高分系统</b><span class="muted">考试策略与高分方法</span></button>
@@ -267,7 +347,21 @@ body{margin:0;font-family:Inter,"Microsoft YaHei",Arial,sans-serif;background:va
 </div></div>
 </section>
 
-<section id="parent" class="panel"><div class="card">
+<section id="parent" class="panel">
+<div class="card">
+<h2>📖 孩子的每日阅读与思考记录</h2>
+<p class="muted">这里不是看孩子“写了多少字”，而是观察：他有没有越来越会发现问题、表达原因，并提出下一步行动。</p>
+<div class="parentReflectGrid">
+  <div class="parentReflectStat"><small>云端思考记录</small><b id="prTotal">0</b></div>
+  <div class="parentReflectStat"><small>本轮完成</small><b id="prCycle">0/30</b></div>
+  <div class="parentReflectStat"><small>最近一次</small><b id="prLatest">—</b></div>
+</div>
+<div id="parentReflectionList" class="reflectTimeline">
+  <div class="reflectEmpty">学生完成「今日必读 · 必思考」后，最近的思考记录会显示在这里。</div>
+</div>
+<div id="reflectionCloudStatus" class="cloudSyncNote">正在连接学习成长记录…</div>
+</div>
+<div class="card">
 <h2>👨‍👩‍👧 家长陪伴指南</h2>
 <p class="muted">以下内容已直接从资料库的「家长陪伴指南」搬到家长进度页面，不需要另外打开。</p>
 <div id="parentGuideInline" class="parentGuideWrap"></div>
@@ -285,58 +379,48 @@ const FULL_OS={
 <div class="card">
 <div class="kicker">TOP STUDENT MINDSET</div>
 <h2>🧠 学霸思维 VS 普通学生思维｜20 个关键差异</h2>
-<p class="muted">重点不是比较谁更聪明，而是训练更有效的思维和行为习惯。每天选 1 项练习，晚上用 3 分钟反思。</p>
+<div class="phase">
+<b>20 个关键思维差异分析</b><br>
+很多人以为学霸和普通学生最大的差别是智商。其实，从成长型思维（Growth Mindset）和长期优秀学生的共同特征来看，
+<b>最大的差别往往是思维模式（Mindset）和行为习惯。</b><br>
+同样的能力，不同的思维，会产生完全不同的结果。
+</div>
+<p class="muted">每天不需要一次读完 20 项。选 1 项认真想一想，再把它用在今天的学习里。</p>
 <div class="guidegrid">
-<div class="guideitem"><h3>01. 遇到不会的题</h3>
-<p class="mini muted">普通思维</p><p>我不会、太难了、算了</p>
-<p class="mini" style="color:#5b21b6;font-weight:800">学霸思维</p><p><b>我哪里不会？哪一步卡住？我可以用什么方法解决？</b></p></div><div class="guideitem"><h3>02. 看待错误</h3>
-<p class="mini muted">普通思维</p><p>错了很丢脸</p>
-<p class="mini" style="color:#5b21b6;font-weight:800">学霸思维</p><p><b>错误是发现弱点的机会；错题就是下一次进步的重点</b></p></div><div class="guideitem"><h3>03. 对待成绩</h3>
-<p class="mini muted">普通思维</p><p>只看分数高低</p>
-<p class="mini" style="color:#5b21b6;font-weight:800">学霸思维</p><p><b>分析哪类题错最多、为什么错、怎样提高</b></p></div><div class="guideitem"><h3>04. 学习目的</h3>
-<p class="mini muted">普通思维</p><p>只为了应付考试</p>
-<p class="mini" style="color:#5b21b6;font-weight:800">学霸思维</p><p><b>把学习当成能力成长与未来机会的累积</b></p></div><div class="guideitem"><h3>05. 看待困难</h3>
-<p class="mini muted">普通思维</p><p>困难会阻碍我</p>
-<p class="mini" style="color:#5b21b6;font-weight:800">学霸思维</p><p><b>困难是训练自己成长的机会</b></p></div><div class="guideitem"><h3>06. 学习时间</h3>
-<p class="mini muted">普通思维</p><p>考前才冲刺</p>
-<p class="mini" style="color:#5b21b6;font-weight:800">学霸思维</p><p><b>平时持续复习、做笔记，考试前只整理重点</b></p></div><div class="guideitem"><h3>07. 对待兴趣</h3>
-<p class="mini muted">普通思维</p><p>喜欢才学</p>
-<p class="mini" style="color:#5b21b6;font-weight:800">学霸思维</p><p><b>先学会，再慢慢培养兴趣</b></p></div><div class="guideitem"><h3>08. 面对失败</h3>
-<p class="mini muted">普通思维</p><p>我不适合</p>
-<p class="mini" style="color:#5b21b6;font-weight:800">学霸思维</p><p><b>我需要改进方法</b></p></div><div class="guideitem"><h3>09. 对待老师</h3>
-<p class="mini muted">普通思维</p><p>等老师教</p>
-<p class="mini" style="color:#5b21b6;font-weight:800">学霸思维</p><p><b>主动问问题</b></p></div><div class="guideitem"><h3>10. 对待知识</h3>
-<p class="mini muted">普通思维</p><p>背答案</p>
-<p class="mini" style="color:#5b21b6;font-weight:800">学霸思维</p><p><b>理解原理</b></p></div><div class="guideitem"><h3>11. 看待天赋</h3>
-<p class="mini muted">普通思维</p><p>学霸天生聪明</p>
-<p class="mini" style="color:#5b21b6;font-weight:800">学霸思维</p><p><b>能力可以训练</b></p></div><div class="guideitem"><h3>12. 对待时间</h3>
-<p class="mini muted">普通思维</p><p>有空再学</p>
-<p class="mini" style="color:#5b21b6;font-weight:800">学霸思维</p><p><b>先安排学习时间</b></p></div><div class="guideitem"><h3>13. 对待手机</h3>
-<p class="mini muted">普通思维</p><p>先玩一下再说</p>
-<p class="mini" style="color:#5b21b6;font-weight:800">学霸思维</p><p><b>先完成任务，再娱乐</b></p></div><div class="guideitem"><h3>14. 面对诱惑</h3>
-<p class="mini muted">普通思维</p><p>看心情行动</p>
-<p class="mini" style="color:#5b21b6;font-weight:800">学霸思维</p><p><b>看目标，先完成计划</b></p></div><div class="guideitem"><h3>15. 对待记忆</h3>
-<p class="mini muted">普通思维</p><p>反复死背</p>
-<p class="mini" style="color:#5b21b6;font-weight:800">学霸思维</p><p><b>理解 + 联想 + 复习</b></p></div><div class="guideitem"><h3>16. 对待复习</h3>
-<p class="mini muted">普通思维</p><p>考前才复习</p>
-<p class="mini" style="color:#5b21b6;font-weight:800">学霸思维</p><p><b>每天复习一点</b></p></div><div class="guideitem"><h3>17. 对待问题</h3>
-<p class="mini muted">普通思维</p><p>遇到问题抱怨</p>
-<p class="mini" style="color:#5b21b6;font-weight:800">学霸思维</p><p><b>寻找解决方案</b></p></div><div class="guideitem"><h3>18. 对待竞争</h3>
-<p class="mini muted">普通思维</p><p>跟别人比较</p>
-<p class="mini" style="color:#5b21b6;font-weight:800">学霸思维</p><p><b>跟昨天的自己比较</b></p></div><div class="guideitem"><h3>19. 对待奖励</h3>
-<p class="mini muted">普通思维</p><p>有奖励才学</p>
-<p class="mini" style="color:#5b21b6;font-weight:800">学霸思维</p><p><b>学习本身就是投资</b></p></div><div class="guideitem"><h3>20. 对待未来</h3>
-<p class="mini muted">普通思维</p><p>只看今天</p>
-<p class="mini" style="color:#5b21b6;font-weight:800">学霸思维</p><p><b>思考长期发展：1年、3年、5年以后</b></p></div>
+<div class="guideitem"><h3>01. 遇到不会的题</h3><p class="mini muted">普通学生</p><p>我不会、太难了、算了。</p><p class="mini" style="color:#5b21b6;font-weight:800">学霸</p><p><b>我哪里不会？哪一步卡住？我可以找什么方法解决？</b></p></div>
+<div class="guideitem"><h3>02. 看待错误</h3><p class="mini muted">普通学生</p><p>错了很丢脸。</p><p class="mini" style="color:#5b21b6;font-weight:800">学霸</p><p><b>错误是发现弱点的机会；这次错的地方，就是下一次进步的重点。</b></p></div>
+<div class="guideitem"><h3>03. 对待成绩</h3><p class="mini muted">普通学生</p><p>只看分数。分数高就觉得题目刚好出自己会的；分数差就伤心，觉得老师出太难。</p><p class="mini" style="color:#5b21b6;font-weight:800">学霸</p><p><b>先分析原因：哪些题不会？哪里粗心？是不是准备不够？</b></p><div class="phase">拿到 70 分后继续问：哪类题错最多？为什么错？怎样提高到 80 分？</div></div>
+<div class="guideitem"><h3>04. 学习目的</h3><p class="mini muted">普通学生</p><p>只为了应付考试。</p><p class="mini" style="color:#5b21b6;font-weight:800">学霸</p><p><b>把学习当成能力成长与未来机会的累积。</b></p></div>
+<div class="guideitem"><h3>05. 看待困难</h3><p class="mini muted">普通学生</p><p>困难会阻碍我。</p><p class="mini" style="color:#5b21b6;font-weight:800">学霸</p><p><b>现在努力面对的困难，是对未来成长的一次训练。</b></p></div>
+<div class="guideitem"><h3>06. 学习时间</h3><p class="mini muted">普通学生</p><p>考前才冲刺、临时抱佛脚，来不及背重点，也不够时间读完每一课。</p><p class="mini" style="color:#5b21b6;font-weight:800">学霸</p><p><b>平时和周末就开始温习、做笔记、持续积累；考试前只整理和复习重点。</b></p></div>
+<div class="guideitem"><h3>07. 对待兴趣</h3><p class="mini muted">普通学生</p><p>喜欢才学。</p><p class="mini" style="color:#5b21b6;font-weight:800">学霸</p><p><b>先学会，再培养兴趣。</b></p></div>
+<div class="guideitem"><h3>08. 面对失败</h3><p class="mini muted">普通学生</p><p>我不适合。</p><p class="mini" style="color:#5b21b6;font-weight:800">学霸</p><p><b>我需要改进方法。</b></p></div>
+<div class="guideitem"><h3>09. 对待老师</h3><p class="mini muted">普通学生</p><p>等老师教。</p><p class="mini" style="color:#5b21b6;font-weight:800">学霸</p><p><b>主动问问题。</b></p></div>
+<div class="guideitem"><h3>10. 对待知识</h3><p class="mini muted">普通学生</p><p>背答案。</p><p class="mini" style="color:#5b21b6;font-weight:800">学霸</p><p><b>理解原理。</b></p></div>
+<div class="guideitem"><h3>11. 看待天赋</h3><p class="mini muted">普通学生</p><p>学霸天生聪明。</p><p class="mini" style="color:#5b21b6;font-weight:800">学霸</p><p><b>能力可以训练。</b></p></div>
+<div class="guideitem"><h3>12. 对待时间</h3><p class="mini muted">普通学生</p><p>有空再学。</p><p class="mini" style="color:#5b21b6;font-weight:800">学霸</p><p><b>先安排学习时间。</b></p></div>
+<div class="guideitem"><h3>13. 对待手机</h3><p class="mini muted">普通学生</p><p>先玩一下，结果两小时过去。</p><p class="mini" style="color:#5b21b6;font-weight:800">学霸</p><p><b>先完成任务，再娱乐。</b></p></div>
+<div class="guideitem"><h3>14. 面对诱惑</h3><p class="mini muted">普通学生</p><p>看心情。例如朋友约打游戏，就马上上线。</p><p class="mini" style="color:#5b21b6;font-weight:800">学霸</p><p><b>看目标：先完成计划，再玩。</b></p></div>
+<div class="guideitem"><h3>15. 对待记忆</h3><p class="mini muted">普通学生</p><p>反复死背。</p><p class="mini" style="color:#5b21b6;font-weight:800">学霸</p><p><b>理解 + 联想 + 复习。</b></p></div>
+<div class="guideitem"><h3>16. 对待复习</h3><p class="mini muted">普通学生</p><p>考前复习。</p><p class="mini" style="color:#5b21b6;font-weight:800">学霸</p><p><b>每天复习一点。</b></p></div>
+<div class="guideitem"><h3>17. 对待问题</h3><p class="mini muted">普通学生</p><p>遇到问题抱怨。</p><p class="mini" style="color:#5b21b6;font-weight:800">学霸</p><p><b>寻找解决方案。</b></p></div>
+<div class="guideitem"><h3>18. 对待竞争</h3><p class="mini muted">普通学生</p><p>跟别人比较。</p><p class="mini" style="color:#5b21b6;font-weight:800">学霸</p><p><b>跟昨天的自己比较。</b></p></div>
+<div class="guideitem"><h3>19. 对待奖励</h3><p class="mini muted">普通学生</p><p>有奖励才学。</p><p class="mini" style="color:#5b21b6;font-weight:800">学霸</p><p><b>学习本身就是投资。</b></p></div>
+<div class="guideitem"><h3>20. 对待未来</h3><p class="mini muted">普通学生</p><p>活在今天：今天开心就好。</p><p class="mini" style="color:#5b21b6;font-weight:800">学霸</p><p><b>思考长期发展：今天的努力会影响 SPM、大学、奖学金与工作机会。</b></p></div>
 </div>
 <div class="card" style="margin-top:16px;background:#faf9ff">
-<h3>⭐ 最核心的 5 个底层思维</h3>
-<p><b>成长型思维：</b>“我做不到” → “我暂时还做不到”</p>
-<p><b>主动负责：</b>不问“谁的错？”，先问“我可以做什么？”</p>
-<p><b>长期主义：</b>不要只看今天，也看 1 年、3 年、5 年后的自己。</p>
-<p><b>系统思维：</b>成绩 = 学习习惯 × 时间管理 × 专注力 × 理解力 × 练习 × 复习</p>
-<p><b>复利思维：</b>每天进步一点点，长期差距会越来越大。</p>
-<div class="phase"><b>每晚 3 分钟：</b>今天学到了什么？今天最大的错误是什么？明天准备改进什么？</div>
+<h3>⭐ 学霸最核心的 5 个底层思维</h3>
+<p><b>① 成长型思维（Growth Mindset）：</b>不要说“我做不到”，改成“我暂时还做不到”。</p>
+<p><b>② 主动负责思维：</b>不要问“谁的错？”，要问“我可以做什么？”</p>
+<p><b>③ 长期主义思维：</b>不要只看今天，要看 1 年后、3 年后、5 年后。</p>
+<p><b>④ 系统思维：</b>成绩 ≠ 靠努力一天；成绩 = 学习习惯 × 时间管理 × 专注力 × 理解力 × 练习 × 复习。</p>
+<p><b>⑤ 复利思维：</b>每天进步 1%，看起来很小，但长期差距巨大。</p>
+<div class="phase"><b>👑 学霸终极公式：</b><br>普通学生：情绪 → 决定行动 ——“今天有心情才学”<br>学霸：目标 → 决定行动 ——“即使没心情，也完成该完成的任务”</div>
+<div class="phase"><b>一句话总结：</b>普通学生关注“结果”；学霸关注“过程”。<br><br>
+普通学生问：“为什么我考不到 A？”<br>
+学霸问：“我要建立什么习惯，才能稳定考 A？”</div>
+<div class="phase"><b>💡 学霸成长建议｜每晚 3 分钟：</b><br>① 今天学到了什么？<br>② 今天最大的错误是什么？<br>③ 明天准备改进什么？<br><b>连续坚持 30 天，你的思维模式会开始向学霸靠近。</b></div>
+<div class="phase"><b>🧠 核心学习法｜Feynman：</b><br>用简单的话解释知识 → 找出自己不懂的地方 → 重新学习弱点 → 直到能教别人。<br><b>讲得出来，才是真的懂。</b></div>
 </div>
 </div>
 `,
@@ -655,20 +739,29 @@ function promptRawText(){let tmp=document.createElement("div");tmp.innerHTML=LIB
 function openPromptLibrary(){let a=document.getElementById("libraryArea");a.innerHTML=`<div class="card"><button class="btn light" onclick="libraryArea.innerHTML=''">← 返回资料库</button><h2>✨ AI 提示词精选｜基础 + 进阶</h2><p class="muted">提示词已按用途分区。请选择你现在需要的类别，不必再从头滚动整份资料。</p><div class="promptCategoryGrid">${PROMPT_SECTIONS.map((x,i)=>`<button class="promptCat" onclick="showPromptSection(${i},this)"><b>${x[0]}</b><span>打开这一部分 →</span></button>`).join("")}</div></div><div id="promptSectionArea"></div>`;a.scrollIntoView({behavior:"smooth"})}
 function showPromptSection(i,b){document.querySelectorAll(".promptCat").forEach(x=>x.classList.remove("active"));if(b)b.classList.add("active");let x=PROMPT_SECTIONS[i],raw=promptRawText(),st=raw.indexOf(x[1]);if(st<0)return;let ed=x[2]?raw.indexOf(x[2],st+x[1].length):-1,part=raw.slice(st,ed>st?ed:raw.length);promptSectionArea.innerHTML=tidyDocHTML(sourceDoc(x[0],part));promptSectionArea.scrollIntoView({behavior:"smooth",block:"start"})}
 
-const READABLE_MINDSET=[["遇到不会的题目", "我不会　太难了　算了", "我哪里不会？哪一步卡住？我可以找什么方法解决？", ""], ["看待错误", "错了很丢脸", "错误是发现弱点的机会", "考试错 5 题：普通学生想“怎么又错”；学霸想“这 5 题就是我下次进步的重点”。"], ["对待成绩", "只看分数，分数高就觉得幸运，分数差就怪题目太难", "分析原因：哪些考题不会？哪里粗心？是不是准备不够？", "拿到 70 分后，分析哪类题错最多、为什么错、如何提高到 80 分。"], ["学习目的", "读书为了考试，分数不要太差，可以跟父母交代", "为了证明自己有能力考到好成绩，可以有机会上台拿奖", ""], ["看待困难", "学习很困难，会阻碍自己继续努力", "现在付出的困难，是对未来成长的一次训练", ""], ["学习时间", "考前才冲刺，临时抱佛脚", "平时周末开始温习、做笔记，考试前复习重点", ""], ["对待兴趣", "喜欢才学", "先学会，再培养兴趣", ""], ["面对失败", "我不适合", "我需要改进方法", ""], ["对待老师", "等老师教", "主动问问题", ""], ["对待知识", "背答案", "理解原理", ""], ["看待天赋", "学霸天生聪明", "能力可以训练", ""], ["对待时间", "有空再学", "先安排学习时间", ""], ["对待手机", "先玩一下，结果两小时过去", "先完成任务，再娱乐", ""], ["面对诱惑", "看心情；朋友约打游戏就马上上线", "看目标；先完成计划，再玩", ""], ["对待记忆", "反复死背", "理解 + 联想 + 复习", ""], ["对待复习", "考前复习", "每天复习一点", ""], ["对待问题", "遇到问题抱怨", "寻找解决方案", ""], ["对待竞争", "跟别人比较", "跟昨天的自己比较", "普通学生问“为什么他 100 分？”；学霸问“我这次比上次进步多少？”"], ["对待奖励", "有奖励才学", "学习本身就是投资", ""], ["对待未来", "活在今天", "思考长期发展", "今天的努力会影响 SPM、大学、奖学金、工作机会。"]];
+const READABLE_MINDSET=[["遇到不会的题目", "我不会　太难了　算了", "我哪里不会？哪一步卡住？我可以找什么方法解决？", ""], ["看待错误", "错了很丢脸", "错误是发现弱点的机会", "考试错 5 题：普通学生想“怎么又错”；学霸想“这 5 题就是我下次进步的重点”。"], ["对待成绩", "只看分数；分数高就觉得题目刚好出自己会的，分数差就伤心，觉得老师出太难", "分析原因：哪些考题不会？哪里粗心？是不是准备不够？", "拿到 70 分后继续分析：哪类题错最多？为什么错？如何提高到 80 分？"], ["学习目的", "读书为了考试，分数不要太差，可以跟父母交代", "为了证明自己有能力考到好成绩，可以有机会上台拿奖", ""], ["看待困难", "学习很困难，会阻碍自己继续努力", "现在付出的困难，是对未来成长的一次训练", ""], ["学习时间", "考前才冲刺、临时抱佛脚，来不及背重点，也不够时间读完每一课", "平时和周末就开始温习、做笔记、持续积累，考试前只整理和复习重点", ""], ["对待兴趣", "喜欢才学", "先学会，再培养兴趣", ""], ["面对失败", "我不适合", "我需要改进方法", ""], ["对待老师", "等老师教", "主动问问题", ""], ["对待知识", "背答案", "理解原理", ""], ["看待天赋", "学霸天生聪明", "能力可以训练", ""], ["对待时间", "有空再学", "先安排学习时间", ""], ["对待手机", "先玩一下，结果两小时过去", "先完成任务，再娱乐", ""], ["面对诱惑", "看心情；朋友约打游戏就马上上线", "看目标；先完成计划，再玩", "普通学生：马上上线；学霸：先完成计划，再玩。"], ["对待记忆", "反复死背", "理解 + 联想 + 复习", ""], ["对待复习", "考前复习", "每天复习一点", ""], ["对待问题", "遇到问题抱怨", "寻找解决方案", ""], ["对待竞争", "跟别人比较", "跟昨天的自己比较", "普通学生问“为什么他 100 分？”；学霸问“我这次比上次进步多少？”"], ["对待奖励", "有奖励才学", "学习本身就是投资", ""], ["对待未来", "活在今天：今天开心就好", "思考长期发展", "今天的努力会影响 SPM、大学、奖学金、工作机会。"]];
 function mindsetCard(x,i){return `<div class="mindCard"><div class="mindNo">MINDSET ${String(i+1).padStart(2,"0")}</div><h3>${i+1}. ${x[0]}</h3><div class="compareBox normalBox"><div class="compareLabel">👨‍🎓 普通学生</div>${x[1]}</div><div class="compareBox topBox"><div class="compareLabel">👑 学霸学生</div><b>${x[2]}</b></div>${x[3]?`<div class="exampleBox">💡 <b>例子：</b>${x[3]}</div>`:""}</div>`}
-function showMindGroup(g,b){document.querySelectorAll(".readTab").forEach(x=>x.classList.remove("active"));if(b)b.classList.add("active");let area=document.getElementById("mindReadArea");if(g<4){let st=g*5;area.innerHTML=`<div class="mindGrid">${READABLE_MINDSET.slice(st,st+5).map((x,j)=>mindsetCard(x,st+j)).join("")}</div>`}else{area.innerHTML=`<div class="card"><h2>🌟 学霸最核心的 5 个底层思维</h2><div class="coreFive"><div class="coreItem">①<b>成长型思维</b><small>“我做不到” → “我暂时还做不到”</small></div><div class="coreItem">②<b>主动负责思维</b><small>不问谁的错，问我可以做什么</small></div><div class="coreItem">③<b>长期主义思维</b><small>看 1 年、3 年、5 年后</small></div><div class="coreItem">④<b>系统思维</b><small>习惯 × 时间 × 专注 × 理解 × 练习 × 复习</small></div><div class="coreItem">⑤<b>复利思维</b><small>每天进步 1%</small></div></div><div class="quoteBig">目标 → 决定行动<br><small>“即使没心情，也完成该完成的任务。”</small></div><div class="sectionBox"><h3>🌙 每晚 3 分钟成长反思</h3><p>① 今天学到了什么？</p><p>② 今天最大的错误是什么？</p><p>③ 明天准备改进什么？</p><p><b>一句话总结：普通学生关注“结果”；学霸关注“过程”。</b></p></div></div>`}}
-function openReadableMindset(){let a=document.getElementById("libraryArea");a.innerHTML=`<div class="card"><button class="btn light" onclick="libraryArea.innerHTML=''">← 返回资料库</button></div><div class="readHero"><div class="kicker">TOP STUDENT MINDSET</div><h2>🧠 学霸思维 VS 普通学生思维</h2><p>20 个关键思维差异分析｜一次只读 5 项，更容易理解和记住。</p></div><div class="readTabs"><button class="readTab active" onclick="showMindGroup(0,this)">01–05</button><button class="readTab" onclick="showMindGroup(1,this)">06–10</button><button class="readTab" onclick="showMindGroup(2,this)">11–15</button><button class="readTab" onclick="showMindGroup(3,this)">16–20</button><button class="readTab" onclick="showMindGroup(4,this)">⭐ 核心 5 思维</button></div><div id="mindReadArea"></div>`;showMindGroup(0,document.querySelector(".readTab"));a.scrollIntoView({behavior:"smooth"})}
+function showMindGroup(g,b){document.querySelectorAll(".readTab").forEach(x=>x.classList.remove("active"));if(b)b.classList.add("active");let area=document.getElementById("mindReadArea");if(g<4){let st=g*5;area.innerHTML=`<div class="mindGrid">${READABLE_MINDSET.slice(st,st+5).map((x,j)=>mindsetCard(x,st+j)).join("")}</div>`}else{area.innerHTML=`<div class="card"><h2>🌟 学霸最核心的 5 个底层思维</h2><div class="coreFive"><div class="coreItem">①<b>成长型思维</b><small>“我做不到” → “我暂时还做不到”</small></div><div class="coreItem">②<b>主动负责思维</b><small>不问谁的错，问我可以做什么</small></div><div class="coreItem">③<b>长期主义思维</b><small>看 1 年、3 年、5 年后</small></div><div class="coreItem">④<b>系统思维</b><small>习惯 × 时间 × 专注 × 理解 × 练习 × 复习</small></div><div class="coreItem">⑤<b>复利思维</b><small>每天进步 1%</small></div></div><div class="quoteBig">目标 → 决定行动<br><small>“即使没心情，也完成该完成的任务。”</small></div><div class="sectionBox"><h3>🌙 每晚 3 分钟成长反思</h3><p>① 今天学到了什么？</p><p>② 今天最大的错误是什么？</p><p>③ 明天准备改进什么？</p><p><b>一句话总结：普通学生关注“结果”；学霸关注“过程”。</b></p><p>普通学生问：“为什么我考不到 A？”</p><p>学霸问：“我要建立什么习惯，才能稳定考 A？”</p><p><b>连续坚持 30 天，你的思维模式会开始向学霸靠近。</b></p></div><div class="sectionBox"><h3>🧠 Feynman 学习法｜核心重点</h3><p>✅ 用简单的话解释知识</p><p>✅ 找出自己不懂的地方</p><p>✅ 重新学习弱点</p><p>✅ 直到能教别人</p><div class="quoteBig">讲得出来，才是真的懂。</div></div></div>`}}
+function openReadableMindset(){let a=document.getElementById("libraryArea");a.innerHTML=`<div class="card"><button class="btn light" onclick="libraryArea.innerHTML=''">← 返回资料库</button></div><div class="readHero"><div class="kicker">TOP STUDENT MINDSET</div><h2>🧠 学霸思维 VS 普通学生思维</h2><p>很多人以为差别是智商，其实最大的差别往往是思维模式与行为习惯。一次只读 5 项，再把其中 1 项用在今天的学习里。</p></div><div class="readTabs"><button class="readTab active" onclick="showMindGroup(0,this)">01–05</button><button class="readTab" onclick="showMindGroup(1,this)">06–10</button><button class="readTab" onclick="showMindGroup(2,this)">11–15</button><button class="readTab" onclick="showMindGroup(3,this)">16–20</button><button class="readTab" onclick="showMindGroup(4,this)">⭐ 核心 5 思维</button></div><div id="mindReadArea"></div>`;showMindGroup(0,document.querySelector(".readTab"));a.scrollIntoView({behavior:"smooth"})}
 function showMethodPart(id,b){document.querySelectorAll(".methodNav button").forEach(x=>x.classList.remove("active"));document.querySelectorAll(".methodSection").forEach(x=>x.classList.remove("active"));if(b)b.classList.add("active");let e=document.getElementById(id);if(e)e.classList.add("active")}
 function openReadableMethod(){let a=document.getElementById("libraryArea");a.innerHTML=`<div class="card"><button class="btn light" onclick="libraryArea.innerHTML=''">← 返回资料库</button></div><div class="readHero"><div class="kicker">STUDY METHOD</div><h2>🍅 番茄工作法 + Feynman 读书法</h2><p>一个训练专注力，一个训练理解力。分步骤阅读，不需要一次看完整篇。</p></div><div class="methodNav"><button class="active" onclick="showMethodPart('pomRead',this)">🍅 番茄工作法</button><button onclick="showMethodPart('feyRead',this)">🧠 Feynman</button><button onclick="showMethodPart('comboRead',this)">🔥 两个一起用</button><button onclick="showMethodPart('templateRead',this)">📝 简单模板</button></div>
 <div id="pomRead" class="methodSection active"><div class="card"><h2>🍅 番茄工作法｜训练专注力</h2><div class="phase"><b>核心：</b>不是“读很久”，而是在短时间内高度专注、减少分心、规律休息、避免拖延。</div><div class="stepList"><div class="studyStep"><div class="stepNum">1</div><div><h4>选择一个明确任务</h4><p>不要写“读书”。可以写：完成数学第 3 课练习 10 题、背英文单词 20 个、复习科学 Chapter 2。</p></div></div><div class="studyStep"><div class="stepNum">2</div><div><h4>专注 25 分钟</h4><p>这 25 分钟只能做一件事：不看手机、不聊天、不换科目、不开其他网页。</p></div></div><div class="studyStep"><div class="stepNum">3</div><div><h4>休息 5 分钟</h4><p>喝水、走一走、伸展身体、闭眼休息。</p></div></div><div class="studyStep"><div class="stepNum">4</div><div><h4>完成 4 轮后长休息</h4><p>休息 15–30 分钟。</p></div></div></div><div class="ruleBad"><b>🚫 休息时不要：</b>刷短视频、打游戏、看太刺激的内容，因为会让你很难回到学习状态。</div><div class="ruleGood"><b>⭐ 学霸使用秘诀：</b>初学者 15+5 → 标准 25+5 → 状态好时 45+10。</div></div></div>
-<div id="feyRead" class="methodSection"><div class="card"><h2>🧠 Feynman 学习法｜训练理解力</h2><div class="quoteBig">讲得出来，才是真的懂。</div><div class="stepList"><div class="studyStep"><div class="stepNum">1</div><div><h4>选一个知识点</h4><p>例如 Photosynthesis 光合作用、Algebra 代数、Tenses 时态、Sejarah Bab 1。</p></div></div><div class="studyStep"><div class="stepNum">2</div><div><h4>用自己的话解释</h4><p>假设你要教一个 Year 3 学生，不要用复杂词。</p></div></div><div class="studyStep"><div class="stepNum">3</div><div><h4>找出卡住的地方</h4><p>解释不出来的地方，就是还没有真正理解的弱点。</p></div></div><div class="studyStep"><div class="stepNum">4</div><div><h4>回去补强</h4><p>回课本、笔记、老师讲解和例题，再重新解释一次。</p></div></div><div class="studyStep"><div class="stepNum">5</div><div><h4>简化成自己的版本</h4><p>整理成一句话总结、一个例子、一个图表、一个容易记的口诀，方便考试前复习。</p></div></div></div></div></div>
+<div id="feyRead" class="methodSection"><div class="card"><h2>🧠 Feynman 学习法｜训练理解力</h2>
+<div class="phase"><b>核心重点：</b><br>✅ 用简单的话解释知识<br>✅ 找出自己不懂的地方<br>✅ 重新学习弱点<br>✅ 直到能教别人</div>
+<div class="quoteBig">讲得出来，才是真的懂。</div>
+<div class="stepList">
+<div class="studyStep"><div class="stepNum">1</div><div><h4>选一个知识点</h4><p>例如 Photosynthesis 光合作用、Algebra 代数、Tenses 时态、Sejarah Bab 1。</p></div></div>
+<div class="studyStep"><div class="stepNum">2</div><div><h4>用自己的话解释</h4><p>假设你要教一个 Year 3 学生，不要用复杂词。例如：植物用阳光、水和空气里的二氧化碳来制造食物，同时释放氧气。</p></div></div>
+<div class="studyStep"><div class="stepNum">3</div><div><h4>找出卡住的地方</h4><p>当你解释不出来时，代表那里还不懂。比如：不知道 chlorophyll 是什么、不知道为什么需要 sunlight、不知道 oxygen 从哪里来。</p></div></div>
+<div class="studyStep"><div class="stepNum">4</div><div><h4>回去补强，再重新解释</h4><p>回去看课本、笔记、老师讲解和例题。补强后不要照抄，重新从头讲一遍。</p></div></div>
+<div class="studyStep"><div class="stepNum">5</div><div><h4>简化成自己的版本</h4><p>最后写成：一句话总结 + 一个例子 + 一个图表 + 一个容易记的口诀，方便考试前复习。</p></div></div>
+</div></div></div>
 <div id="comboRead" class="methodSection"><div class="card"><h2>🔥 两个方法怎么结合？</h2><p class="muted">最强用法：连续 4 个番茄钟，每一轮负责不同学习任务。</p><div class="comboGrid"><div class="comboCard"><b>第 1 个</b><br>25 分钟<br><strong>学习新内容</strong></div><div class="comboCard"><b>第 2 个</b><br>25 分钟<br><strong>Feynman 解释</strong></div><div class="comboCard"><b>第 3 个</b><br>25 分钟<br><strong>做练习题</strong></div><div class="comboCard"><b>第 4 个</b><br>25 分钟<br><strong>整理错题和总结</strong></div></div><div class="ruleGood"><b>番茄工作法解决：</b>我坐不住、容易分心、拖延。</div><div class="ruleGood"><b>Feynman 学习法解决：</b>我以为我懂，其实不会做题。</div><div class="quoteBig">真正的学霸不是一直读书，而是懂得用正确方法读书。</div></div></div>
 <div id="templateRead" class="methodSection"><div class="grid"><div class="card span6"><h3>🍅 番茄工作法模板</h3><div class="templateBox">今天任务：__________<br>科目：__________<br>目标：__________<br>番茄钟数量：__________<br>完成情况：__________</div></div><div class="card span6"><h3>🧠 Feynman 学习法模板</h3><div class="templateBox">我今天学的知识：__________<br>用简单话解释：__________<br>我卡住的地方：__________<br>我重新学习了：__________<br>我的一句话总结：__________</div></div></div></div>`;a.scrollIntoView({behavior:"smooth"})}
 function openLearningLibrary(type){if(type==="mindset")openReadableMindset();else openReadableMethod();}
 
 
-const READABLE_DOC_CONFIG={"lib30": {"title": "🚀 30 天考试冲刺执行指南", "tag": "30-DAY EXAM SPRINT", "intro": "不要一次读完整份指南。按阶段阅读，今天做到哪一阶段，就只看那一部分。", "tabs": [["开始前", "一、冲刺前先建立一个正确观念", "第一阶段"], ["Day 1–3｜诊断", "第一阶段", "第二阶段"], ["Day 4–10｜基础修复", "第二阶段", "第三阶段"], ["Day 11–20｜重点提分", "第三阶段", "第四阶段"], ["Day 21–26｜模拟实战", "第四阶段", "第五阶段"], ["Day 27–30｜最终冲刺", "第五阶段", "30 天期间每天都应该做的"], ["每日 7 件事", "30 天期间每天都应该做的", "🤖 AI 在 30 天冲刺中应该怎样使用？"], ["AI 怎么用", "🤖 AI 在 30 天冲刺中应该怎样使用？", null]]}, "libexam": {"title": "🎓 学霸考试高分系统", "tag": "EXAM HIGH SCORE SYSTEM", "intro": "30 个方法不需要一次背完。按考试流程分区阅读：考前 → 审题 → 作答 → 时间 → 检查。", "tabs": [["考前准备 1–10", "考前准备（1-10）", "审题技巧（11-15）"], ["审题技巧 11–15", "审题技巧（11-15）", "作答技巧（16-22）"], ["作答技巧 16–22", "作答技巧（16-22）", "时间管理"], ["时间管理", "时间管理", "检查"], ["最后检查", "检查", null]]}, "libwriting": {"title": "✍️ 作文高分训练法", "tag": "HIGH-SCORE WRITING", "intro": "按照写作流程分区阅读：先知道好作文的标准，再审题、列大纲、写开头与内容，最后检查。", "tabs": [["a) 好作文怎么写", "一、写好作文最重要的是什么？", "二、第一步：审题"], ["b) 审题", "二、第一步：审题", "四、第三步：先列大纲"], ["c) 大纲与结构", "四、第三步：先列大纲", "五、第四步：开头"], ["d) 开头", "五、第四步：开头", "六、第五步：正文"], ["e) 内容", "六、第五步：正文", "十三、第十二步：结尾"], ["f) 结尾", "十三、第十二步：结尾", "十四、考试作文的高分关键"], ["g) 先懂高分关键", "十四、考试作文的高分关键", "十五、作文最常见的 10 个失分问题"], ["h) 最常见的失分问题", "十五、作文最常见的 10 个失分问题", "十六、最后 5 分钟一定要检查"], ["i) 最后检查", "十六、最后 5 分钟一定要检查", "How to Score A with AI「作文高分口诀」"], ["j) 作文高分口诀", "How to Score A with AI「作文高分口诀」", null]]}, "libparent": {"title": "👨‍👩‍👧 家长陪伴指南", "tag": "PARENT COACHING GUIDE", "intro": "家长不需要一次读完。遇到什么情况，就打开对应部分，重点看“可以怎样说、怎样陪”。", "tabs": [["陪伴原则", "家长陪伴", "沟通"], ["沟通方法", "沟通", "时间"], ["时间与习惯", "时间", "考试"], ["考试与压力", "考试", "AI"], ["AI 使用", "AI", null]]}, "libgrowth": {"title": "🏆 学霸学习成长路径指标", "tag": "LV1–LV9 GROWTH PATH", "intro": "成长不是一下子变成学霸。先看自己目前在哪一级，再专注完成下一等级需要建立的行为。", "tabs": [["Lv1–Lv3", "第一阶段：学习态度建立", "第四阶段：高效理解能力"], ["Lv4–Lv6", "第四阶段：高效理解能力", "第七阶段：考试能力训练"], ["Lv7–Lv9", "第七阶段：考试能力训练", "学霸成长终极公式"]]}};
+const READABLE_DOC_CONFIG={"lib30": {"title": "🚀 30 天考试冲刺执行指南", "tag": "30-DAY EXAM SPRINT", "intro": "不要一次读完整份指南。按阶段阅读，今天做到哪一阶段，就只看那一部分。", "tabs": [["开始前", "一、冲刺前先建立一个正确观念", "第一阶段"], ["Day 1–3｜诊断", "第一阶段", "第二阶段"], ["Day 4–10｜基础修复", "第二阶段", "第三阶段"], ["Day 11–20｜重点提分", "第三阶段", "第四阶段"], ["Day 21–26｜模拟实战", "第四阶段", "第五阶段"], ["Day 27–30｜最终冲刺", "第五阶段", "30 天期间每天都应该做的"], ["每日 7 件事", "30 天期间每天都应该做的", "🤖 AI 在 30 天冲刺中应该怎样使用？"], ["AI 怎么用", "🤖 AI 在 30 天冲刺中应该怎样使用？", null]]}, "libexam": {"title": "🎓 学霸考试高分系统", "tag": "EXAM HIGH SCORE SYSTEM", "intro": "高分不只是知识，更是考试策略。30 个方法按流程分区阅读，不需要一次背完。", "tabs": [["为什么高分要靠策略", "30 个避免粗心、提高分数、稳定拿高分的方法", "考前准备（1-10）"], ["考前准备 1–10", "考前准备（1-10）", "审题技巧（11-15）"], ["审题技巧 11–15", "审题技巧（11-15）", "作答技巧（16-22）"], ["作答技巧 16–22", "作答技巧（16-22）", "防粗心系统（23-27）"], ["防粗心 23–27", "防粗心系统（23-27）", "时间管理（28-30）"], ["时间管理 28–30", "时间管理（28-30）", "顶级学霸的隐藏技巧"], ["👑 顶级隐藏技巧", "顶级学霸的隐藏技巧", "学霸考试黄金口诀"]]}, "libwriting": {"title": "✍️ 作文高分训练法", "tag": "HIGH-SCORE WRITING", "intro": "按照写作流程分区阅读：先知道好作文的标准，再审题、列大纲、写开头与内容，最后检查。", "tabs": [["a) 好作文怎么写", "一、写好作文最重要的是什么？", "二、第一步：审题"], ["b) 审题", "二、第一步：审题", "四、第三步：先列大纲"], ["c) 大纲与结构", "四、第三步：先列大纲", "五、第四步：开头"], ["d) 开头", "五、第四步：开头", "六、第五步：正文"], ["e) 内容", "六、第五步：正文", "十三、第十二步：结尾"], ["f) 结尾", "十三、第十二步：结尾", "十四、考试作文的高分关键"], ["g) 先懂高分关键", "十四、考试作文的高分关键", "十五、作文最常见的 10 个失分问题"], ["h) 最常见的失分问题", "十五、作文最常见的 10 个失分问题", "十六、最后 5 分钟一定要检查"], ["i) 最后检查", "十六、最后 5 分钟一定要检查", "How to Score A with AI「作文高分口诀」"], ["j) 作文高分口诀", "How to Score A with AI「作文高分口诀」", null]]}, "libparent": {"title": "👨‍👩‍👧 家长陪伴指南", "tag": "PARENT COACHING GUIDE", "intro": "不要从头读到尾。先找你现在遇到的情况，再打开对应部分。", "tabs": [["a) 陪伴核心｜从监督到成长", "一、家长陪伴的核心理念", "二、家长的五个正确角色"], ["b) 五个家长角色｜怎样陪", "二、家长的五个正确角色", "三、Score A 家长沟通五步法"], ["c) L.E.A.R.N.｜常见亲子情境", "三、Score A 家长沟通五步法", "十二、关于比较"], ["d) 不比较｜和过去的自己比", "十二、关于比较", "十三、家长如何使用成长报告"], ["e) 成长报告｜10–15分钟成长对话", "十三、家长如何使用成长报告", "十四、每周 5 分钟家长检查"], ["f) 家庭学习系统｜每周检查与环境", "十四、每周 5 分钟家长检查", "十七、家长使用 AI 的正确方式"], ["g) AI 陪伴｜理解问题，不贴标签", "十七、家长使用 AI 的正确方式", "十八、家长情绪管理原则"], ["h) 情绪稳定｜先稳定，再教育", "十八、家长情绪管理原则", "十九、How to Score A with AI 家庭教育三条底线"], ["i) 三条底线｜不羞辱·不比较·不绑成绩", "十九、How to Score A with AI 家庭教育三条底线", "二十、家长陪伴的最终目标"], ["j) 陪伴终点｜从 Manager 到 Partner", "二十、家长陪伴的最终目标", "How to Score A with AI 家庭成长理念:"], ["k) 家庭共同成长｜长期文化", "How to Score A with AI 家庭成长理念:", null]]}, "libgrowth": {"title": "🏆 学霸学习成长路径指标", "tag": "LV1–LV9 GROWTH PATH", "intro": "成长不是一下子变成学霸。先看自己目前在哪一级，再专注完成下一等级需要建立的行为。", "tabs": [["Lv1–Lv3", "第一阶段：学习态度建立", "第四阶段：高效理解能力"], ["Lv4–Lv6", "第四阶段：高效理解能力", "第七阶段：考试能力训练"], ["Lv7–Lv9", "第七阶段：考试能力训练", "学霸成长终极公式"]]}};
 
 function rawLibraryText(id){
   let tmp=document.createElement("div");
@@ -724,7 +817,159 @@ function showReadableDocPart(id,idx,b){
   let panel=document.getElementById("reader_"+id+"_"+idx);
   if(panel)panel.classList.add("active");
 }
+
+function parentLibrarySectionCards(text){
+  const lines=(text||"").split("\n").map(x=>x.trim()).filter(Boolean);
+  const sections=[];
+  let cur={title:"重点内容",body:[]};
+  const push=()=>{if(cur.body.length||cur.title!=="重点内容")sections.push(cur);cur={title:"重点内容",body:[]}};
+  lines.forEach(line=>{
+    if(/^[一二三四五六七八九十]+、/.test(line)){
+      push();
+      cur={title:line,body:[]};
+    }else{
+      cur.body.push(line);
+    }
+  });
+  push();
+  return sections.map(sec=>{
+    const body=sec.body.map(line=>{
+      if(/^✅/.test(line)||/^正确/.test(line)||/^建议：/.test(line)||/^-\s*✅/.test(line)){
+        return `<div class="parentTopicGood">${esc(line.replace(/^-\s*/,""))}</div>`;
+      }
+      if(/^❌/.test(line)||/^不建议/.test(line)||/^-\s*❌/.test(line)){
+        return `<div class="parentTopicBad">${esc(line.replace(/^-\s*/,""))}</div>`;
+      }
+      if(/^STEP\s*\d+/i.test(line)||/^角色\s*\d+/.test(line)||/^[LERN]\s+—/.test(line)){
+        return `<div class="parentTopicStep">${esc(line)}</div>`;
+      }
+      if(/^[-*•o~【]/.test(line)){
+        return `<div class="parentTopicBullet">${esc(line.replace(/^[-*•o~]\s*/,""))}</div>`;
+      }
+      return `<div class="parentTopicLine">${esc(line)}</div>`;
+    }).join("");
+    return `<section class="parentTopic" data-parent-topic="${esc(sec.title)}"><h3>${esc(sec.title)}</h3>${body}</section>`;
+  }).join("");
+}
+
+function parentLibraryMeta(){
+  return [
+    {key:"a",icon:"🌱",group:"start",title:"先看这里｜陪伴核心",sub:"从监督孩子学习 → 陪伴孩子成长",when:"刚开始使用系统，或发现自己每天都在催、管、问成绩时。",ranges:[["一、家长陪伴的核心理念","二、家长的五个正确角色"]]},
+    {key:"b",icon:"🧭",group:"start",title:"我应该扮演什么角色？",sub:"支持者 · 引导者 · 观察者 · 环境建设者 · 成长伙伴",when:"不知道什么时候该帮、什么时候该放手时。",ranges:[["二、家长的五个正确角色","三、Score A 家长沟通五步法"]]},
+    {key:"c",icon:"💬",group:"talk",title:"孩子出状况时怎么说？",sub:"L.E.A.R.N. 沟通法 + 8 个常见情境",when:"成绩下降、做错题、不想学、拿高分、没达目标或想挑战难题时。",ranges:[["三、Score A 家长沟通五步法","十二、关于比较"]]},
+    {key:"d",icon:"⚖️",group:"talk",title:"不要拿孩子和别人比",sub:"改成和过去的自己比较",when:"很想用兄弟姐妹、同学或亲戚孩子的成绩刺激他时。",ranges:[["十二、关于比较","十三、家长如何使用成长报告"]]},
+    {key:"e",icon:"📊",group:"follow",title:"怎样看成长报告？",sub:"把报告变成 10–15 分钟成长对话",when:"收到学习报告后，不知道应该先问什么、看什么时。",ranges:[["十三、家长如何使用成长报告","十四、每周 5 分钟家长检查"]]},
+    {key:"f",icon:"🏠",group:"follow",title:"家庭学习系统怎么建立？",sub:"每周检查 · 手机规则 · 作息 · 学习环境",when:"每天都在临时催促，希望家庭有稳定学习节奏时。",ranges:[["十四、每周 5 分钟家长检查","十七、家长使用 AI 的正确方式"]]},
+    {key:"g",icon:"🤖",group:"follow",title:"AI 应该怎样帮家长？",sub:"理解问题、看趋势，不给孩子贴标签",when:"想用 AI 分析孩子学习记录或准备亲子沟通时。",ranges:[["十七、家长使用 AI 的正确方式","十八、家长情绪管理原则"]]},
+    {key:"h",icon:"🧘",group:"talk",title:"我现在很生气，怎么办？",sub:"先稳定情绪，再回到事实 → 原因 → 方法",when:"怕自己一开口就责备、争吵或说出伤害孩子的话时。",ranges:[["十八、家长情绪管理原则","十九、How to Score A with AI 家庭教育三条底线"]]},
+    {key:"i",icon:"🛡️",group:"talk",title:"家庭教育三条底线",sub:"不羞辱 · 不比较 · 不把爱与成绩绑定",when:"想确认哪些教育方式无论成绩如何都不应该使用时。",ranges:[["十九、How to Score A with AI 家庭教育三条底线","二十、家长陪伴的最终目标"]]},
+    {key:"j",icon:"🚀",group:"future",title:"什么时候可以少管一点？",sub:"从 Manager → Coach → Supporter → Growth Partner",when:"想知道长期应该怎样逐渐把学习责任交回孩子时。",ranges:[["二十、家长陪伴的最终目标","How to Score A with AI 家庭成长理念:"]]},
+    {key:"k",icon:"🌳",group:"future",title:"我们想建立怎样的家庭？",sub:"会学习的孩子 · 会陪伴的父母 · 持续成长的家庭",when:"想把教育从一次考试提升到长期家庭文化时。",ranges:[["How to Score A with AI 家庭成长理念:",null]]}
+  ];
+}
+
+function selectParentLibraryPart(idx,btn){
+  document.querySelectorAll("[data-parent-lib-btn]").forEach(x=>x.classList.remove("active"));
+  const b=btn||document.querySelector(`[data-parent-lib-btn="${idx}"]`);
+  if(b)b.classList.add("active");
+  document.querySelectorAll("[data-parent-lib-panel]").forEach(x=>x.classList.remove("active"));
+  const p=document.getElementById("parentLibPanel_"+idx);
+  if(p){p.classList.add("active");if(window.innerWidth<901)p.scrollIntoView({behavior:"smooth",block:"start"})}
+}
+
+function filterParentLibrary(q){
+  q=(q||"").trim().toLowerCase();
+  let visible=0;
+  document.querySelectorAll("[data-parent-lib-btn]").forEach(btn=>{
+    const ok=!q||(btn.dataset.search||"").includes(q);
+    btn.classList.toggle("hidden",!ok);
+    if(ok)visible++;
+  });
+  const n=document.getElementById("parentLibraryNoResult");
+  if(n)n.style.display=visible?"none":"block";
+}
+
+function jumpParentLibraryScenario(idx,label){
+  selectParentLibraryPart(idx);
+  setTimeout(()=>{
+    const panel=document.getElementById("parentLibPanel_"+idx);
+    if(!panel)return;
+    const topic=[...panel.querySelectorAll(".parentTopic")].find(x=>(x.dataset.parentTopic||"").includes(label));
+    if(topic){
+      topic.scrollIntoView({behavior:"smooth",block:"start"});
+      topic.animate([{boxShadow:"0 0 0 4px #f0c95b88"},{boxShadow:"0 0 0 0 transparent"}],{duration:1400});
+    }
+  },120);
+}
+
+function renderParentLibraryGuide(){
+  const raw=rawLibraryText("libparent"),a=document.getElementById("libraryArea"),parts=parentLibraryMeta();
+  if(!a)return;
+  const groups=[
+    ["start","① 先建立正确陪伴方式"],
+    ["talk","② 遇到问题时怎么说"],
+    ["follow","③ 怎样持续跟进"],
+    ["future","④ 长期成长目标"]
+  ];
+  const menu=groups.map(([g,title])=>{
+    const buttons=parts.map((p,i)=>({p,i})).filter(x=>x.p.group===g).map(({p,i})=>
+      `<button data-parent-lib-btn="${i}" data-search="${esc((p.key+" "+p.title+" "+p.sub+" "+p.when).toLowerCase())}" class="${i===0?"active":""}" onclick="selectParentLibraryPart(${i},this)">
+        <span class="parentLibraryLetter">${esc(p.key.toUpperCase())}</span>
+        <span><b>${p.icon} ${esc(p.title)}</b><small>${esc(p.sub)}</small></span>
+      </button>`).join("");
+    return `<div class="parentLibraryGroupTitle">${title}</div><div class="parentLibraryMenu">${buttons}</div>`;
+  }).join("");
+
+  const scenario=[
+    ["成绩下降",2,"四、必须避免的家长话术"],
+    ["做错题",2,"五、孩子做错题时"],
+    ["不愿学习",2,"六、孩子不愿意学习时"],
+    ["孩子主动学习",2,"七、孩子主动学习时"],
+    ["取得高分",2,"八、孩子取得高分时"],
+    ["没达到目标",2,"九、孩子成绩没有达到目标时"],
+    ["挑战难题",2,"十、孩子主动要求挑战难题时"],
+    ["总拿孩子比较",3,"十二、关于比较"],
+    ["看成长报告",4,"十三、家长如何使用成长报告"],
+    ["手机 / 作息 / 环境",5,"十六、家庭学习环境标准"],
+    ["想用 AI 帮孩子",6,"十七、家长使用 AI 的正确方式"],
+    ["家长很生气",7,"十八、家长情绪管理原则"]
+  ];
+
+  const panels=parts.map((p,i)=>{
+    const content=p.ranges.map(r=>readerSlice(raw,r[0],r[1])).filter(Boolean).join("\n\n");
+    return `<div class="parentLibraryPanel ${i===0?"active":""}" data-parent-lib-panel="1" id="parentLibPanel_${i}">
+      <div class="parentLibraryHead">
+        <div class="eyebrow">${esc(p.key.toUpperCase())} · PARENT GUIDE</div>
+        <h2>${p.icon} ${esc(p.title)}</h2>
+        <p>${esc(p.sub)}</p>
+        <div class="parentLibraryWhen"><b>什么时候最适合看：</b> ${esc(p.when)}</div>
+      </div>
+      ${parentLibrarySectionCards(content)}
+      <button class="parentGuideBack" onclick="document.getElementById('parentLibraryTop')?.scrollIntoView({behavior:'smooth'})">↑ 回到快速查找</button>
+    </div>`;
+  }).join("");
+
+  a.innerHTML=`<div class="card"><button class="btn light" onclick="libraryArea.innerHTML=''">← 返回资料库</button></div>
+    <div class="readerHero" id="parentLibraryTop"><div class="kicker">PARENT COACHING GUIDE</div><h2>👨‍👩‍👧 家长陪伴指南</h2><p>不要从 a 读到 k。先找你现在遇到的问题，再直接看对应的方法与话术。</p></div>
+    <div class="parentLibraryWelcome"><h3>🔎 家长最常找什么？</h3><p>直接点下面的情境，会带你到对应内容。</p>
+      <div class="parentLibraryScenarios">${scenario.map(s=>`<button onclick="jumpParentLibraryScenario(${s[1]},'${s[2]}')">${s[0]}</button>`).join("")}</div>
+    </div>
+    <div class="parentLibraryShell">
+      <aside class="parentLibrarySide">
+        <h3>📚 A–K 快速目录</h3>
+        <p>不用按顺序读。只选现在最需要解决的一题。</p>
+        <label class="parentLibrarySearch">🔍 <input placeholder="搜索：成绩、粗心、手机、AI、情绪…" oninput="filterParentLibrary(this.value)"></label>
+        ${menu}
+        <div id="parentLibraryNoResult" class="parentLibraryNoResult">找不到完全相同的关键词。可以试：成绩、错题、手机、情绪、AI、比较、报告。</div>
+      </aside>
+      <main class="parentLibraryMain">${panels}</main>
+    </div>
+    <div class="readerFooterTip">💡 <b>家长使用方法：</b>每次只解决一个问题。看完后，选择一句可以马上使用的话或一个可以马上执行的行动。</div>`;
+  a.scrollIntoView({behavior:"smooth",block:"start"});
+}
+
 function openReadableDoc(id){
+  if(id==="libparent"){renderParentLibraryGuide();return;}
   let c=READABLE_DOC_CONFIG[id],raw=rawLibraryText(id),a=document.getElementById("libraryArea");
   if(!c||!a)return;
   let panels=c.tabs.map((t,i)=>`<div class="readerPanel ${i===0?"active":""}" data-reader="${id}" id="reader_${id}_${i}">${readerCards(readerSlice(raw,t[1],t[2]))}</div>`).join("");
@@ -773,11 +1018,38 @@ function loadToolValues(){renderFixed();if(document.getElementById("habitGrid"))
 
 
 const QUEST30=["学霸觉醒：你真的不够聪明吗？", "问题侦探：分数是线索", "时间小偷：时间去哪了？", "手机挑战：谁控制谁？", "专注训练：进入专注区", "理解力觉醒：你真的懂了吗？", "BOSS 01：拖延大王", "理解升级：讲给别人听", "错题猎人：错误就是藏宝图", "粗心挑战：找到失分漏洞", "复习高手：主动回忆", "记忆挑战：让知识留下来", "自律升级：不用别人提醒", "BOSS 02：混乱之龙", "自主规划：自己画学习路线", "弱点猎人：攻击最值得改善的位置", "考试策略家：会做也要会拿分", "时间掌控：设计高质量学习区块", "自我修正：看见自己的方法", "NO TEACHER DAY：今天由你决定", "目标升级：为下一阶段定方向", "专注耐力：完成更稳定的学习", "知识连接：把新旧知识连起来", "错题复仇战：再战旧弱点", "复习设计师：安排自己的复习节奏", "考试模拟：在限制时间内完成", "压力管理：紧张时也能稳定发挥", "独立学习：自己发现并解决问题", "成长复盘：我已经改变了什么？", "FINAL BOSS：30天成长终极挑战"];
-const DAILY_LESSONS=[{"type": "🎓 学霸思维 VS 普通学生思维", "title": "遇到不会的题目", "a": "普通学生：我不会、太难了、算了。", "b": "学霸：我哪里不会？哪一步卡住？我可以找什么方法解决？"}, {"type": "🍅 番茄工作法 / 🧠 Feynman 读书法", "title": "🍅 明确任务", "a": "不要只写“读书”，写成具体任务。", "b": "今天把这个方法用在真实学习任务里。"}, {"type": "🎓 学霸思维 VS 普通学生思维", "title": "看待错误", "a": "普通学生：错了很丢脸。", "b": "学霸：错误是发现弱点的机会。"}, {"type": "🍅 番茄工作法 / 🧠 Feynman 读书法", "title": "🍅 专注25分钟", "a": "25分钟只做一件事，不看手机、不聊天、不换科目。", "b": "今天把这个方法用在真实学习任务里。"}, {"type": "🎓 学霸思维 VS 普通学生思维", "title": "对待成绩", "a": "普通学生：只看分数。", "b": "学霸：分析错在哪里、为什么错、怎样提高。"}, {"type": "🍅 番茄工作法 / 🧠 Feynman 读书法", "title": "🍅 休息5分钟", "a": "喝水、走动、伸展；不要刷短视频或打游戏。", "b": "今天把这个方法用在真实学习任务里。"}, {"type": "🎓 学霸思维 VS 普通学生思维", "title": "学习目的", "a": "普通学生：为了考试和交代。", "b": "学霸：把学习当成成长和未来机会。"}, {"type": "🍅 番茄工作法 / 🧠 Feynman 读书法", "title": "🍅 四轮节奏", "a": "25学习+5休息，4轮后休息15–30分钟。", "b": "今天把这个方法用在真实学习任务里。"}, {"type": "🎓 学霸思维 VS 普通学生思维", "title": "看待困难", "a": "普通学生：困难会阻碍我。", "b": "学霸：困难是一次成长训练。"}, {"type": "🍅 番茄工作法 / 🧠 Feynman 读书法", "title": "🍅 按状态调整", "a": "初学15+5；稳定25+5；状态好45+10。", "b": "今天把这个方法用在真实学习任务里。"}, {"type": "🎓 学霸思维 VS 普通学生思维", "title": "学习时间", "a": "普通学生：考前才冲刺。", "b": "学霸：平时积累，考前复习重点。"}, {"type": "🍅 番茄工作法 / 🧠 Feynman 读书法", "title": "🧠 选一个知识点", "a": "选择今天真正要弄懂的一个知识点。", "b": "今天把这个方法用在真实学习任务里。"}, {"type": "🎓 学霸思维 VS 普通学生思维", "title": "对待兴趣", "a": "普通学生：喜欢才学。", "b": "学霸：先学会，再培养兴趣。"}, {"type": "🍅 番茄工作法 / 🧠 Feynman 读书法", "title": "🧠 用自己的话解释", "a": "假设教Year 3学生，用最简单的话讲。", "b": "今天把这个方法用在真实学习任务里。"}, {"type": "🎓 学霸思维 VS 普通学生思维", "title": "面对失败", "a": "普通学生：我不适合。", "b": "学霸：我需要改进方法。"}, {"type": "🍅 番茄工作法 / 🧠 Feynman 读书法", "title": "🧠 找出卡住的地方", "a": "解释不出来的地方，就是弱点。", "b": "今天把这个方法用在真实学习任务里。"}, {"type": "🎓 学霸思维 VS 普通学生思维", "title": "对待老师", "a": "普通学生：等老师教。", "b": "学霸：主动问问题。"}, {"type": "🍅 番茄工作法 / 🧠 Feynman 读书法", "title": "🧠 回去补强", "a": "回到课本、笔记、老师讲解或例题。", "b": "今天把这个方法用在真实学习任务里。"}, {"type": "🎓 学霸思维 VS 普通学生思维", "title": "对待知识", "a": "普通学生：背答案。", "b": "学霸：理解原理。"}, {"type": "🍅 番茄工作法 / 🧠 Feynman 读书法", "title": "🧠 再解释一次", "a": "补强后重新讲，直到可以说明。", "b": "今天把这个方法用在真实学习任务里。"}, {"type": "🎓 学霸思维 VS 普通学生思维", "title": "看待天赋", "a": "普通学生：学霸天生聪明。", "b": "学霸：能力可以训练。"}, {"type": "🍅 番茄工作法 / 🧠 Feynman 读书法", "title": "🧠 简化成自己的版本", "a": "一句话总结 + 一个例子 + 图表/口诀。", "b": "今天把这个方法用在真实学习任务里。"}, {"type": "🎓 学霸思维 VS 普通学生思维", "title": "对待时间", "a": "普通学生：有空再学。", "b": "学霸：先安排学习时间。"}, {"type": "🍅 番茄工作法 / 🧠 Feynman 读书法", "title": "🍅+🧠 组合1", "a": "第1个番茄钟：学习新内容。", "b": "今天把这个方法用在真实学习任务里。"}, {"type": "🎓 学霸思维 VS 普通学生思维", "title": "对待手机", "a": "普通学生：先玩一下。", "b": "学霸：先完成任务，再娱乐。"}, {"type": "🍅 番茄工作法 / 🧠 Feynman 读书法", "title": "🍅+🧠 组合2", "a": "第2个番茄钟：用Feynman解释。", "b": "今天把这个方法用在真实学习任务里。"}, {"type": "🎓 学霸思维 VS 普通学生思维", "title": "面对诱惑", "a": "普通学生：看心情。", "b": "学霸：看目标。"}, {"type": "🍅 番茄工作法 / 🧠 Feynman 读书法", "title": "🍅+🧠 组合3", "a": "第3个番茄钟：做练习题。", "b": "今天把这个方法用在真实学习任务里。"}, {"type": "🎓 学霸思维 VS 普通学生思维", "title": "对待记忆", "a": "普通学生：反复死背。", "b": "学霸：理解 + 联想 + 复习。"}, {"type": "🍅 番茄工作法 / 🧠 Feynman 读书法", "title": "🍅+🧠 组合4", "a": "第4个番茄钟：整理错题和总结。", "b": "今天把这个方法用在真实学习任务里。"}];let CYCLE=JSON.parse(localStorage.getItem("scoreA30Cycle")||'{"cycle":1,"day":1,"read":{},"time":{},"ai":{}}');function csave(){localStorage.setItem("scoreA30Cycle",JSON.stringify(CYCLE))}function ck(){return CYCLE.cycle+"-"+CYCLE.day}function openProfile(){loadBasic();profilePop.classList.add("show")}function closeProfile(){profilePop.classList.remove("show")}function profileComplete(){let b=U.basic||{};return !!(b.name&&b.grade&&b.school&&b.minutes&&((Array.isArray(b.challenge)&&b.challenge.length)||(!Array.isArray(b.challenge)&&b.challenge)))}
+const DAILY_LESSONS=[{"type":"🧠 学霸思维","title":"成长型思维：我还不会","read":"遇到不会的题，不要把“不会”当成能力标签。把“我做不到”改成“我暂时还做不到”，下一步是找出自己卡在哪一步。","think":"今天哪一个知识点你最容易说“我不会”？请把它改写成“我还不会……，我准备先……”。","source":"mindset"},{"type":"🧠 学霸思维","title":"错误不是丢脸，是学习信息","read":"错误是发现弱点的机会。错题不是证明你不行，而是在告诉你：下一次最值得改善的地方在哪里。","think":"最近一题做错的题，真正原因是什么？不会、粗心、审题、方法，还是时间？","source":"mindset"},{"type":"🧠 学霸思维","title":"成绩不是终点，是数据","read":"拿到分数后，不只问“高不高”，而要分析：哪类题错最多？为什么错？下一次怎样提高？","think":"如果最近一次成绩要提高 5–10 分，你认为最应该先解决哪一个问题？为什么？","source":"mindset"},{"type":"🧠 学霸思维","title":"平时积累，考前才不慌","read":"普通学生常常考前才冲刺；学霸平时和周末持续温习、做笔记、整理错题，考试前只需要复习重点。","think":"你今天可以固定哪一个 20–30 分钟时间，开始做长期积累？","source":"mindset"},{"type":"🧠 学霸思维","title":"面对诱惑：看目标，不看心情","read":"朋友约游戏、手机很好玩，都是真实诱惑。学霸不是完全不玩，而是先完成计划，再娱乐。","think":"今天最容易让你分心的诱惑是什么？你准备先完成什么，再去娱乐？","source":"mindset"},{"type":"🧠 学霸思维","title":"今天的努力，会影响未来","read":"长期主义不是只看今天开不开心，而是知道今天的努力会逐渐影响 SPM、大学、奖学金与未来机会。","think":"未来的你会感谢今天的你完成哪一件学习小事？","source":"mindset"},{"type":"⭐ 底层思维","title":"成长型思维","read":"不要说“我做不到”，改成“我暂时还做不到”。能力不是固定的，可以通过正确方法和练习逐渐提升。","think":"今天你准备把哪一句负面自我对话改成“暂时还不会”？","source":"mindset"},{"type":"⭐ 底层思维","title":"主动负责思维","read":"遇到问题时，不要先问“谁的错？”，而是问“我可以做什么？”这会把注意力从抱怨转回行动。","think":"现在有哪一个学习问题，是你今天可以主动做第一步的？","source":"mindset"},{"type":"⭐ 底层思维","title":"系统思维","read":"成绩不是靠某一天拼命，而是学习习惯 × 时间管理 × 专注力 × 理解力 × 练习 × 复习共同作用。","think":"这 6 个因素里，你目前最弱的是哪一个？今天可以怎样改善一点？","source":"mindset"},{"type":"⭐ 底层思维","title":"复利思维","read":"每天进步一点点，看起来很小；但连续很多天以后，差距会非常大。稳定的小行动通常比偶尔拼命更有价值。","think":"你愿意连续 30 天坚持哪一个很小、但真正有用的学习习惯？","source":"mindset"},{"type":"🧠 Feynman","title":"讲得出来，才是真的懂","read":"Feynman 学习法的重点不是背答案，而是用简单的话解释知识、找出自己不懂的地方、重新补强，直到能教别人。","think":"今天选一个知识点：如果要教给 Year 3 学生，你会怎样用一句简单的话解释？","source":"method"},{"type":"🧠 Feynman","title":"只选一个知识点","read":"不要一次解释整本课本。先选一个明确知识点，例如 Photosynthesis、Algebra、Tenses 或一个 Sejarah 章节重点。","think":"你今天最想真正弄懂的一个知识点是什么？","source":"method"},{"type":"🧠 Feynman","title":"用自己的话解释","read":"不要照着课本背。真正的理解，是能够不用复杂术语，用自己的话把概念说明清楚。","think":"不用看课本，用自己的话写出今天知识点的解释。","source":"method"},{"type":"🧠 Feynman","title":"找出讲不清楚的地方","read":"解释不出来的地方就是理解漏洞。找到漏洞并不可怕，因为这正是下一步学习最有价值的位置。","think":"刚才解释时，哪一个部分最卡？你具体不明白什么？","source":"method"},{"type":"🧠 Feynman","title":"补强，再简化成自己的版本","read":"回去看课本、笔记、老师讲解或例题；补强后再重新解释。最后整理成一句话总结、一个例子、一个图表或口诀。","think":"你准备回哪里补强？补强后，你的一句话总结会是什么？","source":"method"},{"type":"🎓 考试高分系统","title":"高分不只是知识，更是考试策略","read":"同样会做题的学生，因为审题、时间、检查和作答策略不同，考试结果可能差很多。会做，还要会稳定拿分。","think":"除了知识以外，你考试最容易在哪一项丢分：审题、时间、粗心、表达，还是检查？","source":"libexam"},{"type":"🎓 考前准备","title":"睡眠比多读 1 小时更重要","read":"熬夜会让反应变慢、容易看错题、粗心增加。考试前最后阶段，稳定状态往往比多塞一个小时的新内容更重要。","think":"你下一次考试前，最需要改掉哪一个准备习惯？","source":"libexam"},{"type":"🎓 审题技巧","title":"先看关键词、单位和限制","read":"Explain、Compare、State、Describe、Calculate 要求不同；数学和科学还要特别留意单位、数量限制和 NOT / EXCEPT / INCORRECT。","think":"你最容易漏看哪一种题目要求？以后准备怎样提醒自己？","source":"libexam"},{"type":"🎓 作答技巧","title":"先拿稳会做的分","read":"先做会的题，不要在一道难题卡太久。超过几分钟没有进展，可以先标记，继续下一题，再回来处理。","think":"你考试时最容易在哪种题卡太久？你准备给自己什么时间规则？","source":"libexam"},{"type":"🎓 防粗心系统","title":"粗心也需要分类检查","read":"检查符号、抄写、单位、漏题和答题位置。粗心不是一句“下次小心”，而是建立固定检查流程。","think":"你最常见的粗心是哪一种？以后最后检查时第一项要看什么？","source":"libexam"},{"type":"🎓 时间管理","title":"预留最后 10 分钟","read":"考试结束前 10 分钟不是“等停笔”，而是专门检查名字、题号、单位、漏题和计算错误。","think":"如果考试有 60 分钟，你准备最迟在第几分钟完成第一轮作答？","source":"libexam"},{"type":"🚀 30天冲刺","title":"红黄绿扫描","read":"把 Topic 分成：🔴不会/经常错、🟡懂一点但不稳定、🟢基本掌握。复习时间不要平均分配。","think":"写出你目前一个🔴 Topic、一个🟡 Topic、一个🟢 Topic。","source":"lib30"},{"type":"🚀 30天冲刺","title":"找出真正的失分原因","read":"同样是“错题”，原因可能是知识不会、概念混淆、粗心、审题、方法、时间或表达。先找原因，才能练对地方。","think":"你最近最大的 Top 1 失分原因是什么？它出现在哪一科？","source":"lib30"},{"type":"🚀 30天冲刺","title":"80/20：先拿回最容易拿回的分数","read":"不要平均用力，也不要为了最难的一题花掉大量时间。先处理高频考点、常错基础题和最容易改善的弱点。","think":"如果只能先改善一个 Topic，哪一个最可能帮你拿回最多分？","source":"lib30"},{"type":"🚀 模拟考试","title":"不要只看总分，要分析丢分结构","read":"Mock 之后不要只记录“72 分”。要继续拆解：知识不足几分、粗心几分、审题几分、时间几分、表达几分。","think":"如果你最近一次考试少了 20 分，你估计这些分主要丢在哪里？","source":"lib30"},{"type":"✍️ 作文高分","title":"先切题，再谈华丽","read":"好作文不是词越难越好。最重要的是切题、中心明确、结构清楚、内容具体、表达准确，并加入自己的观察与感受。","think":"你写作文最需要先改善的是：审题、结构、细节、语言，还是结尾？为什么？","source":"libwriting"},{"type":"✍️ 作文高分","title":"正文要写具体","read":"不要只写“我很紧张”。可以写动作、语言、表情、心理和环境，让读者真正感受到发生了什么。","think":"把“我很紧张”改写成一句更具体、有画面的句子。","source":"libwriting"},{"type":"✍️ 作文检查","title":"最后 5 分钟一定要检查","read":"先检查是否离题和漏要求，再看结构，最后检查语言：错别字 / Spelling / Ejaan / Grammar / Tatabahasa / 标点等。","think":"你写完作文最容易忘记检查哪一项？你准备怎样建立固定顺序？","source":"libwriting"},{"type":"🏆 成长路径","title":"先看自己在哪一级，再练下一步","read":"成长不是一下子变成学霸。Lv1–Lv9 的价值，是让你看清楚自己现在的行为，以及下一阶段最值得建立的能力。","think":"你觉得自己目前最需要加强的是：习惯、专注、理解、主动学习、考试能力，还是自我管理？","source":"libgrowth"},{"type":"🌙 每日复盘","title":"普通学生看结果，学霸看过程","read":"每晚花 3 分钟问：今天学到了什么？今天最大的错误是什么？明天准备改进什么？长期坚持，思维和行为才会改变。","think":"用一句话写：今天我最值得保留的做法是什么？明天最需要改善什么？","source":"mindset"}];let CYCLE=JSON.parse(localStorage.getItem("scoreA30Cycle")||'{"cycle":1,"day":1,"read":{},"time":{},"ai":{},"readThought":{}}');CYCLE.read=CYCLE.read||{};CYCLE.time=CYCLE.time||{};CYCLE.ai=CYCLE.ai||{};CYCLE.readThought=CYCLE.readThought||{};function csave(){localStorage.setItem("scoreA30Cycle",JSON.stringify(CYCLE))}function ck(){return CYCLE.cycle+"-"+CYCLE.day}function openProfile(){loadBasic();profilePop.classList.add("show")}function closeProfile(){profilePop.classList.remove("show")}function profileComplete(){let b=U.basic||{};return !!(b.name&&b.grade&&b.school&&b.minutes&&((Array.isArray(b.challenge)&&b.challenge.length)||(!Array.isArray(b.challenge)&&b.challenge)))}
 function selectedChallenges(){return [...document.querySelectorAll("#uChallenge input:checked")].map(x=>x.value)}
 function saveBasicGate(){U.basic={name:uName.value.trim(),grade:uGrade.value.trim(),school:uSchool.value.trim(),minutes:uMinutes.value,strong:uStrong.value.trim(),weak:uWeak.value.trim(),challenge:selectedChallenges()};usave();if(!profileComplete()){alert("请填写所有 * 必填资料，并至少选择一个学习问题");return}closeProfile();render30()}
 function firstEntryGate(){if(!profileComplete())setTimeout(openProfile,200)}function scrollDailyLesson(){show("challenge",document.querySelectorAll(".tab")[0]);setTimeout(()=>{let b=document.getElementById("dailyLessonBox");if(b){b.scrollIntoView({behavior:"smooth",block:"center"});b.classList.add("lessonFocus");setTimeout(()=>b.classList.remove("lessonFocus"),2600)}},80)}
-function markDailyRead(){let k=ck();if(!CYCLE.read[k]){CYCLE.read[k]=true;let rk="read-"+k;if(!S.rewarded[rk]){S.rewarded[rk]=true;S.xp+=10;S.learn=Math.min(100,S.learn+2);localStorage.setItem(K,JSON.stringify(S));}}csave();renderDailyGate();render()}function goDailyTime(){show("training",document.querySelectorAll(".tab")[1]);openToolbox("timebox")}function goDailyAI(){
+function markDailyRead(){
+  let k=ck(),ta=document.getElementById("dailyThink"),thought=(ta?.value||"").trim();
+  if(thought.length<12){alert("请先用自己的话完成今天的思考，至少写 12 个字。不要只按“完成”。");ta?.focus();return}
+  CYCLE.readThought[k]=thought;
+  if(!CYCLE.read[k]){
+    CYCLE.read[k]=true;
+    let rk="read-"+k;
+    if(!S.rewarded[rk]){
+      S.rewarded[rk]=true;S.xp+=15;S.learn=Math.min(100,S.learn+3);
+      localStorage.setItem(K,JSON.stringify(S));
+    }
+  }
+  csave();renderDailyGate();render();
+  if(typeof syncDailyReflectionToSupabase==="function"){
+    syncDailyReflectionToSupabase(thought).catch(err=>console.warn("Daily reflection cloud sync failed",err));
+  }
+  showReward("📖","今日必读 + 思考完成","不是只读过，而是已经用自己的话想过一次。+15 XP");
+}
+function openDailySource(){
+  let l=DAILY_LESSONS[CYCLE.day-1],tabs=document.querySelectorAll(".tab");
+  show("library",tabs[2]);
+  setTimeout(()=>{
+    if(l.source==="mindset")openLearningLibrary("mindset");
+    else if(l.source==="method")openLearningLibrary("method");
+    else if(["libexam","lib30","libwriting","libgrowth"].includes(l.source))openReadableDoc(l.source);
+  },60);
+}
+function goDailyTime(){show("training",document.querySelectorAll(".tab")[1]);openToolbox("timebox")}function goDailyAI(){
   show("training",document.querySelectorAll(".tab")[1]);
   openToolbox("chatgpt");
   CYCLE.aiOpened=ck();
@@ -786,7 +1058,22 @@ function markDailyRead(){let k=ck();if(!CYCLE.read[k]){CYCLE.read[k]=true;let rk
   csave();
 }
 function confirmAIPractice(){let k=ck();if(!CYCLE.ai[k]){CYCLE.ai[k]=true;CYCLE.aiCompletedAt=CYCLE.aiCompletedAt||{};CYCLE.aiCompletedAt[k]=new Date().toISOString();let rk="ai-"+k;if(!S.rewarded[rk]){S.rewarded[rk]=true;S.xp+=15;S.learn=Math.min(100,S.learn+3);S.focus=Math.min(100,S.focus+1);localStorage.setItem(K,JSON.stringify(S));}}csave();renderDailyGate();render();showReward("🤖","AI 练习已完成","系统已记录完成状态和时间。+15 XP") }
-function markTimeToday(){let k=ck();if(!CYCLE.time[k]){CYCLE.time[k]=true;let rk="time-"+k;if(!S.rewarded[rk]){S.rewarded[rk]=true;S.xp+=15;S.time=Math.min(100,S.time+3);localStorage.setItem(K,JSON.stringify(S));}}csave();renderDailyGate();render()}function gateOK(){return !!(CYCLE.read[ck()]&&CYCLE.time[ck()]&&CYCLE.ai[ck()])}function renderDailyGate(){let l=DAILY_LESSONS[CYCLE.day-1],box=document.getElementById("dailyLessonBox");if(!box)return;box.innerHTML=`<div class="lessonType">${l.type}</div><h3>Day ${CYCLE.day}｜${l.title}</h3><div class="compareLine">👨‍🎓 ${l.a}</div><div class="compareLine"><b>👑 ${l.b}</b></div>`;let k=ck();gateRead.textContent=CYCLE.read[k]?"① 📖 阅读：✓ 已完成":"① 📖 阅读：未完成";gateTime.textContent=CYCLE.time[k]?"② ⏰ 时间管理：✓ 已完成":"② ⏰ 时间管理：未完成";gateAI.textContent=CYCLE.ai[k]?"③ 🤖 ChatGPT：✓ 已完成":"③ 🤖 ChatGPT：未完成";let rb=document.getElementById("readDoneBtn");if(rb){rb.textContent=CYCLE.read[k]?"✓ 今日内容已阅读":"✓ 我已读完并理解";rb.disabled=!!CYCLE.read[k]}gateStatus.innerHTML=gateOK()?"🔓 <b>今日挑战已解锁！</b>":"🔒 完成以上 3 项后解锁今日挑战。";document.querySelectorAll("#challenge > .card").forEach(x=>{if(x.id!=="dailyGate")x.classList.toggle("challengeLocked",!gateOK())})}
+function markTimeToday(){let k=ck();if(!CYCLE.time[k]){CYCLE.time[k]=true;let rk="time-"+k;if(!S.rewarded[rk]){S.rewarded[rk]=true;S.xp+=15;S.time=Math.min(100,S.time+3);localStorage.setItem(K,JSON.stringify(S));}}csave();renderDailyGate();render()}function gateOK(){return !!(CYCLE.read[ck()]&&CYCLE.time[ck()]&&CYCLE.ai[ck()])}function renderDailyGate(){
+  let l=DAILY_LESSONS[CYCLE.day-1],box=document.getElementById("dailyLessonBox");if(!box)return;
+  box.innerHTML=`<div class="lessonType">${l.type}</div><h3>Day ${CYCLE.day}｜${l.title}</h3>
+  <div class="compareLine"><b>📖 今天读：</b>${l.read}</div>
+  <div class="compareLine"><b>💭 今天想：</b>${l.think}</div>`;
+  let k=ck(),done=!!CYCLE.read[k];
+  gateRead.textContent=done?"① 📖 必读+思考：✓ 已完成":"① 📖 必读+思考：未完成";
+  gateTime.textContent=CYCLE.time[k]?"② ⏰ 时间管理：✓ 已完成":"② ⏰ 时间管理：未完成";
+  gateAI.textContent=CYCLE.ai[k]?"③ 🤖 ChatGPT：✓ 已完成":"③ 🤖 ChatGPT：未完成";
+  let ta=document.getElementById("dailyThink");
+  if(ta){ta.value=CYCLE.readThought[k]||"";ta.disabled=done}
+  let rb=document.getElementById("readDoneBtn");
+  if(rb){rb.textContent=done?"✓ 今日必读与思考已完成":"✓ 保存思考并完成今日必读";rb.disabled=done}
+  gateStatus.innerHTML=gateOK()?"🔓 <b>今日挑战已解锁！</b>":"🔒 完成「必读+思考、时间管理、AI练习」后解锁今日挑战。";
+  document.querySelectorAll("#challenge > .card").forEach(x=>{if(x.id!=="dailyGate")x.classList.toggle("challengeLocked",!gateOK())});
+}
 function cycleQuestTitle(day){if(CYCLE.cycle<=1)return QUEST30[day-1];let e=getEpisode(day);return `第 ${CYCLE.cycle} 轮 · ${e[1]}`}
 function render30(){let map=document.getElementById("adventureMap");if(!map)return;map.classList.add("thirty");map.innerHTML=Array.from({length:30},(_,i)=>{let d=i+1,done=S.done.includes(d),now=d===CYCLE.day,q=cycleQuestTitle(d);return `<div class="node ${done?'done':now?'now':'lock'} ${d%10===0?'boss':''}" title="Day ${d} · ${q}">${done?'✓':d%10===0?'👹':now?'⭐':'🔒'}<small>Day ${d}</small></div>`}).join("");worldTitle.textContent=`🚀 30-DAY CHALLENGE · 第 ${CYCLE.cycle} 轮`;worldSub.textContent=`Day ${CYCLE.day} / 30 · 第 ${CYCLE.cycle} 轮会显示这一轮的新题目`;let side=document.getElementById("days");if(side)side.innerHTML=Array.from({length:30},(_,i)=>{let d=i+1,done=S.done.includes(d),now=d===CYCLE.day,q=cycleQuestTitle(d);return `<div class="day ${now?'now':''} ${done?'done':''}"><span>Day ${d} · ${q}</span><span>${done?'✓':now?'▶':'🔒'}</span></div>`}).join("");let old=document.getElementById("map30Names");if(old)old.remove();renderDailyGate()}
 function advance30(){if(!gateOK())return false;if(CYCLE.day<30)CYCLE.day++;else{CYCLE.day=1;CYCLE.cycle++;showReward("🏆","30 DAYS COMPLETE!","新的30天挑战已经开始，继续新的题目！")}csave();render30();return true}
@@ -835,7 +1122,7 @@ const K="scoreAUnified21";let S=JSON.parse(localStorage.getItem(K)||"null")||{da
 if((S.done||[]).length===0 && S.focus===20 && S.time===20 && S.learn===20){S.focus=0;S.time=0;S.learn=0;localStorage.setItem(K,JSON.stringify(S));}
 S.rewarded=S.rewarded||{};
 function save(){localStorage.setItem(K,JSON.stringify(S));render()}
-function show(id,b){document.querySelectorAll(".panel").forEach(x=>x.classList.remove("show"));document.getElementById(id).classList.add("show");document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));if(b)b.classList.add("active");if(id==="parent")setTimeout(renderParentGuideDirect,0);}
+function show(id,b){document.querySelectorAll(".panel").forEach(x=>x.classList.remove("show"));document.getElementById(id).classList.add("show");document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));if(b)b.classList.add("active");if(id==="parent"){setTimeout(renderParentGuideDirect,0);if(typeof loadParentReflectionJournal==="function")setTimeout(loadParentReflectionJournal,20);}}
 function getEpisode(day){let base=E[day-1]||E[0];if(CYCLE.cycle<=1)return base;let round=CYCLE.cycle;let opts=[[`等别人提醒我再开始`,`先判断问题并写出一个具体行动`,`把任务留到最后一天`],[`只看做了多久`,`检查结果、错误原因和下一步`,`做完就不再回顾`],[`同时做很多事情`,`一次完成一个明确任务`,`等有心情才学习`]],oi=(day+round)%3;return [`R${round} · EP${String(day).padStart(2,"0")} · 进阶挑战`,base[1]+`｜第 ${round} 轮`,`这是第 ${round} 轮30天成长。请把「${base[1]}」应用到你现在真实的学习，不要只记住上一轮答案。`,`面对今天的新情境，哪一种做法最符合学霸学习方式？`,opts[oi],1,base[6],base[7],base[8]];}
 function render(){
   renderAdventure();
@@ -866,7 +1153,7 @@ function render(){
   renderDailyGate();
 }
 function choose(i,b){
-  if(!gateOK()){alert("🔒 请先完成上面的阅读、时间管理和 AI 练习，才可以回答今日挑战。");return}
+  if(!gateOK()){alert("🔒 请先完成上面的必读+思考、时间管理和 AI 练习，才可以回答今日挑战。");return}
   pick=i;document.querySelectorAll(".choice").forEach(x=>x.classList.remove("sel"));b.classList.add("sel");
   let e=getEpisode(CYCLE.day),f=document.getElementById("feedback");f.style.display="block";
   if(i===e[5]){
@@ -906,41 +1193,69 @@ function beatBoss(){let c=[...document.querySelectorAll(".bc")];if(!c.every(x=>x
 
 
 
+function parentGuideMeta(){
+  return [
+    {key:"a",icon:"🌱",group:"foundation",title:"陪伴核心",sub:"从监督到成长",when:"第一次使用系统，或不知道‘陪伴’和‘监督’有什么不同时先看。",keywords:"监督 陪伴 自主 责任 信心 反思 核心 理念" ,ranges:[["一、家长陪伴的核心理念","二、家长的五个正确角色"]]},
+    {key:"b",icon:"🧭",group:"foundation",title:"五个家长角色",sub:"Supporter · Guide · Observer · Environment Builder · Growth Partner",when:"想知道家长什么时候该帮、什么时候该问、什么时候该退一步。",keywords:"角色 支持者 引导者 观察者 环境 成长伙伴" ,ranges:[["二、家长的五个正确角色","三、Score A 家长沟通五步法"]]},
+    {key:"c",icon:"💬",group:"situation",title:"L.E.A.R.N. 沟通与常见情境",sub:"成绩下降 · 做错题 · 不愿学习 · 高分 · 未达目标 · 挑战难题",when:"不知道该怎样开口、怕一说就吵架时，直接从这里找情境。",keywords:"沟通 LEARN 成绩下降 错题 不愿学习 主动学习 高分 目标 难题 奖励 话术",ranges:[["三、Score A 家长沟通五步法","十二、关于比较"]]},
+    {key:"d",icon:"⚖️",group:"situation",title:"不比较",sub:"和过去的自己比",when:"发现自己常拿孩子和兄弟姐妹、同学、亲戚比较时。",keywords:"比较 过去自己 成长 竞争",ranges:[["十二、关于比较","十三、家长如何使用成长报告"]]},
+    {key:"e",icon:"📊",group:"followup",title:"看懂成长报告",sub:"10–15 分钟成长对话",when:"每次成长报告出来，不知道该看什么、该怎样和孩子谈时。",keywords:"成长报告 数据 对话 目标 进步 错题 连续学习",ranges:[["十三、家长如何使用成长报告","十四、每周 5 分钟家长检查"]]},
+    {key:"f",icon:"🏠",group:"followup",title:"家庭学习系统",sub:"每周检查 · 手机规则 · 作息 · 学习环境",when:"想把学习变成家庭稳定系统，而不是每天临时催促时。",keywords:"每周检查 环境 手机 规则 作息 睡眠 运动 学习空间 休息",ranges:[["十四、每周 5 分钟家长检查","十七、家长使用 AI 的正确方式"]]},
+    {key:"g",icon:"🤖",group:"followup",title:"AI 陪伴原则",sub:"理解问题，不给孩子贴标签",when:"想用 AI 看趋势、分析学习问题或准备亲子对话时。",keywords:"AI 人工智能 趋势 标签 数学 记录 分析",ranges:[["十七、家长使用 AI 的正确方式","十八、家长情绪管理原则"]]},
+    {key:"h",icon:"🧘",group:"situation",title:"情绪稳定再教育",sub:"先稳定，再回到事实 → 原因 → 方法",when:"自己很生气、孩子也在情绪中，担心沟通变成争吵时。",keywords:"情绪 生气 争吵 冷静 责备 事实 原因 解决方法",ranges:[["十八、家长情绪管理原则","十九、How to Score A with AI 家庭教育三条底线"]]},
+    {key:"i",icon:"🛡️",group:"situation",title:"家庭教育三条底线",sub:"不羞辱 · 不比较 · 不把爱与成绩绑定",when:"不知道一句话会不会伤害孩子，或想建立家庭共同原则时。",keywords:"底线 羞辱 比较 成绩 爱 标签 懒 笨",ranges:[["十九、How to Score A with AI 家庭教育三条底线","二十、家长陪伴的最终目标"]]},
+    {key:"j",icon:"🚀",group:"longterm",title:"陪伴的最终目标",sub:"从 Manager → Coach → Supporter → Growth Partner",when:"想知道几年后我们希望孩子变成怎样的学习者时。",keywords:"最终目标 独立 自主 manager coach supporter growth partner",ranges:[["二十、家长陪伴的最终目标","How to Score A with AI 家庭成长理念:"]]},
+    {key:"k",icon:"🌳",group:"longterm",title:"家庭共同成长",sub:"建立长期家庭学习文化",when:"想把学习从‘考试任务’变成全家长期成长文化时。",keywords:"家庭成长 理念 文化 长期 学习 父母 孩子",ranges:[["How to Score A with AI 家庭成长理念:",null]]}
+  ];
+}
+function parentGroupInfo(){return {
+  foundation:{title:"① 先建立正确陪伴方式",hint:"先知道家长的方向和角色"},
+  situation:{title:"② 遇到具体问题怎么说",hint:"有情绪、有冲突、有成绩问题时直接查"},
+  followup:{title:"③ 怎样持续跟进",hint:"报告、每周检查、环境与 AI"},
+  longterm:{title:"④ 长期成长目标",hint:"逐渐减少监督，培养自主学习"}
+}}
 function renderParentGuideDirect(){
   let a=document.getElementById("parentGuideInline");
   if(!a)return;
-  let raw=rawLibraryText("libparent"),id="parentInline";
-  // V22: each tab uses a different, non-overlapping set of sections from the original parent guide.
-  // This prevents the same paragraphs from appearing repeatedly under multiple tabs.
-  const parts=[
-    {label:"陪伴原则",ranges:[
-      ["一、家长陪伴的核心理念","三、Score A 家长沟通五步法"],
-      ["十九、How to Score A with AI 家庭教育三条底线","How to Score A with AI 家庭成长理念:"]
-    ]},
-    {label:"沟通方法",ranges:[
-      ["三、Score A 家长沟通五步法","八、孩子取得高分时"],
-      ["十、孩子主动要求挑战难题时","十一、正确使用奖励"]
-    ]},
-    {label:"时间与习惯",ranges:[
-      ["十一、正确使用奖励","十七、家长使用 AI 的正确方式"]
-    ]},
-    {label:"考试与压力",ranges:[
-      ["八、孩子取得高分时","十、孩子主动要求挑战难题时"],
-      ["十八、家长情绪管理原则","十九、How to Score A with AI 家庭教育三条底线"]
-    ]},
-    {label:"AI 使用",ranges:[
-      ["十七、家长使用 AI 的正确方式","十八、家长情绪管理原则"]
-    ]}
-  ];
+  let raw=rawLibraryText("libparent"),id="parentInline",parts=parentGuideMeta(),groups=parentGroupInfo();
   const content=p=>p.ranges.map(r=>readerSlice(raw,r[0],r[1])).filter(Boolean).join("\n\n");
-  a.innerHTML=`<div class="readerNav" id="readerNav_${id}">${parts.map((p,i)=>`<button class="${i===0?"active":""}" onclick="showParentReadablePart(${i},this)">${p.label}</button>`).join("")}</div>`+
-  parts.map((p,i)=>`<div class="readerPanel ${i===0?"active":""}" data-parent-reader="1" id="parentReader_${i}">${readerCards(content(p))}</div>`).join("");
+  const groupHtml=Object.entries(groups).map(([g,info])=>{
+    const cards=parts.map((p,i)=>({p,i})).filter(x=>x.p.group===g).map(({p,i})=>`<button class="parentGuideCard ${i===0?"active":""}" data-parent-card="1" data-idx="${i}" data-search="${esc((p.key+" "+p.title+" "+p.sub+" "+p.when+" "+p.keywords).toLowerCase())}" onclick="showParentReadablePart(${i},this)"><span class="parentLetter">${esc(p.key.toUpperCase())}</span><span><b>${p.icon} ${esc(p.title)}</b><small>${esc(p.sub)}</small><span class="use">什么时候看：${esc(p.when)}</span></span></button>`).join("");
+    return `<section class="parentGroup" data-parent-group="${g}"><div class="parentGroupTitle"><span>${info.title}</span><span class="mini muted">${info.hint}</span></div><div class="parentGuideGrid">${cards}</div></section>`;
+  }).join("");
+  const quick=[
+    ["成绩下降",2,"四、必须避免的家长话术"],["做错题",2,"五、孩子做错题时"],["不愿学习",2,"六、孩子不愿意学习时"],["孩子主动学习",2,"七、孩子主动学习时"],["取得高分",2,"八、孩子取得高分时"],["没达到目标",2,"九、孩子成绩没有达到目标时"],["想挑战难题",2,"十、孩子主动要求挑战难题时"],["怎样奖励",2,"十一、正确使用奖励"],["总拿孩子比较",3,null],["看成长报告",4,null],["手机/作息/环境",5,null],["想用 AI 帮孩子",6,null],["家长很生气",7,null]
+  ];
+  const finder=`<div class="parentFinder" id="parentGuideFinder"><div class="parentFinderTop"><div><h3>🔎 家长快速查找</h3><p>不要从 a 读到 k。先找你现在遇到的情况，再看对应方法。</p></div><label class="parentSearch">🔍 <input id="parentGuideSearch" placeholder="例如：成绩下降、粗心、手机、AI、比较…" oninput="filterParentGuide(this.value)"><button class="clear" type="button" onclick="clearParentGuideSearch()">×</button></label></div><div class="parentQuickTitle">我现在遇到的是…</div><div class="parentScenarioBar">${quick.map(q=>`<button onclick="openParentScenario(${q[1]},${q[2]?`'${q[2]}'`:'null'})">${q[0]}</button>`).join("")}</div>${groupHtml}<div id="parentNoResult" class="parentNoResult">没有找到完全相同的关键词。可以试：成绩、错题、手机、情绪、AI、比较、报告。</div></div>`;
+  const panels=parts.map((p,i)=>{
+    const subnav=i===2?`<div class="parentSubnav"><button onclick="jumpParentScenario('三、Score A 家长沟通五步法')">先看 L.E.A.R.N.</button><button onclick="jumpParentScenario('四、必须避免的家长话术')">成绩下降怎么说</button><button onclick="jumpParentScenario('五、孩子做错题时')">做错题</button><button onclick="jumpParentScenario('六、孩子不愿意学习时')">不愿学习</button><button onclick="jumpParentScenario('七、孩子主动学习时')">主动学习</button><button onclick="jumpParentScenario('八、孩子取得高分时')">取得高分</button><button onclick="jumpParentScenario('九、孩子成绩没有达到目标时')">没达目标</button><button onclick="jumpParentScenario('十、孩子主动要求挑战难题时')">挑战难题</button><button onclick="jumpParentScenario('十一、正确使用奖励')">奖励</button></div>`:"";
+    return `<div class="readerPanel ${i===0?"active":""}" data-parent-reader="1" id="parentReader_${i}"><div class="parentPanelHead"><div class="eyebrow">${esc(p.key.toUpperCase())} · PARENT GUIDE</div><h3>${p.icon} ${esc(p.title)}｜${esc(p.sub)}</h3><p>这一页只解决一个主题，不需要把整份家长指南一次读完。</p><div class="when"><b>什么时候最适合看：</b>${esc(p.when)}</div></div>${subnav}${readerCards(content(p))}<button class="parentBackBtn" onclick="scrollToParentFinder()">↑ 回到家长快速查找</button></div>`;
+  }).join("");
+  a.innerHTML=finder+panels;
 }
 function showParentReadablePart(idx,b){
-  document.querySelectorAll("#readerNav_parentInline button").forEach(x=>x.classList.remove("active"));if(b)b.classList.add("active");
+  document.querySelectorAll('[data-parent-card="1"]').forEach(x=>x.classList.remove("active"));
+  let card=b?.closest?.('[data-parent-card="1"]')||document.querySelector(`[data-parent-card="1"][data-idx="${idx}"]`);if(card)card.classList.add("active");
   document.querySelectorAll('[data-parent-reader="1"]').forEach(x=>x.classList.remove("active"));
-  let p=document.getElementById("parentReader_"+idx);if(p)p.classList.add("active");
+  let p=document.getElementById("parentReader_"+idx);if(p){p.classList.add("active");p.scrollIntoView({behavior:"smooth",block:"start"})}
 }
+function openParentScenario(idx,section){
+  showParentReadablePart(idx,document.querySelector(`[data-parent-card="1"][data-idx="${idx}"]`));
+  if(section)setTimeout(()=>jumpParentScenario(section),350);
+}
+function jumpParentScenario(label){
+  const p=document.getElementById("parentReader_2");if(!p)return;
+  const h=[...p.querySelectorAll("h3")].find(x=>(x.textContent||"").includes(label.replace(/^[一二三四五六七八九十]+、/,""))||(x.textContent||"").includes(label));
+  if(h){const card=h.closest(".readerCard")||h;card.scrollIntoView({behavior:"smooth",block:"start"});card.animate([{backgroundColor:"#fff4c7"},{backgroundColor:"#fff"}],{duration:1200})}
+}
+function filterParentGuide(q){
+  q=(q||"").trim().toLowerCase();let visible=0;
+  document.querySelectorAll('[data-parent-card="1"]').forEach(card=>{let ok=!q||(card.dataset.search||"").includes(q);card.classList.toggle("hidden",!ok);if(ok)visible++});
+  document.querySelectorAll('[data-parent-group]').forEach(g=>{g.style.display=[...g.querySelectorAll('[data-parent-card="1"]')].some(c=>!c.classList.contains("hidden"))?"block":"none"});
+  let n=document.getElementById("parentNoResult");if(n)n.style.display=visible?"none":"block";
+}
+function clearParentGuideSearch(){let i=document.getElementById("parentGuideSearch");if(i)i.value="";filterParentGuide("");if(i)i.focus()}
+function scrollToParentFinder(){document.getElementById("parentGuideFinder")?.scrollIntoView({behavior:"smooth",block:"start"})}
 
 function backupAllData(){try{let data={app:"How to Score A with AI Student OS",version:"V13",exportedAt:new Date().toISOString(),localStorage:{}};for(let i=0;i<localStorage.length;i++){let k=localStorage.key(i);if(k)data.localStorage[k]=localStorage.getItem(k)}let blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json;charset=utf-8"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=`ScoreA-Backup-${new Date().toISOString().slice(0,10)}.json`;a.style.display="none";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),3000);alert("✓ Backup 已建立，请查看浏览器 Downloads / 下载资料夹。")}catch(e){alert("Backup 无法建立："+e.message)}}
 function restoreAllData(file){
@@ -963,6 +1278,153 @@ render();loadBasic();firstEntryGate();render30();setTimeout(renderDailyGate,50);
 const SCOREA_SUPABASE_URL='https://htzkjfztqqsbzxahxfnt.supabase.co';
 const SCOREA_SUPABASE_PUBLISHABLE_KEY='sb_publishable_-2O1fEqOGCQPSiMGQVSFrQ_bC3hf4WM';
 const scoreASupabase=window.supabase.createClient(SCOREA_SUPABASE_URL,SCOREA_SUPABASE_PUBLISHABLE_KEY);
+
+let SCOREA_AUTH_USER=null;
+let SCOREA_STUDENT_PROFILE=null;
+
+function reflectionLocalRows(){
+  const rows=[];
+  try{
+    Object.entries(CYCLE.readThought||{}).forEach(([key,answer])=>{
+      const m=String(key).match(/^(\d+)-(\d+)$/);
+      if(!m || !answer) return;
+      const cycle=Number(m[1]),day=Number(m[2]);
+      const lesson=DAILY_LESSONS[day-1]||{};
+      rows.push({
+        cycle_number:cycle,
+        day_number:day,
+        lesson_type:lesson.type||null,
+        lesson_title:lesson.title||`Day ${day}`,
+        lesson_read:lesson.read||null,
+        lesson_question:lesson.think||null,
+        reflection_text:String(answer).trim(),
+        source_key:lesson.source||null
+      });
+    });
+  }catch(e){console.warn("Could not read local reflection history",e)}
+  return rows;
+}
+
+async function syncDailyReflectionToSupabase(thought){
+  if(!SCOREA_AUTH_USER || !SCOREA_STUDENT_PROFILE) return false;
+  const lesson=DAILY_LESSONS[CYCLE.day-1]||{};
+  const payload={
+    user_id:SCOREA_AUTH_USER.id,
+    student_id:SCOREA_STUDENT_PROFILE.id,
+    student_email:(SCOREA_AUTH_USER.email||"").toLowerCase(),
+    student_name:SCOREA_STUDENT_PROFILE.full_name||SCOREA_STUDENT_PROFILE.student_id||null,
+    grade:SCOREA_STUDENT_PROFILE.grade||null,
+    cycle_number:CYCLE.cycle,
+    day_number:CYCLE.day,
+    lesson_type:lesson.type||null,
+    lesson_title:lesson.title||`Day ${CYCLE.day}`,
+    lesson_read:lesson.read||null,
+    lesson_question:lesson.think||null,
+    reflection_text:String(thought||"").trim(),
+    source_key:lesson.source||null,
+    completed_at:new Date().toISOString(),
+    updated_at:new Date().toISOString()
+  };
+  const {error}=await scoreASupabase
+    .from("scorea_daily_reflections")
+    .upsert(payload,{onConflict:"user_id,cycle_number,day_number"});
+  if(error) throw error;
+  const s=document.getElementById("reflectionCloudStatus");
+  if(s)s.textContent="✓ 最新思考已同步到学习成长记录。";
+  return true;
+}
+
+async function syncExistingReflectionHistory(){
+  if(!SCOREA_AUTH_USER || !SCOREA_STUDENT_PROFILE) return;
+  const local=reflectionLocalRows();
+  if(!local.length) return;
+  const payloads=local.map(r=>({
+    ...r,
+    user_id:SCOREA_AUTH_USER.id,
+    student_id:SCOREA_STUDENT_PROFILE.id,
+    student_email:(SCOREA_AUTH_USER.email||"").toLowerCase(),
+    student_name:SCOREA_STUDENT_PROFILE.full_name||SCOREA_STUDENT_PROFILE.student_id||null,
+    grade:SCOREA_STUDENT_PROFILE.grade||null,
+    completed_at:new Date().toISOString(),
+    updated_at:new Date().toISOString()
+  }));
+  const {error}=await scoreASupabase
+    .from("scorea_daily_reflections")
+    .upsert(payloads,{onConflict:"user_id,cycle_number,day_number"});
+  if(error) throw error;
+}
+
+async function restoreReflectionHistoryFromCloud(){
+  if(!SCOREA_AUTH_USER)return;
+  const {data,error}=await scoreASupabase
+    .from("scorea_daily_reflections")
+    .select("cycle_number,day_number,reflection_text")
+    .order("cycle_number",{ascending:true})
+    .order("day_number",{ascending:true});
+  if(error)throw error;
+  let changed=false;
+  (data||[]).forEach(r=>{
+    const k=`${r.cycle_number}-${r.day_number}`;
+    if(r.reflection_text && !CYCLE.readThought[k]){
+      CYCLE.readThought[k]=r.reflection_text;
+      CYCLE.read[k]=true;
+      changed=true;
+    }
+  });
+  if(changed){csave();renderDailyGate();render();}
+}
+
+async function loadParentReflectionJournal(){
+  const list=document.getElementById("parentReflectionList");
+  const status=document.getElementById("reflectionCloudStatus");
+  if(!list)return;
+  if(!SCOREA_AUTH_USER){
+    list.innerHTML='<div class="reflectEmpty">请先登录学生账号。</div>';
+    if(status)status.textContent="尚未登录。";
+    return;
+  }
+  if(status)status.textContent="正在读取云端思考记录…";
+  try{
+    const {data,error}=await scoreASupabase
+      .from("scorea_daily_reflections")
+      .select("cycle_number,day_number,lesson_type,lesson_title,lesson_question,reflection_text,completed_at")
+      .order("completed_at",{ascending:false})
+      .limit(30);
+    if(error)throw error;
+
+    const rows=data||[];
+    const cur=rows.filter(r=>Number(r.cycle_number)===Number(CYCLE.cycle));
+    const total=document.getElementById("prTotal");
+    const cycle=document.getElementById("prCycle");
+    const latest=document.getElementById("prLatest");
+    if(total)total.textContent=rows.length;
+    if(cycle)cycle.textContent=`${new Set(cur.map(r=>r.day_number)).size}/30`;
+    if(latest){
+      latest.textContent=rows[0]
+        ? `R${rows[0].cycle_number} · D${rows[0].day_number}`
+        : "—";
+    }
+
+    if(!rows.length){
+      list.innerHTML='<div class="reflectEmpty">还没有云端思考记录。学生完成「今日必读 · 必思考」后会自动出现。</div>';
+    }else{
+      list.innerHTML=rows.slice(0,7).map(r=>{
+        const when=r.completed_at?new Date(r.completed_at).toLocaleDateString("zh-MY",{month:"short",day:"numeric"}):"";
+        return `<div class="reflectEntry">
+          <div class="meta">第 ${esc(r.cycle_number)} 轮 · Day ${esc(r.day_number)}${when?` · ${esc(when)}`:""} · ${esc(r.lesson_type||"每日必读")}</div>
+          <div class="title">${esc(r.lesson_title||"今日思考")}</div>
+          ${r.lesson_question?`<div class="mini muted" style="margin-bottom:6px">💭 ${esc(r.lesson_question)}</div>`:""}
+          <div class="answer">✍️ ${esc(r.reflection_text||"")}</div>
+        </div>`;
+      }).join("");
+    }
+    if(status)status.textContent="✓ 这里显示最近 7 条；完整记录保存在 Supabase。";
+  }catch(err){
+    console.error("Parent reflection journal failed",err);
+    list.innerHTML='<div class="reflectEmpty">暂时无法读取云端思考记录；不会影响正式课程使用。</div>';
+    if(status)status.textContent="读取失败："+(err.message||"Unknown error");
+  }
+}
 
 function authMessage(text,type='err'){const el=document.getElementById('authMsg');if(!el)return;el.textContent=text;el.className='authMsg show '+type}
 function authLoading(on){document.getElementById('authLoading')?.classList.toggle('show',!!on);const b=document.getElementById('authLoginBtn');if(b)b.disabled=!!on}
@@ -1206,8 +1668,19 @@ async function verifyScoreAAccess(user){
     if(expiry<today)return showDenied('课程使用期限已结束',`Student ID：<b>${esc(student.student_id)}</b><br>到期日：<b>${esc(enrollment.expiry_date)}</b><br>请联系管理员续期后再登录。`);
 
     sessionStorage.setItem('scorea_verified',JSON.stringify({uid:user.id,student_id:student.student_id,expiry_date:enrollment.expiry_date,checked_at:new Date().toISOString()}));
+    SCOREA_AUTH_USER=user;
+    SCOREA_STUDENT_PROFILE=student;
     openScoreA(student,enrollment);
     await loadPersonalizedLearning(user.email,student);
+    try{
+      await syncExistingReflectionHistory();
+      await restoreReflectionHistoryFromCloud();
+      await loadParentReflectionJournal();
+    }catch(refErr){
+      console.warn("Daily reflection cloud feature is not ready yet",refErr);
+      const s=document.getElementById("reflectionCloudStatus");
+      if(s)s.textContent="课程可正常使用；请确认已在 Supabase 建立每日思考记录表。";
+    }
   }catch(err){console.error('Score A entitlement error',err);showDenied('权限验证出现问题',`无法完成课程权限验证。<br><small>${esc(err.message||'Unknown error')}</small>`)}
 }
 
