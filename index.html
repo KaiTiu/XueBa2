@@ -1,5 +1,5 @@
 <!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<!-- Score A V4: Word 2 revisions + Daily Read & Think gate + personalized learning route -->
+<!-- Score A V14: full student course progress cloud sync + Word revisions + Parent Dashboard -->
 <title>How to Score A with AI｜21-Day 学霸觉醒</title>
 <style>
 *{box-sizing:border-box} :root{--b:#1769ff;--n:#081a3d;--p:#7047eb;--g:#16a66f;--y:#ffd42a;--bg:#f4f7fc;--m:#6b7890}
@@ -291,7 +291,7 @@ body{margin:0;font-family:Inter,"Microsoft YaHei",Arial,sans-serif;background:va
 </div>
 <div id="scoreApp">
 
-<header class="top"><div class="logo">🎓 How to Score A with AI<small>学霸学习成长系统 · Student OS</small></div><div class="nav"><span class="pill" id="streak">🔥 1 Day</span><span class="pill hide" id="level">Lv1 学霸觉醒</span><span class="pill" id="xp">⭐ 0 XP</span><span class="authTopUser" id="authTopUser"></span><button class="logoutBtn" onclick="scoreALogout()">登出</button></div></header>
+<header class="top"><div class="logo">🎓 How to Score A with AI<small>学霸学习成长系统 · Student OS</small></div><div class="nav"><span class="pill" id="streak">🔥 1 Day</span><span class="pill hide" id="level">Lv1 学霸觉醒</span><span class="pill" id="xp">⭐ 0 XP</span><span class="authTopUser" id="authTopUser"></span><span class="authTopUser" id="courseCloudStatus">☁️ 进度等待同步</span><button class="logoutBtn" onclick="scoreALogout()">登出</button></div></header>
 <main class="wrap">
 <section class="hero"><div class="heroGrid"><div><div class="eyebrow">30-DAY TOP STUDENT TRANSFORMATION</div><h1>今天，不是来“上课”。<br>是来升级自己。 🚀</h1><p>每天一个短剧情 + 一个真实学习任务。系统带你走 30 天，最后把学习的控制权交回给你自己。</p><div style="display:flex;justify-content:space-between;font-size:12px;font-weight:850"><span id="dayLabel">DAY 1 / 30</span><span id="percent">0%</span></div><div class="bar"><i id="mainbar" style="width:0"></i></div></div><div class="xp"><div class="eyebrow">NEXT LEVEL</div><b id="xpBig">0 XP</b><p id="next">距离 Lv2 还差 250 XP</p><div class="bar"><i id="xpbar" style="width:0"></i></div></div></div></section>
 
@@ -812,7 +812,7 @@ let U=JSON.parse(localStorage.getItem(UK)||"{}");
 U.basic=U.basic||{};U.fixed=U.fixed||[];U.week=U.week||{};U.habits=U.habits||{};U.review=U.review||[];U.timeWeek=U.timeWeek||1;U.timeWeeks=U.timeWeeks||{};
 U.schedule=U.schedule||Object.assign({},U.week||{});U.dailyDates=U.dailyDates||{};
 U.terms=U.terms||{};U.mistakes=U.mistakes||[];U.mistakeWeek=U.mistakeWeek||1;U.mistakeWeeks=U.mistakeWeeks||{};
-function usave(){localStorage.setItem(UK,JSON.stringify(U))}
+function usave(){localStorage.setItem(UK,JSON.stringify(U));if(typeof scheduleCourseProgressSync==="function")scheduleCourseProgressSync()}
 function saveBasic(){U.basic={name:uName.value,grade:uGrade.value,school:uSchool.value,minutes:uMinutes.value,strong:uStrong.value,weak:uWeak.value,challenge:selectedChallenges()};usave();alert("✓ 基本资料已保存")}
 function loadBasic(){let b=U.basic||{};["Name","Grade","School","Minutes","Strong","Weak"].forEach(k=>{let el=document.getElementById("u"+k);if(el&&b[k.toLowerCase()]!=null)el.value=b[k.toLowerCase()]});let vals=Array.isArray(b.challenge)?b.challenge:(b.challenge?[b.challenge]:[]);document.querySelectorAll("#uChallenge input").forEach(x=>x.checked=vals.includes(x.value))}
 function tidyDocHTML(raw){
@@ -1146,7 +1146,7 @@ function loadToolValues(){renderFixed();if(document.getElementById("habitGrid"))
 
 
 const QUEST30=["学霸觉醒：你真的不够聪明吗？", "问题侦探：分数是线索", "时间小偷：时间去哪了？", "手机挑战：谁控制谁？", "专注训练：进入专注区", "理解力觉醒：你真的懂了吗？", "BOSS 01：拖延大王", "理解升级：讲给别人听", "错题猎人：错误就是藏宝图", "粗心挑战：找到失分漏洞", "复习高手：主动回忆", "记忆挑战：让知识留下来", "自律升级：不用别人提醒", "BOSS 02：混乱之龙", "自主规划：自己画学习路线", "弱点猎人：攻击最值得改善的位置", "考试策略家：会做也要会拿分", "时间掌控：设计高质量学习区块", "自我修正：看见自己的方法", "NO TEACHER DAY：今天由你决定", "目标升级：为下一阶段定方向", "专注耐力：完成更稳定的学习", "知识连接：把新旧知识连起来", "错题复仇战：再战旧弱点", "复习设计师：安排自己的复习节奏", "考试模拟：在限制时间内完成", "压力管理：紧张时也能稳定发挥", "独立学习：自己发现并解决问题", "成长复盘：我已经改变了什么？", "FINAL BOSS：30天成长终极挑战"];
-const DAILY_LESSONS=[{"type":"🧠 学霸思维","title":"成长型思维：我还不会","read":"遇到不会的题，不要把“不会”当成能力标签。把“我做不到”改成“我暂时还做不到”，下一步是找出自己卡在哪一步。","think":"今天哪一个知识点你最容易说“我不会”？请把它改写成“我还不会……，我准备先……”。","source":"mindset"},{"type":"🧠 学霸思维","title":"错误不是丢脸，是学习信息","read":"错误是发现弱点的机会。错题不是证明你不行，而是在告诉你：下一次最值得改善的地方在哪里。","think":"最近一题做错的题，真正原因是什么？不会、粗心、审题、方法，还是时间？","source":"mindset"},{"type":"🧠 学霸思维","title":"成绩不是终点，是数据","read":"拿到分数后，不只问“高不高”，而要分析：哪类题错最多？为什么错？下一次怎样提高？","think":"如果最近一次成绩要提高 5–10 分，你认为最应该先解决哪一个问题？为什么？","source":"mindset"},{"type":"🧠 学霸思维","title":"平时积累，考前才不慌","read":"普通学生常常考前才冲刺；学霸平时和周末持续温习、做笔记、整理错题，考试前只需要复习重点。","think":"你今天可以固定哪一个 20–30 分钟时间，开始做长期积累？","source":"mindset"},{"type":"🧠 学霸思维","title":"面对诱惑：看目标，不看心情","read":"朋友约游戏、手机很好玩，都是真实诱惑。学霸不是完全不玩，而是先完成计划，再娱乐。","think":"今天最容易让你分心的诱惑是什么？你准备先完成什么，再去娱乐？","source":"mindset"},{"type":"🧠 学霸思维","title":"今天的努力，会影响未来","read":"长期主义不是只看今天开不开心，而是知道今天的努力会逐渐影响 SPM、大学、奖学金与未来机会。","think":"未来的你会感谢今天的你完成哪一件学习小事？","source":"mindset"},{"type":"⭐ 底层思维","title":"成长型思维","read":"不要说“我做不到”，改成“我暂时还做不到”。能力不是固定的，可以通过正确方法和练习逐渐提升。","think":"今天你准备把哪一句负面自我对话改成“暂时还不会”？","source":"mindset"},{"type":"⭐ 底层思维","title":"主动负责思维","read":"遇到问题时，不要先问“谁的错？”，而是问“我可以做什么？”这会把注意力从抱怨转回行动。","think":"现在有哪一个学习问题，是你今天可以主动做第一步的？","source":"mindset"},{"type":"⭐ 底层思维","title":"系统思维","read":"成绩不是靠某一天拼命，而是学习习惯 × 时间管理 × 专注力 × 理解力 × 练习 × 复习共同作用。","think":"这 6 个因素里，你目前最弱的是哪一个？今天可以怎样改善一点？","source":"mindset"},{"type":"⭐ 底层思维","title":"复利思维","read":"每天进步一点点，看起来很小；但连续很多天以后，差距会非常大。稳定的小行动通常比偶尔拼命更有价值。","think":"你愿意连续 30 天坚持哪一个很小、但真正有用的学习习惯？","source":"mindset"},{"type":"🧠 Feynman","title":"讲得出来，才是真的懂","read":"Feynman 学习法的重点不是背答案，而是用简单的话解释知识、找出自己不懂的地方、重新补强，直到能教别人。","think":"今天选一个知识点：如果要教给 Year 3 学生，你会怎样用一句简单的话解释？","source":"method"},{"type":"🧠 Feynman","title":"只选一个知识点","read":"不要一次解释整本课本。先选一个明确知识点，例如 Photosynthesis、Algebra、Tenses 或一个 Sejarah 章节重点。","think":"你今天最想真正弄懂的一个知识点是什么？","source":"method"},{"type":"🧠 Feynman","title":"用自己的话解释","read":"不要照着课本背。真正的理解，是能够不用复杂术语，用自己的话把概念说明清楚。","think":"不用看课本，用自己的话写出今天知识点的解释。","source":"method"},{"type":"🧠 Feynman","title":"找出讲不清楚的地方","read":"解释不出来的地方就是理解漏洞。找到漏洞并不可怕，因为这正是下一步学习最有价值的位置。","think":"刚才解释时，哪一个部分最卡？你具体不明白什么？","source":"method"},{"type":"🧠 Feynman","title":"补强，再简化成自己的版本","read":"回去看课本、笔记、老师讲解或例题；补强后再重新解释。最后整理成一句话总结、一个例子、一个图表或口诀。","think":"你准备回哪里补强？补强后，你的一句话总结会是什么？","source":"method"},{"type":"🎓 考试高分系统","title":"高分不只是知识，更是考试策略","read":"同样会做题的学生，因为审题、时间、检查和作答策略不同，考试结果可能差很多。会做，还要会稳定拿分。","think":"除了知识以外，你考试最容易在哪一项丢分：审题、时间、粗心、表达，还是检查？","source":"libexam"},{"type":"🎓 考前准备","title":"睡眠比多读 1 小时更重要","read":"熬夜会让反应变慢、容易看错题、粗心增加。考试前最后阶段，稳定状态往往比多塞一个小时的新内容更重要。","think":"你下一次考试前，最需要改掉哪一个准备习惯？","source":"libexam"},{"type":"🎓 审题技巧","title":"先看关键词、单位和限制","read":"Explain、Compare、State、Describe、Calculate 要求不同；数学和科学还要特别留意单位、数量限制和 NOT / EXCEPT / INCORRECT。","think":"你最容易漏看哪一种题目要求？以后准备怎样提醒自己？","source":"libexam"},{"type":"🎓 作答技巧","title":"先拿稳会做的分","read":"先做会的题，不要在一道难题卡太久。超过几分钟没有进展，可以先标记，继续下一题，再回来处理。","think":"你考试时最容易在哪种题卡太久？你准备给自己什么时间规则？","source":"libexam"},{"type":"🎓 防粗心系统","title":"粗心也需要分类检查","read":"检查符号、抄写、单位、漏题和答题位置。粗心不是一句“下次小心”，而是建立固定检查流程。","think":"你最常见的粗心是哪一种？以后最后检查时第一项要看什么？","source":"libexam"},{"type":"🎓 时间管理","title":"预留最后 10 分钟","read":"考试结束前 10 分钟不是“等停笔”，而是专门检查名字、题号、单位、漏题和计算错误。","think":"如果考试有 60 分钟，你准备最迟在第几分钟完成第一轮作答？","source":"libexam"},{"type":"🚀 30天冲刺","title":"红黄绿扫描","read":"把 Topic 分成：🔴不会/经常错、🟡懂一点但不稳定、🟢基本掌握。复习时间不要平均分配。","think":"写出你目前一个🔴 Topic、一个🟡 Topic、一个🟢 Topic。","source":"lib30"},{"type":"🚀 30天冲刺","title":"找出真正的失分原因","read":"同样是“错题”，原因可能是知识不会、概念混淆、粗心、审题、方法、时间或表达。先找原因，才能练对地方。","think":"你最近最大的 Top 1 失分原因是什么？它出现在哪一科？","source":"lib30"},{"type":"🚀 30天冲刺","title":"80/20：先拿回最容易拿回的分数","read":"不要平均用力，也不要为了最难的一题花掉大量时间。先处理高频考点、常错基础题和最容易改善的弱点。","think":"如果只能先改善一个 Topic，哪一个最可能帮你拿回最多分？","source":"lib30"},{"type":"🚀 模拟考试","title":"不要只看总分，要分析丢分结构","read":"Mock 之后不要只记录“72 分”。要继续拆解：知识不足几分、粗心几分、审题几分、时间几分、表达几分。","think":"如果你最近一次考试少了 20 分，你估计这些分主要丢在哪里？","source":"lib30"},{"type":"✍️ 作文高分","title":"先切题，再谈华丽","read":"好作文不是词越难越好。最重要的是切题、中心明确、结构清楚、内容具体、表达准确，并加入自己的观察与感受。","think":"你写作文最需要先改善的是：审题、结构、细节、语言，还是结尾？为什么？","source":"libwriting"},{"type":"✍️ 作文高分","title":"正文要写具体","read":"不要只写“我很紧张”。可以写动作、语言、表情、心理和环境，让读者真正感受到发生了什么。","think":"把“我很紧张”改写成一句更具体、有画面的句子。","source":"libwriting"},{"type":"✍️ 作文检查","title":"最后 5 分钟一定要检查","read":"先检查是否离题和漏要求，再看结构，最后检查语言：错别字 / Spelling / Ejaan / Grammar / Tatabahasa / 标点等。","think":"你写完作文最容易忘记检查哪一项？你准备怎样建立固定顺序？","source":"libwriting"},{"type":"🏆 成长路径","title":"先看自己在哪一级，再练下一步","read":"成长不是一下子变成学霸。Lv1–Lv9 的价值，是让你看清楚自己现在的行为，以及下一阶段最值得建立的能力。","think":"你觉得自己目前最需要加强的是：习惯、专注、理解、主动学习、考试能力，还是自我管理？","source":"libgrowth"},{"type":"🌙 每日复盘","title":"普通学生看结果，学霸看过程","read":"每晚花 3 分钟问：今天学到了什么？今天最大的错误是什么？明天准备改进什么？长期坚持，思维和行为才会改变。","think":"用一句话写：今天我最值得保留的做法是什么？明天最需要改善什么？","source":"mindset"}];let CYCLE=JSON.parse(localStorage.getItem("scoreA30Cycle")||'{"cycle":1,"day":1,"read":{},"time":{},"ai":{},"readThought":{}}');CYCLE.read=CYCLE.read||{};CYCLE.time=CYCLE.time||{};CYCLE.ai=CYCLE.ai||{};CYCLE.readThought=CYCLE.readThought||{};function csave(){localStorage.setItem("scoreA30Cycle",JSON.stringify(CYCLE))}function ck(){return CYCLE.cycle+"-"+CYCLE.day}function openProfile(){loadBasic();profilePop.classList.add("show")}function closeProfile(){profilePop.classList.remove("show")}function profileComplete(){let b=U.basic||{};return !!(b.name&&b.grade&&b.school&&b.minutes&&((Array.isArray(b.challenge)&&b.challenge.length)||(!Array.isArray(b.challenge)&&b.challenge)))}
+const DAILY_LESSONS=[{"type":"🧠 学霸思维","title":"成长型思维：我还不会","read":"遇到不会的题，不要把“不会”当成能力标签。把“我做不到”改成“我暂时还做不到”，下一步是找出自己卡在哪一步。","think":"今天哪一个知识点你最容易说“我不会”？请把它改写成“我还不会……，我准备先……”。","source":"mindset"},{"type":"🧠 学霸思维","title":"错误不是丢脸，是学习信息","read":"错误是发现弱点的机会。错题不是证明你不行，而是在告诉你：下一次最值得改善的地方在哪里。","think":"最近一题做错的题，真正原因是什么？不会、粗心、审题、方法，还是时间？","source":"mindset"},{"type":"🧠 学霸思维","title":"成绩不是终点，是数据","read":"拿到分数后，不只问“高不高”，而要分析：哪类题错最多？为什么错？下一次怎样提高？","think":"如果最近一次成绩要提高 5–10 分，你认为最应该先解决哪一个问题？为什么？","source":"mindset"},{"type":"🧠 学霸思维","title":"平时积累，考前才不慌","read":"普通学生常常考前才冲刺；学霸平时和周末持续温习、做笔记、整理错题，考试前只需要复习重点。","think":"你今天可以固定哪一个 20–30 分钟时间，开始做长期积累？","source":"mindset"},{"type":"🧠 学霸思维","title":"面对诱惑：看目标，不看心情","read":"朋友约游戏、手机很好玩，都是真实诱惑。学霸不是完全不玩，而是先完成计划，再娱乐。","think":"今天最容易让你分心的诱惑是什么？你准备先完成什么，再去娱乐？","source":"mindset"},{"type":"🧠 学霸思维","title":"今天的努力，会影响未来","read":"长期主义不是只看今天开不开心，而是知道今天的努力会逐渐影响 SPM、大学、奖学金与未来机会。","think":"未来的你会感谢今天的你完成哪一件学习小事？","source":"mindset"},{"type":"⭐ 底层思维","title":"成长型思维","read":"不要说“我做不到”，改成“我暂时还做不到”。能力不是固定的，可以通过正确方法和练习逐渐提升。","think":"今天你准备把哪一句负面自我对话改成“暂时还不会”？","source":"mindset"},{"type":"⭐ 底层思维","title":"主动负责思维","read":"遇到问题时，不要先问“谁的错？”，而是问“我可以做什么？”这会把注意力从抱怨转回行动。","think":"现在有哪一个学习问题，是你今天可以主动做第一步的？","source":"mindset"},{"type":"⭐ 底层思维","title":"系统思维","read":"成绩不是靠某一天拼命，而是学习习惯 × 时间管理 × 专注力 × 理解力 × 练习 × 复习共同作用。","think":"这 6 个因素里，你目前最弱的是哪一个？今天可以怎样改善一点？","source":"mindset"},{"type":"⭐ 底层思维","title":"复利思维","read":"每天进步一点点，看起来很小；但连续很多天以后，差距会非常大。稳定的小行动通常比偶尔拼命更有价值。","think":"你愿意连续 30 天坚持哪一个很小、但真正有用的学习习惯？","source":"mindset"},{"type":"🧠 Feynman","title":"讲得出来，才是真的懂","read":"Feynman 学习法的重点不是背答案，而是用简单的话解释知识、找出自己不懂的地方、重新补强，直到能教别人。","think":"今天选一个知识点：如果要教给 Year 3 学生，你会怎样用一句简单的话解释？","source":"method"},{"type":"🧠 Feynman","title":"只选一个知识点","read":"不要一次解释整本课本。先选一个明确知识点，例如 Photosynthesis、Algebra、Tenses 或一个 Sejarah 章节重点。","think":"你今天最想真正弄懂的一个知识点是什么？","source":"method"},{"type":"🧠 Feynman","title":"用自己的话解释","read":"不要照着课本背。真正的理解，是能够不用复杂术语，用自己的话把概念说明清楚。","think":"不用看课本，用自己的话写出今天知识点的解释。","source":"method"},{"type":"🧠 Feynman","title":"找出讲不清楚的地方","read":"解释不出来的地方就是理解漏洞。找到漏洞并不可怕，因为这正是下一步学习最有价值的位置。","think":"刚才解释时，哪一个部分最卡？你具体不明白什么？","source":"method"},{"type":"🧠 Feynman","title":"补强，再简化成自己的版本","read":"回去看课本、笔记、老师讲解或例题；补强后再重新解释。最后整理成一句话总结、一个例子、一个图表或口诀。","think":"你准备回哪里补强？补强后，你的一句话总结会是什么？","source":"method"},{"type":"🎓 考试高分系统","title":"高分不只是知识，更是考试策略","read":"同样会做题的学生，因为审题、时间、检查和作答策略不同，考试结果可能差很多。会做，还要会稳定拿分。","think":"除了知识以外，你考试最容易在哪一项丢分：审题、时间、粗心、表达，还是检查？","source":"libexam"},{"type":"🎓 考前准备","title":"睡眠比多读 1 小时更重要","read":"熬夜会让反应变慢、容易看错题、粗心增加。考试前最后阶段，稳定状态往往比多塞一个小时的新内容更重要。","think":"你下一次考试前，最需要改掉哪一个准备习惯？","source":"libexam"},{"type":"🎓 审题技巧","title":"先看关键词、单位和限制","read":"Explain、Compare、State、Describe、Calculate 要求不同；数学和科学还要特别留意单位、数量限制和 NOT / EXCEPT / INCORRECT。","think":"你最容易漏看哪一种题目要求？以后准备怎样提醒自己？","source":"libexam"},{"type":"🎓 作答技巧","title":"先拿稳会做的分","read":"先做会的题，不要在一道难题卡太久。超过几分钟没有进展，可以先标记，继续下一题，再回来处理。","think":"你考试时最容易在哪种题卡太久？你准备给自己什么时间规则？","source":"libexam"},{"type":"🎓 防粗心系统","title":"粗心也需要分类检查","read":"检查符号、抄写、单位、漏题和答题位置。粗心不是一句“下次小心”，而是建立固定检查流程。","think":"你最常见的粗心是哪一种？以后最后检查时第一项要看什么？","source":"libexam"},{"type":"🎓 时间管理","title":"预留最后 10 分钟","read":"考试结束前 10 分钟不是“等停笔”，而是专门检查名字、题号、单位、漏题和计算错误。","think":"如果考试有 60 分钟，你准备最迟在第几分钟完成第一轮作答？","source":"libexam"},{"type":"🚀 30天冲刺","title":"红黄绿扫描","read":"把 Topic 分成：🔴不会/经常错、🟡懂一点但不稳定、🟢基本掌握。复习时间不要平均分配。","think":"写出你目前一个🔴 Topic、一个🟡 Topic、一个🟢 Topic。","source":"lib30"},{"type":"🚀 30天冲刺","title":"找出真正的失分原因","read":"同样是“错题”，原因可能是知识不会、概念混淆、粗心、审题、方法、时间或表达。先找原因，才能练对地方。","think":"你最近最大的 Top 1 失分原因是什么？它出现在哪一科？","source":"lib30"},{"type":"🚀 30天冲刺","title":"80/20：先拿回最容易拿回的分数","read":"不要平均用力，也不要为了最难的一题花掉大量时间。先处理高频考点、常错基础题和最容易改善的弱点。","think":"如果只能先改善一个 Topic，哪一个最可能帮你拿回最多分？","source":"lib30"},{"type":"🚀 模拟考试","title":"不要只看总分，要分析丢分结构","read":"Mock 之后不要只记录“72 分”。要继续拆解：知识不足几分、粗心几分、审题几分、时间几分、表达几分。","think":"如果你最近一次考试少了 20 分，你估计这些分主要丢在哪里？","source":"lib30"},{"type":"✍️ 作文高分","title":"先切题，再谈华丽","read":"好作文不是词越难越好。最重要的是切题、中心明确、结构清楚、内容具体、表达准确，并加入自己的观察与感受。","think":"你写作文最需要先改善的是：审题、结构、细节、语言，还是结尾？为什么？","source":"libwriting"},{"type":"✍️ 作文高分","title":"正文要写具体","read":"不要只写“我很紧张”。可以写动作、语言、表情、心理和环境，让读者真正感受到发生了什么。","think":"把“我很紧张”改写成一句更具体、有画面的句子。","source":"libwriting"},{"type":"✍️ 作文检查","title":"最后 5 分钟一定要检查","read":"先检查是否离题和漏要求，再看结构，最后检查语言：错别字 / Spelling / Ejaan / Grammar / Tatabahasa / 标点等。","think":"你写完作文最容易忘记检查哪一项？你准备怎样建立固定顺序？","source":"libwriting"},{"type":"🏆 成长路径","title":"先看自己在哪一级，再练下一步","read":"成长不是一下子变成学霸。Lv1–Lv9 的价值，是让你看清楚自己现在的行为，以及下一阶段最值得建立的能力。","think":"你觉得自己目前最需要加强的是：习惯、专注、理解、主动学习、考试能力，还是自我管理？","source":"libgrowth"},{"type":"🌙 每日复盘","title":"普通学生看结果，学霸看过程","read":"每晚花 3 分钟问：今天学到了什么？今天最大的错误是什么？明天准备改进什么？长期坚持，思维和行为才会改变。","think":"用一句话写：今天我最值得保留的做法是什么？明天最需要改善什么？","source":"mindset"}];let CYCLE=JSON.parse(localStorage.getItem("scoreA30Cycle")||'{"cycle":1,"day":1,"read":{},"time":{},"ai":{},"readThought":{}}');CYCLE.read=CYCLE.read||{};CYCLE.time=CYCLE.time||{};CYCLE.ai=CYCLE.ai||{};CYCLE.readThought=CYCLE.readThought||{};function csave(){localStorage.setItem("scoreA30Cycle",JSON.stringify(CYCLE));if(typeof scheduleCourseProgressSync==="function")scheduleCourseProgressSync()}function ck(){return CYCLE.cycle+"-"+CYCLE.day}function openProfile(){loadBasic();profilePop.classList.add("show")}function closeProfile(){profilePop.classList.remove("show")}function profileComplete(){let b=U.basic||{};return !!(b.name&&b.grade&&b.school&&b.minutes&&((Array.isArray(b.challenge)&&b.challenge.length)||(!Array.isArray(b.challenge)&&b.challenge)))}
 function selectedChallenges(){return [...document.querySelectorAll("#uChallenge input:checked")].map(x=>x.value)}
 function saveBasicGate(){U.basic={name:uName.value.trim(),grade:uGrade.value.trim(),school:uSchool.value.trim(),minutes:uMinutes.value,strong:uStrong.value.trim(),weak:uWeak.value.trim(),challenge:selectedChallenges()};usave();if(!profileComplete()){alert("请填写所有 * 必填资料，并至少选择一个学习问题");return}closeProfile();render30()}
 function firstEntryGate(){if(!profileComplete())setTimeout(openProfile,200)}function scrollDailyLesson(){show("challenge",document.querySelectorAll(".tab")[0]);setTimeout(()=>{let b=document.getElementById("dailyLessonBox");if(b){b.scrollIntoView({behavior:"smooth",block:"center"});b.classList.add("lessonFocus");setTimeout(()=>b.classList.remove("lessonFocus"),2600)}},80)}
@@ -1396,7 +1396,7 @@ const K="scoreAUnified21";let S=JSON.parse(localStorage.getItem(K)||"null")||{da
 // V11 migration: old prototype used a fixed 20/20/20 baseline. New scores grow from real actions.
 if((S.done||[]).length===0 && S.focus===20 && S.time===20 && S.learn===20){S.focus=0;S.time=0;S.learn=0;localStorage.setItem(K,JSON.stringify(S));}
 S.rewarded=S.rewarded||{};
-function save(){localStorage.setItem(K,JSON.stringify(S));render()}
+function save(){localStorage.setItem(K,JSON.stringify(S));if(typeof scheduleCourseProgressSync==="function")scheduleCourseProgressSync();render()}
 function show(id,b){document.querySelectorAll(".panel").forEach(x=>x.classList.remove("show"));document.getElementById(id).classList.add("show");document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));if(b)b.classList.add("active");if(id==="parent"){setTimeout(renderParentGuideDirect,0);setTimeout(renderParentDashboardLocal,0);if(typeof loadParentReflectionJournal==="function")setTimeout(loadParentReflectionJournal,20);}}
 function getEpisode(day){let base=E[day-1]||E[0];if(CYCLE.cycle<=1)return base;let round=CYCLE.cycle;let opts=[[`等别人提醒我再开始`,`先判断问题并写出一个具体行动`,`把任务留到最后一天`],[`只看做了多久`,`检查结果、错误原因和下一步`,`做完就不再回顾`],[`同时做很多事情`,`一次完成一个明确任务`,`等有心情才学习`]],oi=(day+round)%3;return [`R${round} · EP${String(day).padStart(2,"0")} · 进阶挑战`,base[1]+`｜第 ${round} 轮`,`这是第 ${round} 轮30天成长。请把「${base[1]}」应用到你现在真实的学习，不要只记住上一轮答案。`,`面对今天的新情境，哪一种做法最符合学霸学习方式？`,opts[oi],1,base[6],base[7],base[8]];}
 
@@ -1604,7 +1604,7 @@ else if(t=="mistakes")h=`<div class="card"><h2>⚔️ 错题猎人</h2><input cl
 else if(t=="pomodoro")h=`<div class="card"><h2>🧠 Feynman 理解训练</h2><input class="field" placeholder="知识点"><textarea class="field" placeholder="不用课本，用最简单的话解释给8岁孩子听……"></textarea><textarea class="field" placeholder="哪里讲不清楚？我要补什么？"></textarea><button class="btn green" onclick="logTool('Feynman')">完成理解训练</button></div>`;
 else if(t=="weeklycheck")h=`<div class="card"><h2>🔁 学习复盘</h2><textarea class="field" placeholder="今天我学会了什么？"></textarea><textarea class="field" placeholder="哪里还不稳？下一次什么时候复习？"></textarea><button class="btn green" onclick="logTool('Review')">保存复盘</button></div>`;
 else h=`<div class="card"><h2>📝 考试策略训练</h2><p>今天选择一个策略刻意练习：</p><select class="field"><option>先审题再作答</option><option>时间分配</option><option>关键词标记</option><option>完成后检查</option><option>不会的题先跳过再回来</option></select><textarea class="field" placeholder="练习后，我发现……"></textarea><button class="btn green" onclick="logTool('Exam Strategy')">完成策略训练</button></div>`;A.innerHTML=h}
-function logTool(n){S.logs.push({day:S.day,type:n,date:new Date().toLocaleString()});localStorage.setItem(K,JSON.stringify(S));alert("✓ "+n+" 已记录。现在回到「今日挑战」完成反思。")}
+function logTool(n){S.logs.push({day:S.day,type:n,date:new Date().toLocaleString()});localStorage.setItem(K,JSON.stringify(S));if(typeof scheduleCourseProgressSync==="function")scheduleCourseProgressSync();alert("✓ "+n+" 已记录。现在回到「今日挑战」完成反思。")}
 function startTimer(){if(timer)return;timer=setInterval(()=>{secs--;let m=Math.floor(secs/60),s=secs%60;let c=document.getElementById("clock");if(c)c.textContent=`${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;if(secs<=0){clearInterval(timer);timer=null;S.logs.push({day:S.day,type:"Pomodoro 25min"});S.focus=Math.min(100,S.focus+5);save();alert("🎉 25分钟专注训练完成！")}},1000)}
 function resetTimer(){clearInterval(timer);timer=null;secs=1500;if(document.getElementById("clock"))document.getElementById("clock").textContent="25:00"}
 function completeDay(){let r=document.getElementById("reflect").value.trim();if(!r){alert("先完成今天的成长反思。");return}if(S.done.includes(S.day))return;S.logs.push({day:S.day,type:"Reflection",text:r});S.done.push(S.day);S.xp+=60;S.focus=Math.min(100,S.focus+3);S.time=Math.min(100,S.time+3);S.learn=Math.min(100,S.learn+3);if(![7,14,21].includes(S.day)){S.day++;S.streak++;}save();showReward("💎","MISSION COMPLETE!","+60 XP · A-BOT 已记录你的真实学习成长。");advance30()}
@@ -1702,12 +1702,176 @@ const scoreASupabase=window.supabase.createClient(SCOREA_SUPABASE_URL,SCOREA_SUP
 let SCOREA_AUTH_USER=null;
 let SCOREA_STUDENT_PROFILE=null;
 
+let SCOREA_COURSE_PROFILE=null;
+let SCOREA_PROGRESS_RESTORING=false;
+let SCOREA_PROGRESS_SYNC_TIMER=null;
+
+function freshScoreAState(){
+  return {day:1,xp:0,done:[],badges:[],streak:1,focus:0,time:0,learn:0,logs:[]};
+}
+function freshCycleState(){
+  return {cycle:1,day:1,read:{},time:{},ai:{},readThought:{}};
+}
+function freshToolState(){
+  return {basic:{},fixed:[],week:{},habits:{},review:[],timeWeek:1,timeWeeks:{},schedule:{},dailyDates:{},terms:{},mistakes:[],mistakeWeek:1,mistakeWeeks:{}};
+}
+function normalizeRestoredProgress(){
+  S={...freshScoreAState(),...(S||{})};
+  S.done=Array.isArray(S.done)?S.done:[];
+  S.badges=Array.isArray(S.badges)?S.badges:[];
+  S.logs=Array.isArray(S.logs)?S.logs:[];
+  S.rewarded=S.rewarded||{};
+
+  CYCLE={...freshCycleState(),...(CYCLE||{})};
+  CYCLE.read=CYCLE.read||{};
+  CYCLE.time=CYCLE.time||{};
+  CYCLE.ai=CYCLE.ai||{};
+  CYCLE.readThought=CYCLE.readThought||{};
+
+  U={...freshToolState(),...(U||{})};
+  U.basic=U.basic||{};
+  U.fixed=Array.isArray(U.fixed)?U.fixed:[];
+  U.week=U.week||{};
+  U.habits=U.habits||{};
+  U.review=Array.isArray(U.review)?U.review:[];
+  U.timeWeeks=U.timeWeeks||{};
+  U.schedule=U.schedule||{};
+  U.dailyDates=U.dailyDates||{};
+  U.terms=U.terms||{};
+  U.mistakes=Array.isArray(U.mistakes)?U.mistakes:[];
+  U.mistakeWeeks=U.mistakeWeeks||{};
+}
+
+function setCourseCloudStatus(msg){
+  const el=document.getElementById("courseCloudStatus");
+  if(el)el.textContent=msg;
+}
+
+function prepareLocalProgressForUser(uid){
+  const owner=localStorage.getItem("scoreAProgressOwnerUid");
+  if(owner && owner!==uid){
+    // A different student is using this browser. Never inherit the previous student's local progress.
+    S=freshScoreAState();
+    CYCLE=freshCycleState();
+    U=freshToolState();
+    localStorage.setItem(K,JSON.stringify(S));
+    localStorage.setItem("scoreA30Cycle",JSON.stringify(CYCLE));
+    localStorage.setItem(UK,JSON.stringify(U));
+  }
+  // owner === null is treated as legacy migration: keep the old local data for this first cloud migration.
+  localStorage.setItem("scoreAProgressOwnerUid",uid);
+  normalizeRestoredProgress();
+}
+
+function scheduleCourseProgressSync(delay=900){
+  if(SCOREA_PROGRESS_RESTORING || !SCOREA_AUTH_USER || !SCOREA_STUDENT_PROFILE || !SCOREA_COURSE_PROFILE)return;
+  clearTimeout(SCOREA_PROGRESS_SYNC_TIMER);
+  setCourseCloudStatus("☁️ 进度同步中…");
+  SCOREA_PROGRESS_SYNC_TIMER=setTimeout(()=>{
+    syncCourseProgressToSupabase().catch(err=>{
+      console.warn("Course progress cloud sync failed",err);
+      setCourseCloudStatus("⚠️ 本机已保存 · 云端待重试");
+    });
+  },delay);
+}
+
+async function syncCourseProgressToSupabase(){
+  if(SCOREA_PROGRESS_RESTORING || !SCOREA_AUTH_USER || !SCOREA_STUDENT_PROFILE || !SCOREA_COURSE_PROFILE)return false;
+  normalizeRestoredProgress();
+
+  const payload={
+    user_id:SCOREA_AUTH_USER.id,
+    student_id:SCOREA_STUDENT_PROFILE.id,
+    course_code:SCOREA_COURSE_PROFILE.course_code||"SCORE-A",
+    current_cycle:Number(CYCLE.cycle)||1,
+    current_day:Number(CYCLE.day)||1,
+    xp:Number(S.xp)||0,
+    streak:Number(S.streak)||1,
+    focus:Number(S.focus)||0,
+    time_management:Number(S.time)||0,
+    self_learning:Number(S.learn)||0,
+    completed_days_count:Array.isArray(S.done)?S.done.length:0,
+    total_completed:Number(S.totalCompleted)||0,
+    app_state:S,
+    cycle_state:CYCLE,
+    tool_state:U,
+    updated_at:new Date().toISOString()
+  };
+
+  const {error}=await scoreASupabase
+    .from("scorea_student_progress")
+    .upsert(payload,{onConflict:"user_id,course_code"});
+  if(error)throw error;
+
+  setCourseCloudStatus("☁️ 进度已同步");
+  return true;
+}
+
+async function restoreCourseProgressFromCloud(){
+  if(!SCOREA_AUTH_USER || !SCOREA_STUDENT_PROFILE || !SCOREA_COURSE_PROFILE)return;
+  SCOREA_PROGRESS_RESTORING=true;
+  setCourseCloudStatus("☁️ 正在读取云端进度…");
+
+  try{
+    prepareLocalProgressForUser(SCOREA_AUTH_USER.id);
+
+    const {data,error}=await scoreASupabase
+      .from("scorea_student_progress")
+      .select("app_state,cycle_state,tool_state,updated_at")
+      .eq("user_id",SCOREA_AUTH_USER.id)
+      .eq("course_code",SCOREA_COURSE_PROFILE.course_code||"SCORE-A")
+      .maybeSingle();
+
+    if(error)throw error;
+
+    if(data){
+      // Cloud is the source of truth once a cloud row exists.
+      if(data.app_state)S=data.app_state;
+      if(data.cycle_state)CYCLE=data.cycle_state;
+      if(data.tool_state)U=data.tool_state;
+      normalizeRestoredProgress();
+
+      localStorage.setItem(K,JSON.stringify(S));
+      localStorage.setItem("scoreA30Cycle",JSON.stringify(CYCLE));
+      localStorage.setItem(UK,JSON.stringify(U));
+      localStorage.setItem("scoreAProgressOwnerUid",SCOREA_AUTH_USER.id);
+
+      render();
+      render30();
+      renderDailyGate();
+      loadBasic();
+      setCourseCloudStatus("☁️ 云端进度已恢复");
+    }else{
+      // First migration: use this student's current local progress and create the first cloud row.
+      normalizeRestoredProgress();
+      localStorage.setItem("scoreAProgressOwnerUid",SCOREA_AUTH_USER.id);
+      SCOREA_PROGRESS_RESTORING=false;
+      await syncCourseProgressToSupabase();
+      setCourseCloudStatus("☁️ 首次进度已迁移");
+      return;
+    }
+  }finally{
+    SCOREA_PROGRESS_RESTORING=false;
+  }
+}
+
+async function retryCourseProgressSync(){
+  try{
+    setCourseCloudStatus("☁️ 正在重新同步…");
+    await syncCourseProgressToSupabase();
+  }catch(err){
+    console.error("Manual course progress sync failed",err);
+    setCourseCloudStatus("⚠️ 云端同步失败");
+    alert("课程进度云端同步失败："+(err.message||"Unknown error"));
+  }
+}
+
 function reflectionLocalRows(){
   const rows=[];
   try{
     Object.entries(CYCLE.readThought||{}).forEach(([key,answer])=>{
       const m=String(key).match(/^(\d+)-(\d+)$/);
-      if(!m || !answer) return;
+      if(!m || !answer || !CYCLE.read?.[key] || dailyMeaningfulCount(answer)<12) return;
       const cycle=Number(m[1]),day=Number(m[2]);
       const lesson=DAILY_LESSONS[day-1]||{};
       rows.push({
@@ -2109,12 +2273,22 @@ async function verifyScoreAAccess(user){
     sessionStorage.setItem('scorea_verified',JSON.stringify({uid:user.id,student_id:student.student_id,expiry_date:enrollment.expiry_date,checked_at:new Date().toISOString()}));
     SCOREA_AUTH_USER=user;
     SCOREA_STUDENT_PROFILE=student;
+    SCOREA_COURSE_PROFILE=course;
+
+    try{
+      await restoreCourseProgressFromCloud();
+    }catch(progressErr){
+      console.warn("Course progress cloud restore failed",progressErr);
+      setCourseCloudStatus("⚠️ 使用本机进度 · 云端待重试");
+    }
+
     openScoreA(student,enrollment);
     await loadPersonalizedLearning(user.email,student);
     try{
       await syncExistingReflectionHistory();
       await restoreReflectionHistoryFromCloud();
       await loadParentReflectionJournal();
+      scheduleCourseProgressSync(200);
     }catch(refErr){
       console.warn("Daily reflection cloud feature is not ready yet",refErr);
       const s=document.getElementById("reflectionCloudStatus");
