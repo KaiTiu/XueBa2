@@ -62,6 +62,13 @@ input{width:100%;padding:12px 13px;border:1px solid #d8e1ed;border-radius:12px;o
 .accountGrid{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:end}
 .accountGrid input{width:100%;padding:11px 12px;border:1px solid #d8e1ed;border-radius:11px}
 .accountHint{font-size:12px;color:#718096;line-height:1.55;margin-top:7px}
+
+.parentAdminGrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.parentAdminResult{margin-top:12px;padding:14px;border-radius:14px;border:1px solid #dfe7f2;background:#f8fafc;white-space:pre-wrap}
+.parentAdminResult.good{background:#eefaf4;border-color:#caead8;color:#155f45}
+.parentAdminResult.bad{background:#fff1f1;border-color:#efcccc;color:#9d2c2c}
+@media(max-width:700px){.parentAdminGrid{grid-template-columns:1fr}}
+
 .tempFlag{display:inline-block;padding:5px 8px;border-radius:999px;font-size:11px;font-weight:900;background:#fff5d8;color:#8a5a00;margin-left:6px}
 
 
@@ -190,6 +197,67 @@ input{width:100%;padding:12px 13px;border:1px solid #d8e1ed;border-radius:12px;o
         </div>
         <div id="createStudentResult" class="resultBox hidden"></div>
       </div>
+    </div>
+  </section>
+
+  <section class="card" style="margin-top:14px">
+    <div class="sectionTitle">
+      <div>
+        <h2 style="margin:0">👨‍👩‍👧 建立 Parent Account</h2>
+        <div class="muted">Parent 使用独立 Email 登录，只能查看被授权绑定的孩子。</div>
+      </div>
+      <span class="pill">STAGE 4</span>
+    </div>
+
+    <div class="parentAdminGrid">
+      <div class="formField">
+        <label>家长姓名</label>
+        <input id="newParentName" placeholder="例如：Lim Liang Ie">
+      </div>
+
+      <div class="formField">
+        <label>Parent Email</label>
+        <input id="newParentEmail" type="email" placeholder="parent@example.com">
+      </div>
+
+      <div class="formField">
+        <label>Temporary Password</label>
+        <input id="newParentPassword" type="text" placeholder="至少 8 个字符；首次登录必须更改">
+      </div>
+
+      <div class="formField">
+        <label>电话（可选）</label>
+        <input id="newParentPhone" placeholder="例如：012-3456789">
+      </div>
+
+      <div class="formField">
+        <label>关系</label>
+        <select id="newParentRelationship">
+          <option value="parent">Parent</option>
+          <option value="mother">Mother</option>
+          <option value="father">Father</option>
+          <option value="guardian">Guardian</option>
+        </select>
+      </div>
+
+      <div class="formField">
+        <label>绑定学生</label>
+        <select id="newParentStudent">
+          <option value="">正在读取学生…</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="createActions" style="margin-top:14px">
+      <button class="btn" id="createParentBtn" onclick="createParentAccount()">建立 Parent Account + 绑定学生</button>
+      <button class="btn light" onclick="clearParentForm()">清空</button>
+    </div>
+
+    <div id="createParentResult" class="parentAdminResult hidden"></div>
+
+    <div style="margin-top:20px">
+      <h3 style="margin-bottom:8px">🔗 Parent ↔ Student 绑定</h3>
+      <div id="parentLinkTable"><div class="empty">等待读取…</div></div>
     </div>
   </section>
 
@@ -330,16 +398,21 @@ async function loadDashboard(){
       studentsRes,
       enrollRes,
       progressRes,
-      reflectRes
+      reflectRes,
+      parentProfilesRes,
+      parentLinksRes
     ]=await Promise.all([
       db.from("students").select("id,student_id,full_name,grade,status,user_id").order("student_id"),
       db.from("enrollments").select("id,student_id,course_id,status,start_date,expiry_date,plan_days"),
       db.from("scorea_student_progress").select("student_id,current_cycle,current_day,xp,focus,time_management,self_learning,updated_at").order("updated_at",{ascending:false}),
-      db.from("scorea_daily_reflections").select("student_id,student_name,cycle_number,day_number,lesson_title,reflection_text,completed_at,lesson_type").neq("cycle_number",999).neq("lesson_type","SYSTEM TEST").order("completed_at",{ascending:false}).limit(20)
+      db.from("scorea_daily_reflections").select("student_id,student_name,cycle_number,day_number,lesson_title,reflection_text,completed_at,lesson_type").neq("cycle_number",999).neq("lesson_type","SYSTEM TEST").order("completed_at",{ascending:false}).limit(20),
+      db.from("scorea_parent_profiles").select("user_id,full_name,phone,status,created_at").order("created_at",{ascending:false}),
+      db.from("scorea_parent_student_links").select("id,parent_user_id,student_id,relationship,status,created_at").order("created_at",{ascending:false})
     ]);
-    for(const r of [studentsRes,enrollRes,progressRes,reflectRes]) if(r.error) throw r.error;
+    for(const r of [studentsRes,enrollRes,progressRes,reflectRes,parentProfilesRes,parentLinksRes]) if(r.error) throw r.error;
 
-    const students=studentsRes.data||[], enroll=enrollRes.data||[], progress=progressRes.data||[], reflections=reflectRes.data||[];
+    const students=studentsRes.data||[], enroll=enrollRes.data||[], progress=progressRes.data||[], reflections=reflectRes.data||[],
+      parentProfiles=parentProfilesRes.data||[], parentLinks=parentLinksRes.data||[];
 
     $("statStudents").textContent=students.length;
     $("statActive").textContent=enroll.filter(e=>effectiveEnrollmentStatus(e)==="ACTIVE").length;
@@ -393,6 +466,33 @@ async function loadDashboard(){
         <td>${r.completed_at?new Date(r.completed_at).toLocaleDateString("zh-MY"):"—"}</td>
       </tr>`).join("")}</tbody></table></div>`
       :'<div class="empty">尚无真实每日思考记录。</div>';
+
+
+    const parentStudentSelect=$("newParentStudent");
+    if(parentStudentSelect){
+      parentStudentSelect.innerHTML='<option value="">请选择学生</option>'+
+        students.map(s=>`<option value="${esc(s.id)}">${esc(s.student_id)} · ${esc(s.full_name)} · ${esc(s.grade||"")}</option>`).join("");
+    }
+
+    const profileMap=new Map(parentProfiles.map(p=>[p.user_id,p]));
+    const studentMap=new Map(students.map(s=>[s.id,s]));
+    const parentLinkBox=$("parentLinkTable");
+
+    if(parentLinkBox){
+      parentLinkBox.innerHTML=parentLinks.length?`
+        <div style="overflow:auto"><table>
+        <thead><tr><th>Parent</th><th>Relationship</th><th>Student</th><th>Status</th></tr></thead>
+        <tbody>${parentLinks.map(l=>{
+          const p=profileMap.get(l.parent_user_id), s=studentMap.get(l.student_id);
+          return `<tr>
+            <td><b>${esc(p?.full_name||"Parent")}</b></td>
+            <td>${esc(l.relationship||"parent")}</td>
+            <td>${s?`${esc(s.student_id)} · ${esc(s.full_name)}`:"—"}</td>
+            <td><span class="tag ${String(l.status||"").toUpperCase()==="ACTIVE"?"active":""}">${esc(l.status||"—")}</span></td>
+          </tr>`;
+        }).join("")}</tbody></table></div>`
+        :'<div class="empty">还没有 Parent ↔ Student 绑定。</div>';
+    }
 
     $("refreshStatus").textContent="READY";
   }catch(err){
@@ -623,6 +723,109 @@ async function manageEnrollment(action,days=null){
     console.error("Manage enrollment failed",err);
     box.className="manageResult bad";
     box.textContent="✗ 更新失败\n"+(err.result?.error||err.message||"Unknown error");
+  }
+}
+
+
+function clearParentForm(){
+  $("newParentName").value="";
+  $("newParentEmail").value="";
+  $("newParentPassword").value="";
+  $("newParentPhone").value="";
+  $("newParentRelationship").value="parent";
+  $("newParentStudent").value="";
+  const box=$("createParentResult");
+  box.className="parentAdminResult hidden";
+  box.textContent="";
+}
+
+async function createParentAccount(){
+  const fullName=$("newParentName").value.trim();
+  const email=$("newParentEmail").value.trim().toLowerCase();
+  const password=$("newParentPassword").value;
+  const phone=$("newParentPhone").value.trim();
+  const relationship=$("newParentRelationship").value;
+  const studentId=$("newParentStudent").value;
+
+  const box=$("createParentResult");
+  const btn=$("createParentBtn");
+
+  if(!fullName || !email || !password || !studentId){
+    box.className="parentAdminResult bad";
+    box.textContent="请填写家长姓名、Parent Email、Temporary Password，并选择要绑定的学生。";
+    return;
+  }
+
+  if(password.length<8){
+    box.className="parentAdminResult bad";
+    box.textContent="Temporary Password 至少需要 8 个字符。";
+    return;
+  }
+
+  const selectedText=$("newParentStudent").selectedOptions?.[0]?.textContent||"";
+  if(!confirm(`确认建立 Parent Account？\n\nParent：${fullName}\nEmail：${email}\n绑定：${selectedText}`))return;
+
+  btn.disabled=true;
+  btn.textContent="正在建立 Parent…";
+  box.className="parentAdminResult";
+  box.textContent="正在建立 Parent Auth、Profile 和 Parent ↔ Student 绑定…";
+
+  try{
+    const {data:sessionData,error:sessionError}=await db.auth.getSession();
+    if(sessionError)throw sessionError;
+    const token=sessionData?.session?.access_token;
+    if(!token)throw new Error("Admin session 已过期，请重新登录。");
+
+    const r=await fetch("/api/admin-create-parent",{
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json",
+        "Authorization":"Bearer "+token
+      },
+      body:JSON.stringify({
+        full_name:fullName,
+        email,
+        password,
+        phone,
+        relationship,
+        student_id:studentId
+      })
+    });
+
+    const raw=await r.text();
+    let result;
+    try{result=JSON.parse(raw)}catch{result={error:raw}}
+    if(!r.ok || !result?.ok){
+      throw Object.assign(new Error(result?.error||`HTTP ${r.status}`),{result});
+    }
+
+    box.className="parentAdminResult good";
+    box.textContent=
+`✓ Parent Account 建立成功
+
+Parent：${result.parent.full_name}
+Email：${result.parent.email}
+角色：PARENT
+绑定学生：${result.student.student_id} · ${result.student.full_name}
+
+Temporary Password 已建立。
+Parent 第一次登录必须先设置自己的新 Password。`;
+
+    $("newParentName").value="";
+    $("newParentEmail").value="";
+    $("newParentPassword").value="";
+    $("newParentPhone").value="";
+    $("newParentRelationship").value="parent";
+    $("newParentStudent").value="";
+
+    await loadDashboard();
+  }catch(err){
+    console.error("Create Parent failed",err);
+    box.className="parentAdminResult bad";
+    box.textContent="✗ Parent Account 建立失败\n"+(err.result?.error||err.message||"Unknown error");
+  }finally{
+    btn.disabled=false;
+    btn.textContent="建立 Parent Account + 绑定学生";
   }
 }
 
