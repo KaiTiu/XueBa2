@@ -38,6 +38,26 @@ input{width:100%;padding:12px 13px;border:1px solid #d8e1ed;border-radius:12px;o
 .hidden{display:none!important}
 .empty{padding:18px;border:1px dashed #ccd6e4;border-radius:14px;color:#728199}
 
+.manageBtn{border:0;border-radius:10px;padding:7px 10px;background:#edf3ff;color:#2c4e84;font-weight:900;cursor:pointer}
+.manageBtn:disabled{opacity:.45;cursor:not-allowed}
+.modalBack{position:fixed;inset:0;background:rgba(14,29,52,.52);display:flex;align-items:center;justify-content:center;padding:20px;z-index:9999}
+.modalCard{width:min(560px,96vw);background:#fff;border-radius:22px;padding:22px;box-shadow:0 30px 90px rgba(0,0,0,.25)}
+.modalTop{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}
+.modalTop h2{margin:0}
+.closeBtn{border:0;background:#eef2f8;border-radius:10px;padding:8px 11px;font-weight:900;cursor:pointer}
+.manageMeta{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0}
+.manageMeta div{background:#f8fafc;border:1px solid #e4eaf2;border-radius:12px;padding:11px}
+.manageMeta small{display:block;color:#75839a;font-weight:800;margin-bottom:4px}
+.actionGroup{display:grid;gap:10px;margin-top:12px}
+.actionGroup h3{margin:4px 0}
+.actionRow{display:flex;gap:8px;flex-wrap:wrap}
+.btn.warn{background:#a85c12}
+.btn.danger{background:#b42318}
+.manageResult{margin-top:12px;padding:12px;border-radius:12px;background:#f8fafc;border:1px solid #e1e7f0;white-space:pre-wrap}
+.manageResult.good{background:#eefaf4;border-color:#cfe9db;color:#165e47}
+.manageResult.bad{background:#fff1f1;border-color:#efcaca;color:#982b2b}
+
+
 .createStudentCard{margin-top:14px}
 .formGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
 .formField label{display:block;font-size:12px;font-weight:850;margin:0 0 6px;color:#2a3e5c}
@@ -114,7 +134,7 @@ input{width:100%;padding:12px 13px;border:1px solid #d8e1ed;border-radius:12px;o
     <div class="sectionTitle">
       <div>
         <h2 style="margin:0">➕ 新增学生</h2>
-        <div class="muted">建立 Auth 账号、Student Profile、student role 和 SCORE-A 课程权限。</div>
+        <div class="muted">建立 Auth 账号、Student Profile、student role 和 SCORE-A 课程权限。管理员只发 Temporary Password；学生首次登录必须自行更改。</div>
       </div>
       <span class="pill">STEP 3B</span>
     </div>
@@ -136,8 +156,8 @@ input{width:100%;padding:12px 13px;border:1px solid #d8e1ed;border-radius:12px;o
       </div>
 
       <div class="formField">
-        <label>初始 Password</label>
-        <input id="newStudentPassword" type="text" placeholder="至少 8 个字符">
+        <label>Temporary Password（首次登录必须更改）</label>
+        <input id="newStudentPassword" type="text" placeholder="设置临时 Password，至少 8 个字符">
       </div>
 
       <div class="formField">
@@ -172,6 +192,43 @@ input{width:100%;padding:12px 13px;border:1px solid #d8e1ed;border-radius:12px;o
     <div id="reflectionTableWrap"></div>
   </section>
 </main>
+
+<div id="enrollmentModal" class="modalBack hidden" onclick="if(event.target===this)closeEnrollmentManager()">
+  <div class="modalCard">
+    <div class="modalTop">
+      <div>
+        <div class="pill">SCORE-A COURSE ACCESS</div>
+        <h2 id="manageStudentTitle">管理课程权限</h2>
+      </div>
+      <button class="closeBtn" onclick="closeEnrollmentManager()">✕</button>
+    </div>
+
+    <div class="manageMeta">
+      <div><small>Student ID</small><b id="manageStudentId">—</b></div>
+      <div><small>当前状态</small><b id="manageStatus">—</b></div>
+      <div><small>开始日期</small><b id="manageStart">—</b></div>
+      <div><small>到期日期</small><b id="manageExpiry">—</b></div>
+    </div>
+
+    <div class="actionGroup">
+      <h3>课程状态</h3>
+      <div class="actionRow">
+        <button class="btn danger" id="pauseBtn" onclick="manageEnrollment('pause')">⏸ 暂停课程</button>
+        <button class="btn" id="resumeBtn" onclick="manageEnrollment('resume')">▶ 恢复课程</button>
+      </div>
+
+      <h3>延长课程</h3>
+      <div class="actionRow">
+        <button class="btn light" onclick="manageEnrollment('extend',30)">＋30 天</button>
+        <button class="btn light" onclick="manageEnrollment('extend',180)">＋180 天</button>
+        <button class="btn light" onclick="manageEnrollment('extend',365)">＋365 天</button>
+      </div>
+      <div class="muted">若课程仍有效，会从现有到期日继续往后加；若已到期，则从今天重新计算。PAUSED 状态延长后仍保持 PAUSED。</div>
+    </div>
+
+    <div id="manageResult" class="manageResult hidden"></div>
+  </div>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
@@ -213,6 +270,18 @@ async function logout(){
   location.reload();
 }
 
+
+function effectiveEnrollmentStatus(e){
+  if(!e)return "NONE";
+  const raw=String(e.status||"").toUpperCase();
+  if(raw==="PAUSED")return "PAUSED";
+  if(e.expiry_date){
+    const exp=new Date(e.expiry_date+"T23:59:59");
+    if(exp<new Date())return "EXPIRED";
+  }
+  return raw||"—";
+}
+
 async function loadDashboard(){
   $("refreshStatus").textContent="LOADING";
   try{
@@ -223,7 +292,7 @@ async function loadDashboard(){
       reflectRes
     ]=await Promise.all([
       db.from("students").select("id,student_id,full_name,grade,status,user_id").order("student_id"),
-      db.from("enrollments").select("id,student_id,course_id,status,start_date,expiry_date"),
+      db.from("enrollments").select("id,student_id,course_id,status,start_date,expiry_date,plan_days"),
       db.from("scorea_student_progress").select("student_id,current_cycle,current_day,xp,focus,time_management,self_learning,updated_at").order("updated_at",{ascending:false}),
       db.from("scorea_daily_reflections").select("student_id,student_name,cycle_number,day_number,lesson_title,reflection_text,completed_at,lesson_type").neq("cycle_number",999).neq("lesson_type","SYSTEM TEST").order("completed_at",{ascending:false}).limit(20)
     ]);
@@ -232,7 +301,7 @@ async function loadDashboard(){
     const students=studentsRes.data||[], enroll=enrollRes.data||[], progress=progressRes.data||[], reflections=reflectRes.data||[];
 
     $("statStudents").textContent=students.length;
-    $("statActive").textContent=enroll.filter(e=>String(e.status||"").toUpperCase()==="ACTIVE").length;
+    $("statActive").textContent=enroll.filter(e=>effectiveEnrollmentStatus(e)==="ACTIVE").length;
     $("statProgress").textContent=progress.length;
     $("statReflections").textContent=reflections.length;
 
@@ -241,17 +310,28 @@ async function loadDashboard(){
 
     $("studentTableWrap").innerHTML=students.length?`
       <div style="overflow:auto"><table>
-      <thead><tr><th>Student ID</th><th>姓名</th><th>年级</th><th>课程</th><th>到期</th><th>进度</th></tr></thead>
+      <thead><tr><th>Student ID</th><th>姓名</th><th>年级</th><th>课程</th><th>到期</th><th>进度</th><th>管理</th></tr></thead>
       <tbody>${students.map(s=>{
         const e=enrollMap.get(s.id), p=progressMap.get(s.id);
-        const status=String(e?.status||s.status||"").toUpperCase();
+        const status=e?effectiveEnrollmentStatus(e):String(s.status||"").toUpperCase();
+        const statusClass=status==="ACTIVE"?"active":status==="EXPIRED"?"expired":"";
         return `<tr>
           <td><b>${esc(s.student_id)}</b></td>
           <td>${esc(s.full_name)}</td>
           <td>${esc(s.grade)}</td>
-          <td><span class="tag ${status==="ACTIVE"?"active":status==="EXPIRED"?"expired":""}">${esc(status||"—")}</span></td>
+          <td><span class="tag ${statusClass}">${esc(status||"—")}</span></td>
           <td>${esc(e?.expiry_date||"—")}</td>
           <td>${p?`Cycle ${p.current_cycle} · Day ${p.current_day} · ${p.xp} XP`:"尚未建立"}</td>
+          <td><button class="manageBtn" ${e?"":"disabled"} onclick='openEnrollmentManager(${JSON.stringify({
+            student_id:s.student_id,
+            full_name:s.full_name,
+            enrollment_id:e?.id||null,
+            status:e?effectiveEnrollmentStatus(e):"NONE",
+            raw_status:e?.status||"",
+            start_date:e?.start_date||"",
+            expiry_date:e?.expiry_date||"",
+            plan_days:e?.plan_days||""
+          })})'>管理</button></td>
         </tr>`;
       }).join("")}</tbody></table></div>`
       :'<div class="empty">还没有学生资料。</div>';
@@ -280,6 +360,99 @@ async function loadDashboard(){
   }
 }
 
+
+
+let CURRENT_ENROLLMENT=null;
+
+function openEnrollmentManager(info){
+  CURRENT_ENROLLMENT=info||null;
+  if(!CURRENT_ENROLLMENT?.enrollment_id)return;
+
+  $("manageStudentTitle").textContent=CURRENT_ENROLLMENT.full_name||"管理课程权限";
+  $("manageStudentId").textContent=CURRENT_ENROLLMENT.student_id||"—";
+  $("manageStatus").textContent=CURRENT_ENROLLMENT.status||"—";
+  $("manageStart").textContent=CURRENT_ENROLLMENT.start_date||"—";
+  $("manageExpiry").textContent=CURRENT_ENROLLMENT.expiry_date||"—";
+
+  $("pauseBtn").disabled=CURRENT_ENROLLMENT.status==="PAUSED";
+  $("resumeBtn").disabled=CURRENT_ENROLLMENT.status==="ACTIVE";
+
+  const box=$("manageResult");
+  box.className="manageResult hidden";
+  box.textContent="";
+  $("enrollmentModal").classList.remove("hidden");
+}
+
+function closeEnrollmentManager(){
+  $("enrollmentModal").classList.add("hidden");
+  CURRENT_ENROLLMENT=null;
+}
+
+async function manageEnrollment(action,days=null){
+  if(!CURRENT_ENROLLMENT?.enrollment_id)return;
+
+  const labels={
+    pause:"暂停课程",
+    resume:"恢复课程",
+    extend:`延长 ${days} 天`
+  };
+  if(!confirm(`确认要为 ${CURRENT_ENROLLMENT.full_name} ${labels[action]}？`))return;
+
+  const box=$("manageResult");
+  box.className="manageResult";
+  box.textContent="正在更新课程权限…";
+
+  try{
+    const {data:sessionData,error:sessionError}=await db.auth.getSession();
+    if(sessionError)throw sessionError;
+    const token=sessionData?.session?.access_token;
+    if(!token)throw new Error("Admin session 已过期，请重新登录。");
+
+    const r=await fetch("/api/admin-manage-enrollment",{
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json",
+        "Authorization":"Bearer "+token
+      },
+      body:JSON.stringify({
+        enrollment_id:CURRENT_ENROLLMENT.enrollment_id,
+        action,
+        days
+      })
+    });
+
+    const raw=await r.text();
+    let result;
+    try{result=JSON.parse(raw)}catch{result={error:raw}}
+    if(!r.ok || !result?.ok){
+      throw Object.assign(new Error(result?.error||`HTTP ${r.status}`),{result});
+    }
+
+    const e=result.enrollment;
+    box.className="manageResult good";
+    box.textContent=
+`✓ ${result.message}
+状态：${e.status}
+开始：${e.start_date||"—"}
+到期：${e.expiry_date||"—"}`;
+
+    CURRENT_ENROLLMENT.raw_status=e.status;
+    CURRENT_ENROLLMENT.expiry_date=e.expiry_date;
+    CURRENT_ENROLLMENT.plan_days=e.plan_days;
+    CURRENT_ENROLLMENT.status=effectiveEnrollmentStatus(e);
+
+    $("manageStatus").textContent=CURRENT_ENROLLMENT.status;
+    $("manageExpiry").textContent=e.expiry_date||"—";
+    $("pauseBtn").disabled=CURRENT_ENROLLMENT.status==="PAUSED";
+    $("resumeBtn").disabled=CURRENT_ENROLLMENT.status==="ACTIVE";
+
+    await loadDashboard();
+  }catch(err){
+    console.error("Manage enrollment failed",err);
+    box.className="manageResult bad";
+    box.textContent="✗ 更新失败\n"+(err.result?.error||err.message||"Unknown error");
+  }
+}
 
 function setDefaultStartDate(){
   const el=$("newStudentStart");
@@ -372,7 +545,7 @@ Email: ${result.student.email}
 到期: ${result.enrollment.expiry_date}
 状态: ${result.enrollment.status}
 
-请把登录 Email 与 Password 安全地交给学生/家长。`;
+请把登录 Email 与 Temporary Password 安全地交给学生/家长。学生第一次登录必须先更改为自己的新 Password。`;
     await loadDashboard();
 
     // Keep the success details visible, but clear data-entry fields.

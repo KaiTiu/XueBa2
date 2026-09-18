@@ -243,6 +243,11 @@ body{margin:0;font-family:Inter,"Microsoft YaHei",Arial,sans-serif;background:va
 .authBrand{padding:42px;background:linear-gradient(145deg,#0b2457,#7047eb);color:#fff}.authBrand h1{font-size:34px;margin:10px 0}.authBrand p{color:#dce6ff;line-height:1.75}.authBrand .authPoint{padding:11px 0;border-bottom:1px solid #ffffff20;font-weight:800}
 .authForm{padding:42px}.authForm h2{margin:0 0 7px}.authForm .field{background:#fff}.authMsg{display:none;margin:12px 0;padding:12px 14px;border-radius:12px;font-size:13px;line-height:1.55}.authMsg.show{display:block}.authMsg.err{background:#fff1f1;border:1px solid #ffcaca;color:#9b1c1c}.authMsg.ok{background:#eefaf4;border:1px solid #c7ecd8;color:#12633f}.authMeta{font-size:12px;color:#6b7890;line-height:1.6;margin-top:14px}.authLoading{display:none;align-items:center;gap:8px;font-size:13px;color:#53627a;margin:10px 0}.authLoading.show{display:flex}.authSpinner{width:18px;height:18px;border:3px solid #dce6f5;border-top-color:#1769ff;border-radius:50%;animation:authSpin .8s linear infinite}@keyframes authSpin{to{transform:rotate(360deg)}}
 .authDenied{display:none}.authDenied.show{display:block}.authInfo{background:#f6f8fc;border:1px solid #e1e8f2;border-radius:14px;padding:13px;margin:10px 0;font-size:13px;line-height:1.7}.authTopUser{font-size:11px;font-weight:850;color:#53627a}.logoutBtn{border:0;background:#eef2f8;color:#30415e;padding:8px 11px;border-radius:10px;font-weight:850;cursor:pointer;margin-left:6px}
+
+.authPasswordChange{display:none}.authPasswordChange.show{display:block}
+.authPasswordRule{background:#fff8e7;border:1px solid #f3dfaa;border-radius:14px;padding:13px;margin:10px 0;color:#725317;font-size:13px;line-height:1.65}
+.authPasswordSuccess{background:#eefaf4;border:1px solid #c7ecd8;border-radius:14px;padding:13px;color:#12633f;font-size:13px;line-height:1.65}
+
 @media(max-width:760px){.authShell{grid-template-columns:1fr}.authBrand{padding:28px}.authForm{padding:28px}.authBrand h1{font-size:28px}}
 
 /* ===== V23 Personalized Learning Route ===== */
@@ -280,6 +285,28 @@ body{margin:0;font-family:Inter,"Microsoft YaHei",Arial,sans-serif;background:va
         <div id="authMsg" class="authMsg"></div>
         <div class="authMeta">账号必须同时满足：学生状态 ACTIVE、SCORE-A 课程有效、Enrollment 状态 ACTIVE，并且尚未超过 expiry date。</div>
       </div>
+      <div id="authPasswordChange" class="authPasswordChange">
+        <div style="font-size:12px;font-weight:950;color:#b45309;letter-spacing:1px">FIRST LOGIN SECURITY</div>
+        <h2>🔐 请先更改临时 Password</h2>
+        <div class="authPasswordRule">
+          管理员给你的 Password 只是 <b>Temporary Password</b>。为了保护你的学习账号，第一次登录必须先建立自己的新 Password，完成后才能进入课程。
+        </div>
+
+        <label class="formLabel">新 Password</label>
+        <input class="field" id="newStudentPassword" type="password" autocomplete="new-password" placeholder="至少 8 个字符">
+
+        <label class="formLabel">再次输入新 Password</label>
+        <input class="field" id="confirmStudentPassword" type="password" autocomplete="new-password" placeholder="再次输入新 Password">
+
+        <button class="btn" id="changeTempPasswordBtn" style="width:100%" onclick="changeTemporaryPassword()">保存新 Password →</button>
+        <div id="passwordChangeMsg" class="authMsg"></div>
+
+        <div class="authMeta">
+          请不要继续使用管理员发给你的 Temporary Password，也不要把新 Password 分享给其他同学。
+        </div>
+        <button class="btn light" style="width:100%;margin-top:10px" onclick="scoreALogout()">退出并使用其他账号</button>
+      </div>
+
       <div id="authDenied" class="authDenied">
         <div style="font-size:12px;font-weight:950;color:#b45309;letter-spacing:1px">ACCESS STATUS</div>
         <h2 id="authDeniedTitle">暂时无法进入课程</h2>
@@ -2031,8 +2058,8 @@ async function loadParentReflectionJournal(){
 
 function authMessage(text,type='err'){const el=document.getElementById('authMsg');if(!el)return;el.textContent=text;el.className='authMsg show '+type}
 function authLoading(on){document.getElementById('authLoading')?.classList.toggle('show',!!on);const b=document.getElementById('authLoginBtn');if(b)b.disabled=!!on}
-function showLogin(){document.getElementById('authGate').style.display='grid';document.getElementById('scoreApp').style.display='none';document.getElementById('loginBox').style.display='block';document.getElementById('authDenied').classList.remove('show')}
-function showDenied(title,html){document.getElementById('authGate').style.display='grid';document.getElementById('scoreApp').style.display='none';document.getElementById('loginBox').style.display='none';document.getElementById('authDeniedTitle').textContent=title;document.getElementById('authDeniedInfo').innerHTML=html;document.getElementById('authDenied').classList.add('show')}
+function showLogin(){document.getElementById('authGate').style.display='grid';document.getElementById('scoreApp').style.display='none';document.getElementById('loginBox').style.display='block';document.getElementById('authDenied').classList.remove('show');document.getElementById('authPasswordChange')?.classList.remove('show')}
+function showDenied(title,html){document.getElementById('authGate').style.display='grid';document.getElementById('scoreApp').style.display='none';document.getElementById('loginBox').style.display='none';document.getElementById('authPasswordChange')?.classList.remove('show');document.getElementById('authDeniedTitle').textContent=title;document.getElementById('authDeniedInfo').innerHTML=html;document.getElementById('authDenied').classList.add('show')}
 function openScoreA(student,enrollment){document.getElementById('authGate').style.display='none';document.getElementById('scoreApp').style.display='block';const u=document.getElementById('authTopUser');if(u)u.textContent=(student.full_name||student.student_id||'Student')+' · '+(enrollment.expiry_date||'');}
 function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 
@@ -2249,8 +2276,82 @@ async function loadPersonalizedLearning(email,student){
   }
 }
 
+
+function showTemporaryPasswordChange(){
+  document.getElementById('authGate').style.display='grid';
+  document.getElementById('scoreApp').style.display='none';
+  document.getElementById('loginBox').style.display='none';
+  document.getElementById('authDenied')?.classList.remove('show');
+  document.getElementById('authPasswordChange')?.classList.add('show');
+  const msg=document.getElementById('passwordChangeMsg');
+  if(msg){msg.className='authMsg';msg.textContent='';}
+}
+
+async function changeTemporaryPassword(){
+  const p1=document.getElementById('newStudentPassword')?.value||'';
+  const p2=document.getElementById('confirmStudentPassword')?.value||'';
+  const msg=document.getElementById('passwordChangeMsg');
+  const btn=document.getElementById('changeTempPasswordBtn');
+
+  function setMsg(text,type='err'){
+    if(!msg)return;
+    msg.textContent=text;
+    msg.className='authMsg show '+type;
+  }
+
+  if(p1.length<8)return setMsg('新 Password 至少需要 8 个字符。');
+  if(p1!==p2)return setMsg('两次输入的新 Password 不一致。');
+
+  if(btn){btn.disabled=true;btn.textContent='正在更新 Password…';}
+
+  try{
+    const {data,error}=await scoreASupabase.auth.getSession();
+    if(error)throw error;
+    const token=data?.session?.access_token;
+    if(!token)throw new Error('登录状态已过期，请重新登录。');
+
+    const r=await fetch('/api/student-change-temporary-password',{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'Authorization':'Bearer '+token
+      },
+      body:JSON.stringify({
+        new_password:p1,
+        confirm_password:p2
+      })
+    });
+
+    const raw=await r.text();
+    let result;
+    try{result=JSON.parse(raw)}catch{result={error:raw}}
+    if(!r.ok || !result?.ok)throw new Error(result?.error||('HTTP '+r.status));
+
+    setMsg('✓ Password 已成功更改。系统会退出，请使用新 Password 重新登录。','ok');
+
+    document.getElementById('newStudentPassword').value='';
+    document.getElementById('confirmStudentPassword').value='';
+
+    setTimeout(async()=>{
+      sessionStorage.removeItem('scorea_verified');
+      await scoreASupabase.auth.signOut();
+      showLogin();
+      authMessage('Password 已更新。请使用新的 Password 登录。','ok');
+      document.getElementById('authPassword').value='';
+    },900);
+  }catch(err){
+    console.error('Temporary password change failed',err);
+    setMsg('更改失败：'+(err.message||'Unknown error'));
+  }finally{
+    if(btn){btn.disabled=false;btn.textContent='保存新 Password →';}
+  }
+}
+
 async function verifyScoreAAccess(user){
   try{
+    if(user?.app_metadata?.must_change_password===true){
+      return showTemporaryPasswordChange();
+    }
     const {data:student,error:se}=await scoreASupabase.from('students').select('id,user_id,student_id,full_name,grade,status').eq('user_id',user.id).maybeSingle();
     if(se)throw se;
     if(!student)return showDenied('找不到学生资料','这个登录账号尚未连接 Student Profile。请联系管理员建立学生资料。');
