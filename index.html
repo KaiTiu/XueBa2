@@ -86,6 +86,38 @@ body{margin:0;font-family:Inter,"Microsoft YaHei",Arial,sans-serif;background:va
 .cloudSyncNote{font-size:11px;color:#6e7d91;margin-top:8px}
 @media(max-width:720px){.parentReflectGrid{grid-template-columns:1fr}}
 
+.parentDashHero{background:linear-gradient(135deg,#eef4ff 0%,#faf6ff 100%);border:1px solid #dce5f7;border-radius:22px;padding:20px;margin-bottom:14px}
+.parentDashHero .eyebrow{font-size:11px;font-weight:950;letter-spacing:.09em;color:#5665d9}
+.parentDashHero h2{margin:6px 0 7px;color:#10213e;font-size:28px}
+.parentDashHero p{margin:0;color:#65758d;line-height:1.6}
+.parentSummaryGrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:16px}
+.parentSummaryBox{background:#fff;border:1px solid #dfe7f2;border-radius:15px;padding:14px;min-height:88px}
+.parentSummaryBox small{display:block;font-size:11px;font-weight:850;color:#748199;margin-bottom:6px}
+.parentSummaryBox b{display:block;font-size:22px;color:#10213e;line-height:1.2}
+.parentSummaryBox span{display:block;font-size:11px;color:#8793a6;margin-top:5px}
+.parentDashTwo{display:grid;grid-template-columns:1.2fr .8fr;gap:14px;margin:14px 0}
+.parentDashCard{background:#fff;border:1px solid #dfe7f2;border-radius:20px;padding:18px}
+.parentDashCard h3{margin:0 0 7px;color:#132746}
+.parentDashCard .sub{font-size:12px;color:#738097;line-height:1.55;margin-bottom:12px}
+.growthSignal{display:grid;gap:11px}
+.growthSignalRow .top{display:flex;justify-content:space-between;gap:10px;font-size:12px;font-weight:850;color:#273b59;margin-bottom:5px}
+.growthTrack{height:10px;background:#edf1f6;border-radius:999px;overflow:hidden}
+.growthTrack i{display:block;height:100%;background:linear-gradient(90deg,#6d63ed,#477ce8);border-radius:999px;width:0}
+.parentInsightBox{border-radius:15px;padding:13px 14px;margin-top:9px;line-height:1.6}
+.parentInsightBox.good{background:#eefaf4;border:1px solid #cdebdc;color:#1d6049}
+.parentInsightBox.next{background:#fff8e8;border:1px solid #f2dfad;color:#76540d}
+.parentInsightBox.ask{background:#eef4ff;border:1px solid #d6e2fb;color:#294a7b}
+.parentFocusOne{background:#162f5f;color:#fff;border-radius:17px;padding:16px;margin-top:11px}
+.parentFocusOne small{display:block;opacity:.72;font-weight:800;margin-bottom:5px}.parentFocusOne b{font-size:18px;line-height:1.5}
+.parentTrendTags{display:flex;gap:7px;flex-wrap:wrap;margin:8px 0}
+.parentTrendTag{background:#f1f4f9;border:1px solid #dfe6ef;border-radius:999px;padding:7px 10px;font-size:11px;font-weight:850;color:#38506f}
+.parentRecentHead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
+.parentRecentHead small{color:#7a8799}
+.parentTestHidden{font-size:10px;color:#8a95a6;margin-top:8px}
+@media(max-width:900px){.parentSummaryGrid{grid-template-columns:repeat(2,minmax(0,1fr))}.parentDashTwo{grid-template-columns:1fr}}
+@media(max-width:560px){.parentSummaryGrid{grid-template-columns:1fr}.parentDashHero h2{font-size:23px}}
+
+
 
 
 #dailyGate{border:2px solid #d8c9ff;background:linear-gradient(180deg,#fff,#fbf9ff)}
@@ -350,24 +382,61 @@ body{margin:0;font-family:Inter,"Microsoft YaHei",Arial,sans-serif;background:va
 </section>
 
 <section id="parent" class="panel">
-<div class="card">
-<h2>📖 孩子的每日阅读与思考记录</h2>
-<p class="muted">这里不是看孩子“写了多少字”，而是观察：他有没有越来越会发现问题、表达原因，并提出下一步行动。</p>
-<div class="parentReflectGrid">
-  <div class="parentReflectStat"><small>云端思考记录</small><b id="prTotal">0</b></div>
-  <div class="parentReflectStat"><small>本轮完成</small><b id="prCycle">0/30</b></div>
-  <div class="parentReflectStat"><small>最近一次</small><b id="prLatest">—</b></div>
+<div class="parentDashHero">
+  <div class="eyebrow">PARENT DASHBOARD 2.0 · GROWTH, NOT PRESSURE</div>
+  <h2>👨‍👩‍👧 <span id="parentStudentName">孩子</span>的学习成长仪表板</h2>
+  <p>不用每天追问“功课做完了吗？”。这里帮助家长看见：孩子最近有没有行动、在想什么、哪里正在进步，以及下一步怎样陪。</p>
+  <div class="parentSummaryGrid">
+    <div class="parentSummaryBox"><small>过去7天思考</small><b id="pdWeekReflect">0 / 7</b><span>来自每日必读 · 必思考</span></div>
+    <div class="parentSummaryBox"><small>30天挑战进度</small><b id="pdChallenge">0 / 30</b><span>正式学习任务完成度</span></div>
+    <div class="parentSummaryBox"><small>连续学习</small><b id="pdStreak">1 天</b><span>建立稳定行动习惯</span></div>
+    <div class="parentSummaryBox"><small>成长 XP</small><b id="pdXP">0</b><span>只代表参与与训练，不代表成绩</span></div>
+  </div>
 </div>
-<div id="parentReflectionList" class="reflectTimeline">
-  <div class="reflectEmpty">学生完成「今日必读 · 必思考」后，最近的思考记录会显示在这里。</div>
+
+<div class="parentDashTwo">
+  <div class="parentDashCard">
+    <h3>📈 能力成长信号</h3>
+    <div class="sub">这些数值根据实际完成的学习任务累积，用来观察趋势，不用拿来和别人比较。</div>
+    <div class="growthSignal">
+      <div class="growthSignalRow"><div class="top"><span>专注力</span><b id="pdFocus">0%</b></div><div class="growthTrack"><i id="pdFocusBar"></i></div></div>
+      <div class="growthSignalRow"><div class="top"><span>时间管理</span><b id="pdTime">0%</b></div><div class="growthTrack"><i id="pdTimeBar"></i></div></div>
+      <div class="growthSignalRow"><div class="top"><span>自主学习</span><b id="pdLearn">0%</b></div><div class="growthTrack"><i id="pdLearnBar"></i></div></div>
+    </div>
+    <div class="parentInsightBox good"><b>✅ 最近做得好的地方</b><br><span id="pdGood">刚开始建立记录，先观察孩子是否愿意持续行动。</span></div>
+    <div class="parentInsightBox next"><b>🎯 下一步最值得改善</b><br><span id="pdNext">一次只选一个最值得改善的问题，不需要同时要求很多。</span></div>
+  </div>
+
+  <div class="parentDashCard">
+    <h3>🧭 本周家长只做一件事</h3>
+    <div class="sub">不是增加监督，而是选择一个最有帮助的陪伴行动。</div>
+    <div class="parentFocusOne"><small>THIS WEEK</small><b id="pdParentOne">先肯定孩子愿意开始，再讨论结果。</b></div>
+    <div class="parentInsightBox ask"><b>💬 今晚可以这样问</b><br><span id="pdParentQuestion">“这个星期，你觉得自己哪一个地方比以前做得更好了？”</span></div>
+  </div>
 </div>
-<div id="reflectionCloudStatus" class="cloudSyncNote">正在连接学习成长记录…</div>
+
+<div class="parentDashCard" style="margin-bottom:14px">
+  <h3>🔎 系统观察到的学习趋势</h3>
+  <div class="sub">系统只根据孩子自己写下的近期思考整理关键词，不给孩子贴标签。</div>
+  <div id="pdTrendTags" class="parentTrendTags"><span class="parentTrendTag">等待真实思考记录</span></div>
+  <p id="pdTrendText" style="line-height:1.7;margin:8px 0 0;color:#445873">完成几次真实每日思考后，这里会开始显示重复出现的学习主题。</p>
 </div>
+
+<div class="parentDashCard" style="margin-bottom:14px">
+  <div class="parentRecentHead"><div><h3 style="margin:0">📖 最近7条阅读与思考</h3><small>重点不是写很多，而是孩子是否越来越会发现问题 → 说明原因 → 想下一步。</small></div><button class="btn light" onclick="loadParentReflectionJournal()">↻ 更新</button></div>
+  <div id="parentReflectionList" class="reflectTimeline">
+    <div class="reflectEmpty">学生完成「今日必读 · 必思考」后，真实记录会显示在这里。</div>
+  </div>
+  <div id="reflectionCloudStatus" class="cloudSyncNote">正在连接学习成长记录…</div>
+  <div class="parentTestHidden">系统测试记录（Cycle 999 / SYSTEM TEST）会自动隐藏，不会给家长看到。</div>
+</div>
+
 <div class="card">
 <h2>👨‍👩‍👧 家长陪伴指南</h2>
-<p class="muted">以下内容已直接从资料库的「家长陪伴指南」搬到家长进度页面，不需要另外打开。</p>
+<p class="muted">遇到实际问题时再查，不需要一次读完。资料库里另有完整的「家长快速查找」版本。</p>
 <div id="parentGuideInline" class="parentGuideWrap"></div>
-</div><div class="cols"><div class="card"><h2>👨‍👩‍👧 Parent Dashboard</h2><p class="muted">家长看成长，不需要每天追问“功课做完了吗？”</p><div class="stats"><div class="stat"><b id="pd">0/30</b><small>挑战完成</small></div><div class="stat"><b id="px">0</b><small>Total XP</small></div><div class="stat"><b id="ps">1</b><small>连续天数</small></div></div><div class="parentBars"><div class="row"><span>专注力 <b id="pf">20%</b></span><div class="pb"><i id="pbf"></i></div></div><div class="row"><span>时间管理 <b id="pt">20%</b></span><div class="pb"><i id="pbt"></i></div></div><div class="row"><span>自主学习 <b id="pl">20%</b></span><div class="pb"><i id="pbl"></i></div></div></div><div class="notice" style="margin-top:12px"><b>⭐ Total XP 计算：</b> 今日阅读 +10 XP · 时间管理 +15 XP · AI练习 +15 XP · 今日挑战 +60 XP。<br>每天最多 100 XP；能力值会根据实际完成的任务分别成长，不再固定从20%开始。</div></div><div class="card"><h3>💡 今日家长建议</h3><p id="parentInsight">孩子刚开始挑战。建议先关注“有没有开始行动”，而不是只关注分数。</p></div></div></section>
+</div>
+</section>
 </main>
 <div class="unlockPop" id="rewardPop"><div class="unlockInner"><div class="big" id="rewardIcon">🎉</div><h2 id="rewardTitle">MISSION COMPLETE!</h2><p class="muted" id="rewardText">A-BOT 已记录你的成长。</p><button class="btn" onclick="closeReward()">继续冒险 →</button></div></div>
 
@@ -1152,10 +1221,140 @@ const K="scoreAUnified21";let S=JSON.parse(localStorage.getItem(K)||"null")||{da
 if((S.done||[]).length===0 && S.focus===20 && S.time===20 && S.learn===20){S.focus=0;S.time=0;S.learn=0;localStorage.setItem(K,JSON.stringify(S));}
 S.rewarded=S.rewarded||{};
 function save(){localStorage.setItem(K,JSON.stringify(S));render()}
-function show(id,b){document.querySelectorAll(".panel").forEach(x=>x.classList.remove("show"));document.getElementById(id).classList.add("show");document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));if(b)b.classList.add("active");if(id==="parent"){setTimeout(renderParentGuideDirect,0);if(typeof loadParentReflectionJournal==="function")setTimeout(loadParentReflectionJournal,20);}}
+function show(id,b){document.querySelectorAll(".panel").forEach(x=>x.classList.remove("show"));document.getElementById(id).classList.add("show");document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));if(b)b.classList.add("active");if(id==="parent"){setTimeout(renderParentGuideDirect,0);setTimeout(renderParentDashboardLocal,0);if(typeof loadParentReflectionJournal==="function")setTimeout(loadParentReflectionJournal,20);}}
 function getEpisode(day){let base=E[day-1]||E[0];if(CYCLE.cycle<=1)return base;let round=CYCLE.cycle;let opts=[[`等别人提醒我再开始`,`先判断问题并写出一个具体行动`,`把任务留到最后一天`],[`只看做了多久`,`检查结果、错误原因和下一步`,`做完就不再回顾`],[`同时做很多事情`,`一次完成一个明确任务`,`等有心情才学习`]],oi=(day+round)%3;return [`R${round} · EP${String(day).padStart(2,"0")} · 进阶挑战`,base[1]+`｜第 ${round} 轮`,`这是第 ${round} 轮30天成长。请把「${base[1]}」应用到你现在真实的学习，不要只记住上一轮答案。`,`面对今天的新情境，哪一种做法最符合学霸学习方式？`,opts[oi],1,base[6],base[7],base[8]];}
+
+function renderParentDashboardLocal(){
+  const set=(id,val)=>{const el=document.getElementById(id);if(el)el.textContent=val};
+  const width=(id,val)=>{const el=document.getElementById(id);if(el)el.style.width=Math.max(0,Math.min(100,Number(val)||0))+"%"};
+
+  const completed=(S.done||[]).filter(d=>d>=1&&d<=30).length;
+  set("pdChallenge",`${completed} / 30`);
+  set("pdStreak",`${Math.max(1,Number(S.streak)||1)} 天`);
+  set("pdXP",Number(S.xp)||0);
+
+  set("pdFocus",`${Number(S.focus)||0}%`);
+  set("pdTime",`${Number(S.time)||0}%`);
+  set("pdLearn",`${Number(S.learn)||0}%`);
+  width("pdFocusBar",S.focus);
+  width("pdTimeBar",S.time);
+  width("pdLearnBar",S.learn);
+
+  const scores=[
+    ["专注力",Number(S.focus)||0],
+    ["时间管理",Number(S.time)||0],
+    ["自主学习",Number(S.learn)||0]
+  ].sort((a,b)=>b[1]-a[1]);
+
+  const good=document.getElementById("pdGood");
+  if(good){
+    good.textContent=completed===0
+      ?"目前还是起步阶段。先观察孩子是否愿意自己开始、自己完成第一步。"
+      :`${scores[0][0]}目前是相对较明显的成长信号（${scores[0][1]}%）。可以具体肯定这个行为，而不是只称赞“聪明”。`;
+  }
+
+  const next=document.getElementById("pdNext");
+  if(next){
+    next.textContent=completed===0
+      ?"先建立“开始行动”的习惯；不要一开始同时要求成绩、速度、专注和自律全部改善。"
+      :`${scores[2][0]}目前相对需要更多训练（${scores[2][1]}%）。本周只针对这一项做一个小改善。`;
+  }
+
+  const one=document.getElementById("pdParentOne");
+  const q=document.getElementById("pdParentQuestion");
+  if(scores[2][0]==="时间管理"){
+    if(one)one.textContent="和孩子一起确定一个固定开始时间，只提醒一次，完成后再讨论效果。";
+    if(q)q.textContent="“你觉得今天几点开始最容易做到？我们要怎样让开始变得更容易？”";
+  }else if(scores[2][0]==="专注力"){
+    if(one)one.textContent="帮助孩子减少一个最明显的干扰，例如手机、聊天或桌面杂物。";
+    if(q)q.textContent="“你今天学习时，哪一个东西最容易让你分心？你想怎样处理？”";
+  }else{
+    if(one)one.textContent="少给一个答案，多问一个问题，让孩子先提出自己的下一步。";
+    if(q)q.textContent="“如果下一次再遇到同样的问题，你准备先做哪一步？”";
+  }
+
+  const nm=document.getElementById("parentStudentName");
+  const sp=(typeof SCOREA_STUDENT_PROFILE!=="undefined")?SCOREA_STUDENT_PROFILE:null;
+  if(nm && sp){
+    nm.textContent=sp.full_name||sp.student_id||"孩子";
+  }
+}
+
+function parentTrendAnalysis(rows){
+  const real=(rows||[]).filter(r=>Number(r.cycle_number)!==999 && String(r.lesson_type||"").toUpperCase()!=="SYSTEM TEST");
+  const body=real.slice(0,14).map(r=>`${r.lesson_title||""} ${r.lesson_question||""} ${r.reflection_text||""}`).join(" ").toLowerCase();
+
+  const topics=[
+    ["粗心",["粗心","看错","抄错","检查"]],
+    ["时间管理",["时间","来不及","拖延","安排","开始"]],
+    ["专注",["专注","分心","手机","游戏","干扰"]],
+    ["错题与复盘",["错题","错误","做错","订正","复盘"]],
+    ["复习方法",["复习","记忆","feynman","讲出来","自测"]],
+    ["理解问题",["不会","不懂","理解","概念","卡住"]],
+    ["考试策略",["考试","审题","分数","答题","紧张"]],
+    ["主动学习",["主动","计划","目标","自己","下一步"]]
+  ];
+  const ranked=topics.map(([name,words])=>{
+    let score=0;
+    words.forEach(w=>{score+=(body.split(w).length-1)});
+    return [name,score];
+  }).filter(x=>x[1]>0).sort((a,b)=>b[1]-a[1]);
+
+  return {real,ranked};
+}
+
+function renderParentCloudInsights(rows){
+  const {real,ranked}=parentTrendAnalysis(rows);
+  const now=Date.now(),seven=7*24*60*60*1000;
+  const week=real.filter(r=>{
+    const t=new Date(r.completed_at||0).getTime();
+    return Number.isFinite(t) && now-t<=seven && now>=t;
+  });
+
+  const w=document.getElementById("pdWeekReflect");
+  if(w)w.textContent=`${new Set(week.map(r=>`${r.cycle_number}-${r.day_number}`)).size} / 7`;
+
+  const tags=document.getElementById("pdTrendTags");
+  const txt=document.getElementById("pdTrendText");
+  if(tags){
+    tags.innerHTML=ranked.length
+      ?ranked.slice(0,4).map(([name,count])=>`<span class="parentTrendTag">${esc(name)} · ${count}次线索</span>`).join("")
+      :'<span class="parentTrendTag">等待更多真实记录</span>';
+  }
+
+  if(txt){
+    if(!real.length){
+      txt.textContent="目前只有系统测试或还没有真实思考记录。孩子完成几次每日必读与思考后，这里会开始整理趋势。";
+    }else if(!ranked.length){
+      txt.textContent="孩子已经开始留下真实思考，但目前没有明显重复主题。先继续观察，不需要太早下结论。";
+    }else{
+      const top=ranked[0][0],second=ranked[1]?.[0];
+      txt.textContent=`最近的思考里，「${top}」出现得比较多${second?`，其次是「${second}」`:""}。这只是学习线索，不代表孩子被定义成某一种类型。建议本周先围绕一个问题和孩子讨论。`;
+    }
+  }
+
+  const one=document.getElementById("pdParentOne");
+  const q=document.getElementById("pdParentQuestion");
+  const top=ranked[0]?.[0];
+  const actions={
+    "粗心":["这周只练一个检查习惯：做完后用固定顺序检查题号、单位、计算和漏题。","“你觉得自己最近最常是哪一种粗心？下一次准备怎样提醒自己检查？”"],
+    "时间管理":["这周只帮助孩子固定“开始时间”，不要一直催完整个学习过程。","“最近什么时候最容易拖延？我们可以怎样让开始变简单？”"],
+    "专注":["这周一起减少一个最明显的学习干扰，不要同时制定太多规则。","“你学习时最容易被什么打断？你想先处理哪一个？”"],
+    "错题与复盘":["这周只选一类重复错误做订正和重测，不追求刷更多新题。","“这几次错误里面，哪一种最值得你先解决？为什么？”"],
+    "复习方法":["这周让孩子至少一次合上书，用自己的话讲出刚复习的内容。","“如果现在不能看书，你能把今天学的重点讲给我听吗？”"],
+    "理解问题":["这周遇到不会时，先问孩子“卡在哪一步”，不要马上直接给答案。","“你是从哪一步开始不确定的？前面哪一部分你已经会了？”"],
+    "考试策略":["这周只练一个考试动作：审题、时间分配或最后检查，任选一个。","“如果下次考试只改善一个失分原因，你会先选哪一个？”"],
+    "主动学习":["这周把一个决定交给孩子自己做，例如今天先学什么、几点开始或怎样复习。","“今天的学习计划，你想自己决定哪一部分？”"]
+  };
+  if(top && actions[top]){
+    if(one)one.textContent=actions[top][0];
+    if(q)q.textContent=actions[top][1];
+  }
+}
+
 function render(){
   renderAdventure();
+  renderParentDashboardLocal();
   S.day=CYCLE.day;
   let e=getEpisode(CYCLE.day);let enemy=GAME_ENEMIES[(CYCLE.day-1)%GAME_ENEMIES.length];let mf=document.getElementById("monsterFace"),en=document.getElementById("enemyName"),et=document.getElementById("enemyText"),eh=document.getElementById("enemyHp");if(mf)mf.textContent=enemy[0];if(en)en.textContent=enemy[1];if(et)et.textContent=enemy[2];if(eh)eh.style.width=Math.max(12,100-((CYCLE.day-1)%10)*8)+"%";
   let set=(id,val)=>{let x=document.getElementById(id);if(x)x.textContent=val};
@@ -1414,6 +1613,7 @@ async function restoreReflectionHistoryFromCloud(){
   const {data,error}=await scoreASupabase
     .from("scorea_daily_reflections")
     .select("cycle_number,day_number,reflection_text")
+    .neq("cycle_number",999)
     .order("cycle_number",{ascending:true})
     .order("day_number",{ascending:true});
   if(error)throw error;
@@ -1438,30 +1638,23 @@ async function loadParentReflectionJournal(){
     if(status)status.textContent="尚未登录。";
     return;
   }
-  if(status)status.textContent="正在读取云端思考记录…";
+  if(status)status.textContent="正在读取真实学习成长记录…";
   try{
     const {data,error}=await scoreASupabase
       .from("scorea_daily_reflections")
       .select("cycle_number,day_number,lesson_type,lesson_title,lesson_question,reflection_text,completed_at")
+      .neq("cycle_number",999)
+      .neq("lesson_type","SYSTEM TEST")
       .order("completed_at",{ascending:false})
-      .limit(30);
+      .limit(60);
     if(error)throw error;
 
     const rows=data||[];
-    const cur=rows.filter(r=>Number(r.cycle_number)===Number(CYCLE.cycle));
-    const total=document.getElementById("prTotal");
-    const cycle=document.getElementById("prCycle");
-    const latest=document.getElementById("prLatest");
-    if(total)total.textContent=rows.length;
-    if(cycle)cycle.textContent=`${new Set(cur.map(r=>r.day_number)).size}/30`;
-    if(latest){
-      latest.textContent=rows[0]
-        ? `R${rows[0].cycle_number} · D${rows[0].day_number}`
-        : "—";
-    }
+    renderParentDashboardLocal();
+    renderParentCloudInsights(rows);
 
     if(!rows.length){
-      list.innerHTML='<div class="reflectEmpty">还没有云端思考记录。学生完成「今日必读 · 必思考」后会自动出现。</div>';
+      list.innerHTML='<div class="reflectEmpty">目前还没有真实的每日思考记录。SYSTEM TEST 已自动隐藏。学生完成正式课程里的「今日必读 · 必思考」后会出现在这里。</div>';
     }else{
       list.innerHTML=rows.slice(0,7).map(r=>{
         const when=r.completed_at?new Date(r.completed_at).toLocaleDateString("zh-MY",{month:"short",day:"numeric"}):"";
@@ -1473,7 +1666,7 @@ async function loadParentReflectionJournal(){
         </div>`;
       }).join("");
     }
-    if(status)status.textContent="✓ 这里显示最近 7 条；完整记录保存在 Supabase。";
+    if(status)status.textContent=`✓ 已读取 ${rows.length} 条真实成长记录；系统测试记录已隐藏。`;
   }catch(err){
     console.error("Parent reflection journal failed",err);
     list.innerHTML='<div class="reflectEmpty">暂时无法读取云端思考记录；不会影响正式课程使用。</div>';
