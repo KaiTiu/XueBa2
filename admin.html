@@ -37,6 +37,21 @@ input{width:100%;padding:12px 13px;border:1px solid #d8e1ed;border-radius:12px;o
 .sectionTitle{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:10px}
 .hidden{display:none!important}
 .empty{padding:18px;border:1px dashed #ccd6e4;border-radius:14px;color:#728199}
+
+.createStudentCard{margin-top:14px}
+.formGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.formField label{display:block;font-size:12px;font-weight:850;margin:0 0 6px;color:#2a3e5c}
+.formField input,.formField select{width:100%;padding:12px 13px;border:1px solid #d8e1ed;border-radius:12px;background:#fff}
+.formFull{grid-column:1/-1}
+.createActions{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:4px}
+.resultBox{margin-top:12px;padding:14px;border:1px solid #dfe7f2;border-radius:14px;background:#f8fafc;white-space:pre-wrap}
+.resultBox.good{background:#eefaf4;border-color:#cfe9db;color:#165e47}
+.resultBox.bad{background:#fff1f1;border-color:#f0cccc;color:#9f2e2e}
+.planRow{display:flex;gap:8px;flex-wrap:wrap}
+.planChoice{flex:1;min-width:120px;border:1px solid #dbe4f1;border-radius:12px;padding:10px;background:#f9fbff;cursor:pointer;text-align:center;font-weight:850}
+.planChoice input{width:auto;margin-right:5px}
+@media(max-width:650px){.formGrid{grid-template-columns:1fr}.formFull{grid-column:auto}}
+
 @media(max-width:900px){.grid4{grid-template-columns:repeat(2,1fr)}.two{grid-template-columns:1fr}}
 @media(max-width:560px){.grid4{grid-template-columns:1fr}.top{align-items:flex-start;flex-direction:column}}
 </style>
@@ -94,6 +109,61 @@ input{width:100%;padding:12px 13px;border:1px solid #d8e1ed;border-radius:12px;o
       <div id="progressList"><div class="empty">等待读取…</div></div>
     </aside>
   </div>
+
+  <section class="card createStudentCard">
+    <div class="sectionTitle">
+      <div>
+        <h2 style="margin:0">➕ 新增学生</h2>
+        <div class="muted">建立 Auth 账号、Student Profile、student role 和 SCORE-A 课程权限。</div>
+      </div>
+      <span class="pill">STEP 3B</span>
+    </div>
+
+    <div class="formGrid">
+      <div class="formField">
+        <label>学生姓名</label>
+        <input id="newStudentName" placeholder="例如：Lim Wei Jun">
+      </div>
+
+      <div class="formField">
+        <label>年级</label>
+        <input id="newStudentGrade" placeholder="例如：Year 4 / Form 1">
+      </div>
+
+      <div class="formField">
+        <label>学生 Email</label>
+        <input id="newStudentEmail" type="email" placeholder="student@example.com">
+      </div>
+
+      <div class="formField">
+        <label>初始 Password</label>
+        <input id="newStudentPassword" type="text" placeholder="至少 8 个字符">
+      </div>
+
+      <div class="formField">
+        <label>课程开始日期</label>
+        <input id="newStudentStart" type="date">
+      </div>
+
+      <div class="formField">
+        <label>课程期限</label>
+        <div class="planRow">
+          <label class="planChoice"><input type="radio" name="planDays" value="30">30 天</label>
+          <label class="planChoice"><input type="radio" name="planDays" value="180">180 天</label>
+          <label class="planChoice"><input type="radio" name="planDays" value="365" checked>365 天</label>
+        </div>
+      </div>
+
+      <div class="formFull">
+        <div class="createActions">
+          <button class="btn" id="createStudentBtn" onclick="createStudent()">建立学生并开通课程</button>
+          <button class="btn light" onclick="clearCreateStudentForm()">清空</button>
+          <span class="muted">下一位 Student ID 会由系统自动产生，不需要手动填写。</span>
+        </div>
+        <div id="createStudentResult" class="resultBox hidden"></div>
+      </div>
+    </div>
+  </section>
 
   <section class="card" style="margin-top:14px">
     <div class="sectionTitle">
@@ -209,6 +279,118 @@ async function loadDashboard(){
     alert("Admin Dashboard 读取失败："+(err.message||"Unknown error"));
   }
 }
+
+
+function setDefaultStartDate(){
+  const el=$("newStudentStart");
+  if(el && !el.value) el.value=new Date().toISOString().slice(0,10);
+}
+function selectedPlanDays(){
+  const el=document.querySelector('input[name="planDays"]:checked');
+  return Number(el?.value||365);
+}
+function clearCreateStudentForm(){
+  $("newStudentName").value="";
+  $("newStudentGrade").value="";
+  $("newStudentEmail").value="";
+  $("newStudentPassword").value="";
+  setDefaultStartDate();
+  const p=document.querySelector('input[name="planDays"][value="365"]');
+  if(p)p.checked=true;
+  const box=$("createStudentResult");
+  box.className="resultBox hidden";
+  box.textContent="";
+}
+async function createStudent(){
+  const fullName=$("newStudentName").value.trim();
+  const grade=$("newStudentGrade").value.trim();
+  const email=$("newStudentEmail").value.trim().toLowerCase();
+  const password=$("newStudentPassword").value;
+  const startDate=$("newStudentStart").value;
+  const planDays=selectedPlanDays();
+  const btn=$("createStudentBtn");
+  const box=$("createStudentResult");
+
+  if(!fullName || !grade || !email || !password){
+    box.className="resultBox bad";
+    box.textContent="请填写学生姓名、年级、Email 和 Password。";
+    return;
+  }
+  if(password.length<8){
+    box.className="resultBox bad";
+    box.textContent="Password 至少需要 8 个字符。";
+    return;
+  }
+
+  if(!confirm(`确认建立学生：\n${fullName}\n${email}\n${planDays} 天课程？`)) return;
+
+  btn.disabled=true;
+  btn.textContent="正在建立…";
+  box.className="resultBox";
+  box.textContent="正在建立 Auth、Student Profile 和课程权限，请稍候…";
+
+  try{
+    const {data:sessionData,error:sessionError}=await db.auth.getSession();
+    if(sessionError) throw sessionError;
+    const token=sessionData?.session?.access_token;
+    if(!token) throw new Error("Admin session 已过期，请重新登录。");
+
+    const r=await fetch("/api/admin-create-student",{
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json",
+        "Authorization":"Bearer "+token
+      },
+      body:JSON.stringify({
+        full_name:fullName,
+        grade,
+        email,
+        password,
+        start_date:startDate,
+        plan_days:planDays
+      })
+    });
+
+    const raw=await r.text();
+    let result;
+    try{result=JSON.parse(raw)}catch{result={error:raw}}
+    if(!r.ok || !result?.ok){
+      throw Object.assign(new Error(result?.error||`HTTP ${r.status}`),{result});
+    }
+
+    box.className="resultBox good";
+    box.textContent=
+`✓ 学生建立成功
+
+Student ID: ${result.student.student_id}
+姓名: ${result.student.full_name}
+Email: ${result.student.email}
+年级: ${result.student.grade}
+课程: ${result.enrollment.course_code}
+期限: ${result.enrollment.plan_days} 天
+开始: ${result.enrollment.start_date}
+到期: ${result.enrollment.expiry_date}
+状态: ${result.enrollment.status}
+
+请把登录 Email 与 Password 安全地交给学生/家长。`;
+    await loadDashboard();
+
+    // Keep the success details visible, but clear data-entry fields.
+    $("newStudentName").value="";
+    $("newStudentGrade").value="";
+    $("newStudentEmail").value="";
+    $("newStudentPassword").value="";
+    setDefaultStartDate();
+  }catch(err){
+    console.error("Create student failed",err);
+    box.className="resultBox bad";
+    box.textContent="✗ 建立失败\n"+(err.result?.error||err.message||"Unknown error");
+  }finally{
+    btn.disabled=false;
+    btn.textContent="建立学生并开通课程";
+  }
+}
+setDefaultStartDate();
 
 (async()=>{
   const {data}=await db.auth.getUser();
