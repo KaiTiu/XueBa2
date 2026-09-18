@@ -1372,7 +1372,6 @@ function renderParentDashboardLocal(){
 
 function parentTrendAnalysis(rows){
   const real=(rows||[]).filter(r=>Number(r.cycle_number)!==999 && String(r.lesson_type||"").toUpperCase()!=="SYSTEM TEST");
-  const body=real.slice(0,14).map(r=>`${r.lesson_title||""} ${r.lesson_question||""} ${r.reflection_text||""}`).join(" ").toLowerCase();
 
   const topics=[
     ["粗心",["粗心","看错","抄错","检查"]],
@@ -1384,15 +1383,19 @@ function parentTrendAnalysis(rows){
     ["考试策略",["考试","审题","分数","答题","紧张"]],
     ["主动学习",["主动","计划","目标","自己","下一步"]]
   ];
+
+  // Count how many reflection RECORDS mention each theme.
+  // This avoids showing "4 clues" just because one short answer repeats a keyword.
   const ranked=topics.map(([name,words])=>{
-    let score=0;
-    words.forEach(w=>{score+=(body.split(w).length-1)});
-    return [name,score];
+    const matched=real.filter(r=>{
+      const body=`${r.lesson_title||""} ${r.lesson_question||""} ${r.reflection_text||""}`.toLowerCase();
+      return words.some(w=>body.includes(w));
+    });
+    return [name,matched.length];
   }).filter(x=>x[1]>0).sort((a,b)=>b[1]-a[1]);
 
   return {real,ranked};
 }
-
 function renderParentCloudInsights(rows){
   const {real,ranked}=parentTrendAnalysis(rows);
   const now=Date.now(),seven=7*24*60*60*1000;
@@ -1418,14 +1421,19 @@ function renderParentCloudInsights(rows){
     }else if(!ranked.length){
       txt.textContent="孩子已经开始留下真实思考，但目前没有明显重复主题。先继续观察，不需要太早下结论。";
     }else{
-      const top=ranked[0][0],second=ranked[1]?.[0];
-      txt.textContent=`最近的思考里，「${top}」出现得比较多${second?`，其次是「${second}」`:""}。这只是学习线索，不代表孩子被定义成某一种类型。建议本周先围绕一个问题和孩子讨论。`;
+      const top=ranked[0][0],topCount=ranked[0][1],second=ranked[1]?.[0];
+      if(real.length<3 || topCount<2){
+        txt.textContent=`目前真实思考记录还不多，已经出现「${top}」相关线索，但暂时不下结论。建议继续观察至少 3 天，再看是否重复出现。`;
+      }else{
+        txt.textContent=`最近 ${real.length} 条思考里，「${top}」在 ${topCount} 条记录中出现${second?`，其次也出现「${second}」相关内容`:""}。这只是学习线索，不代表孩子被定义成某一种类型。建议本周先围绕一个问题和孩子讨论。`;
+      }
     }
   }
 
   const one=document.getElementById("pdParentOne");
   const q=document.getElementById("pdParentQuestion");
   const top=ranked[0]?.[0];
+  const topCount=ranked[0]?.[1]||0;
   const actions={
     "粗心":["这周只练一个检查习惯：做完后用固定顺序检查题号、单位、计算和漏题。","“你觉得自己最近最常是哪一种粗心？下一次准备怎样提醒自己检查？”"],
     "时间管理":["这周只帮助孩子固定“开始时间”，不要一直催完整个学习过程。","“最近什么时候最容易拖延？我们可以怎样让开始变简单？”"],
@@ -1436,7 +1444,7 @@ function renderParentCloudInsights(rows){
     "考试策略":["这周只练一个考试动作：审题、时间分配或最后检查，任选一个。","“如果下次考试只改善一个失分原因，你会先选哪一个？”"],
     "主动学习":["这周把一个决定交给孩子自己做，例如今天先学什么、几点开始或怎样复习。","“今天的学习计划，你想自己决定哪一部分？”"]
   };
-  if(top && actions[top]){
+  if(top && actions[top] && real.length>=3 && topCount>=2){
     if(one)one.textContent=actions[top][0];
     if(q)q.textContent=actions[top][1];
   }
