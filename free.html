@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HOW TO SCORE A with AI｜Free Learning Growth Center</title>
+<meta name="description" content="Student free diagnostic + 5 starter questions + parent free learning-support diagnostic. 中文 / Bahasa Melayu / English.">
+<style>
+:root{
+  --bg:#f5f7fc;--card:#fff;--text:#15213a;--muted:#6e7b90;--line:#e2e8f2;
+  --blue:#266cff;--purple:#7658f6;--green:#0fa978;--soft:#eef3ff;--orange:#d78020;
+  --shadow:0 18px 55px rgba(28,45,83,.10);--radius:24px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",Arial,sans-serif;background:
+radial-gradient(circle at 10% 0%,rgba(118,88,246,.10),transparent 28%),
+radial-gradient(circle at 100% 0%,rgba(38,108,255,.10),transparent 26%),var(--bg);color:var(--text)}
+button,input,select,textarea{font:inherit} button{cursor:pointer}
+.wrap{max-width:1050px;margin:auto;padding:22px 18px 70px}
+.brand{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:4px 0 18px}
+.brandLeft{display:flex;align-items:center;gap:12px}
+.logo{width:46px;height:46px;border-radius:15px;background:linear-gradient(135deg,var(--blue),var(--purple));display:grid;place-items:center;color:white;font-weight:950;box-shadow:0 10px 25px rgba(58,84,210,.25)}
+.brand b{font-size:18px}.small,.muted{font-size:13px;color:var(--muted)}
+.langSwitch{display:flex;gap:6px;padding:5px;border:1px solid var(--line);border-radius:14px;background:#fff;box-shadow:0 8px 22px rgba(31,55,100,.06)}
+.langBtn{border:0;background:transparent;color:#61708a;padding:8px 10px;border-radius:10px;font-size:12px;font-weight:900}
+.langBtn.active{background:linear-gradient(135deg,var(--blue),var(--purple));color:#fff}
+.card,.hero,.panel{background:rgba(255,255,255,.96);border:1px solid rgba(255,255,255,.85);border-radius:var(--radius);box-shadow:var(--shadow);padding:30px}
+.hero h1{font-size:clamp(31px,6vw,56px);line-height:1.07;margin:8px 0 14px}.hero p{font-size:17px;line-height:1.75;color:#536178}
+.badge{display:inline-flex;align-items:center;gap:7px;padding:8px 12px;border-radius:999px;background:#eef1ff;color:#5359cb;font-size:12px;font-weight:900}
+.routeGrid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:24px}
+.routeCard{border:1.5px solid var(--line);border-radius:21px;padding:22px;background:#fff;text-align:left;transition:.18s;color:var(--text)}
+.routeCard:hover{transform:translateY(-2px);border-color:#abb9ff;box-shadow:0 10px 28px rgba(38,65,115,.08)}
+.routeIcon{font-size:36px}.routeCard h2{font-size:23px;margin:9px 0 6px}.routeCard p{font-size:14px;margin:0 0 16px;color:var(--muted);line-height:1.65}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}.stepMini{background:#f8faff;border:1px solid var(--line);border-radius:14px;padding:12px;text-align:center;font-size:12px;color:var(--muted)}.stepMini b{display:block;color:var(--text);font-size:14px;margin-top:3px}
+.screen{display:none}.screen.active{display:block}.panel{margin-top:18px}
+.btn{border:0;border-radius:14px;padding:14px 18px;font-weight:900;display:inline-flex;align-items:center;justify-content:center;gap:7px;text-decoration:none}
+.btn-primary{background:linear-gradient(135deg,var(--blue),var(--purple));color:#fff;box-shadow:0 11px 24px rgba(65,83,216,.22)}
+.btn-soft{background:#eef2f8;color:#32435f}.btn-green{background:var(--green);color:#fff}.btn-wide{width:100%}.btn:hover{transform:translateY(-1px)}
+.toprow{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.field{margin:14px 0}.field label{display:block;font-size:13px;font-weight:850;color:#4c5b72;margin-bottom:7px}
+input,select,textarea{width:100%;border:1.5px solid var(--line);border-radius:12px;background:#fff;color:var(--text);padding:13px 14px;outline:none}
+textarea{min-height:96px;resize:vertical}input:focus,select:focus,textarea:focus{border-color:#a7b4ff;box-shadow:0 0 0 4px rgba(77,100,240,.08)}
+.profileGrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.progressShell{height:10px;background:#e8edf6;border-radius:999px;overflow:hidden}.progressBar{height:100%;background:linear-gradient(90deg,var(--blue),var(--purple));width:0;transition:.25s}
+.qNum{font-size:12px;font-weight:850;color:var(--muted);margin:8px 0}.question{font-size:clamp(21px,4vw,31px);font-weight:900;line-height:1.4;margin:22px 0}
+.options{display:grid;gap:11px}.option{width:100%;border:1.5px solid var(--line);border-radius:15px;background:#fff;padding:15px 16px;text-align:left;font-weight:780;color:var(--text);display:flex;justify-content:space-between;gap:12px}.option:hover{border-color:#aab7ff;background:#fafbff}.option.selected{border-color:#7888ff;background:#f2f4ff;color:#3347be}.score{width:30px;height:30px;min-width:30px;border-radius:9px;background:#f0f3f9;display:grid;place-items:center;font-size:12px;color:#6d7b90}
+.resultHero{background:linear-gradient(135deg,#eef3ff,#f8f1ff);border:1px solid #dfe4ff;border-radius:20px;padding:22px;margin:18px 0}.resultHero h2{margin:6px 0}.typeLabel{font-size:12px;font-weight:900;color:#5961d7;letter-spacing:.05em}
+.scoreGrid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:15px 0}.scoreCard{text-align:center;border:1px solid var(--line);border-radius:14px;padding:12px 8px;background:#fff}.scoreCard b{font-size:20px;display:block}.scoreCard small{color:var(--muted)}
+.info{border:1px solid var(--line);background:#f9fbfe;border-radius:16px;padding:16px;margin:12px 0;line-height:1.7}.good{background:#effbf6;border-color:#c8eadc}.warn{display:none;background:#fff6e8;border:1px solid #efd9b3;color:#895718;border-radius:13px;padding:12px;margin-top:10px}.warn.show{display:block}
+.challengeWrap{margin-top:20px}.dayTabs{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:14px 0}.dayTab{border:1px solid var(--line);background:#fff;border-radius:13px;padding:11px 8px;font-weight:850;color:#5f6b7d}.dayTab.active{border-color:#a5b0ff;background:#f4f5ff;color:#4050c0}.dayTab.done{background:#edf9f4;border-color:#bfe5d6;color:#087557}.dayTab.locked{opacity:.42;cursor:not-allowed}
+.dayHead{display:flex;gap:13px;align-items:flex-start}.dayNo{width:54px;height:54px;min-width:54px;border-radius:16px;background:linear-gradient(135deg,var(--blue),var(--purple));color:#fff;display:grid;place-items:center;font-weight:950;font-size:18px}.dayHead h2{margin:0 0 6px}.lesson{background:#f8f9ff;border:1px solid #e8eaff;border-radius:17px;padding:18px;margin:18px 0;line-height:1.7}.choices{display:grid;gap:9px}.choice{border:1.5px solid var(--line);border-radius:13px;padding:13px 14px;background:#fff;font-weight:760;cursor:pointer}.choice.selected{border-color:#8b97ff;background:#f3f4ff;color:#3f4dbd}
+.dayResult{display:none;background:#eefbf6;border:1px solid #c7ebde;color:#155b49;border-radius:15px;padding:15px;margin-top:12px;line-height:1.7}.dayResult.show{display:block}
+.finishCard{background:linear-gradient(135deg,#f0f4ff,#faf3ff);border:1px solid #dfe3ff;border-radius:20px;padding:20px;margin-top:18px}
+.parentDims{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin:14px 0}.parentDim{border:1px solid var(--line);border-radius:13px;background:#fff;padding:11px 7px;text-align:center}.parentDim b{display:block;font-size:18px}.parentDim small{color:var(--muted);font-size:11px}
+.familyCompare{background:#fffaf0;border:1px solid #f1deb5;border-radius:16px;padding:16px;margin-top:14px}
+.actionRow{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px}.actionRow .btn{flex:1;min-width:170px}
+.footer{text-align:center;color:#8a95a7;font-size:11px;margin-top:18px}
+@media(max-width:760px){.brand{align-items:flex-start}.langSwitch{flex-shrink:0}.routeGrid,.profileGrid{grid-template-columns:1fr}.steps{grid-template-columns:1fr}.card,.hero,.panel{padding:21px}.scoreGrid,.parentDims{grid-template-columns:repeat(2,1fr)}.dayTabs{overflow-x:auto;grid-template-columns:repeat(5,minmax(75px,1fr))}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand">
+    <div class="brandLeft"><div class="logo">A+</div><div><b>HOW TO SCORE A with AI</b><div class="small" id="brandSub"></div></div></div>
+    <div class="langSwitch">
+      <button class="langBtn active" data-lang="zh" onclick="setLang('zh')">中文</button>
+      <button class="langBtn" data-lang="ms" onclick="setLang('ms')">BM</button>
+      <button class="langBtn" data-lang="en" onclick="setLang('en')">EN</button>
+    </div>
+  </div>
+
+  <section id="home" class="screen active">
+    <div class="hero">
+      <span class="badge" id="homeBadge"></span>
+      <h1 id="homeTitle"></h1>
+      <p id="homeLead"></p>
+      <div class="routeGrid">
+        <button class="routeCard" onclick="openStudentStart()">
+          <div class="routeIcon">🎓</div><h2 id="studentRouteTitle"></h2><p id="studentRouteDesc"></p>
+          <div class="steps">
+            <div class="stepMini"><span>STEP 1</span><b id="studentStep1"></b></div>
+            <div class="stepMini"><span>STEP 2</span><b id="studentStep2"></b></div>
+            <div class="stepMini"><span>RESULT</span><b id="studentStep3"></b></div>
+          </div>
+        </button>
+        <button class="routeCard" onclick="openParentStart()">
+          <div class="routeIcon">👨‍👩‍👧</div><h2 id="parentRouteTitle"></h2><p id="parentRouteDesc"></p>
+          <div class="steps">
+            <div class="stepMini"><span>15</span><b id="parentStep1"></b></div>
+            <div class="stepMini"><span>5</span><b id="parentStep2"></b></div>
+            <div class="stepMini"><span>NEXT</span><b id="parentStep3"></b></div>
+          </div>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <section id="studentStart" class="screen"><div class="panel">
+    <div class="toprow"><button class="btn btn-soft" onclick="goHome()" id="studentBackHome"></button><span class="badge" id="studentFreeBadge"></span></div>
+    <h2 id="studentStartTitle"></h2><p class="muted" id="studentStartLead"></p>
+    <div class="profileGrid">
+      <div class="field"><label id="studentNameLabel"></label><input id="studentName"></div>
+      <div class="field"><label id="studentGradeLabel"></label><select id="studentGrade"></select></div>
+    </div>
+    <div class="field"><label>Email</label><input id="studentEmail" type="email" placeholder="name@example.com"></div>
+    <div id="studentProfileWarn" class="warn"></div>
+    <button class="btn btn-primary btn-wide" onclick="startStudentDiagnostic()" id="studentStartBtn"></button>
+    <div class="info" style="margin-top:14px" id="studentPrivacy"></div>
+  </div></section>
+
+  <section id="studentQuiz" class="screen"><div class="panel">
+    <div class="toprow"><div><b id="studentQuizTitle"></b><div class="qNum" id="studentQNum"></div></div><button class="btn btn-soft" onclick="goHome()" id="studentExitBtn"></button></div>
+    <div class="progressShell"><div class="progressBar" id="studentProgress"></div></div>
+    <div class="question" id="studentQuestion"></div>
+    <div class="options" id="studentOptions"></div>
+    <button id="studentBackBtn" class="btn btn-soft" style="margin-top:14px" onclick="studentBack()"></button>
+  </div></section>
+
+  <section id="studentResult" class="screen"><div class="panel">
+    <span class="badge" id="studentResultBadge"></span><h2 id="studentResultHeading"></h2>
+    <div class="resultHero"><div class="typeLabel" id="studentPriorityLabel"></div><h2 id="studentPrimaryTitle"></h2><p id="studentPrimaryDesc"></p><div class="info" id="studentSecondary"></div></div>
+    <div class="scoreGrid" id="studentScoreGrid"></div>
+    <div class="info"><b id="studentSymptomsTitle"></b><div id="studentSymptoms" style="margin-top:7px"></div></div>
+    <div class="info good"><b id="studentActionTitle"></b><div id="studentAction" style="margin-top:7px"></div></div>
+    <div id="studentSyncStatus" class="small"></div>
+    <div class="finishCard"><h3 id="studentNextTitle"></h3><p class="muted" id="studentNextLead"></p><button class="btn btn-primary btn-wide" onclick="openStarter()" id="studentNextBtn"></button></div>
+  </div></section>
+
+  <section id="starter" class="screen">
+    <div class="panel">
+      <div class="toprow"><div><span class="badge" id="starterBadge"></span><div class="small" id="starterProgressText"></div></div><button class="btn btn-soft" onclick="goHome()" id="starterExitBtn"></button></div>
+      <div class="progressShell"><div class="progressBar" id="starterProgress"></div></div>
+      <div id="starterDiagnosticBanner" class="lesson"></div>
+      <div class="dayTabs" id="starterTabs"></div>
+      <button class="btn btn-primary btn-wide" onclick="openCurrentStarter()" id="starterContinueBtn"></button>
+    </div>
+    <div class="panel" id="starterPanel"></div>
+  </section>
+
+  <section id="parentStart" class="screen"><div class="panel">
+    <div class="toprow"><button class="btn btn-soft" onclick="goHome()" id="parentBackHome"></button><span class="badge" id="parentFreeBadge"></span></div>
+    <h2 id="parentStartTitle"></h2><p class="muted" id="parentStartLead"></p>
+    <div class="profileGrid">
+      <div class="field"><label id="parentNameLabel"></label><input id="parentName"></div>
+      <div class="field"><label id="parentChildNameLabel"></label><input id="parentChildName"></div>
+      <div class="field"><label id="parentGradeLabel"></label><select id="parentChildGrade"></select></div>
+      <div class="field"><label id="parentEmailLabel"></label><input id="parentEmail" type="email" placeholder="name@example.com"></div>
+    </div>
+    <div id="parentProfileWarn" class="warn"></div>
+    <button class="btn btn-primary btn-wide" onclick="startParentQuiz()" id="parentStartBtn"></button>
+    <div class="info" style="margin-top:14px" id="parentPrivacy"></div>
+  </div></section>
+
+  <section id="parentQuiz" class="screen"><div class="panel">
+    <div class="toprow"><div><b id="parentQuizTitle"></b><div class="qNum" id="parentQNum"></div></div><button class="btn btn-soft" onclick="goHome()" id="parentExitBtn"></button></div>
+    <div class="progressShell"><div class="progressBar" id="parentProgress"></div></div>
+    <div class="question" id="parentQuestion"></div>
+    <div class="options" id="parentOptions"></div>
+    <button id="parentBackBtn" class="btn btn-soft" style="margin-top:14px" onclick="parentBack()"></button>
+  </div></section>
+
+  <section id="parentResult" class="screen"><div class="panel">
+    <span class="badge" id="parentResultBadge"></span><h2 id="parentResultHeading"></h2>
+    <div class="resultHero"><div class="typeLabel" id="parentPriorityLabel"></div><h2 id="parentPrimaryTitle"></h2><p id="parentPrimaryDesc"></p><div class="info" id="parentSecondary"></div></div>
+    <div class="parentDims" id="parentScoreGrid"></div>
+    <div class="info"><b id="parentSymptomsTitle"></b><div id="parentSymptoms" style="margin-top:7px"></div></div>
+    <div class="info good"><b id="parentActionTitle"></b><div id="parentAction" style="margin-top:7px"></div></div>
+    <div id="familyCompare" class="familyCompare" style="display:none"></div>
+    <div class="actionRow">
+      <button class="btn btn-primary" onclick="copyParentResult()" id="parentCopyBtn"></button>
+      <button class="btn btn-soft" onclick="shareParentWhatsApp()" id="parentShareBtn"></button>
+      <button class="btn btn-green" onclick="openStudentStart()" id="parentStudentBtn"></button>
+    </div>
+    <p class="small" style="margin-top:14px" id="parentResultNote"></p>
+  </div></section>
+
+  <div class="footer">HOW TO SCORE A with AI · Free Learning Growth Center</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SCOREA_SUPABASE_URL="https://htzkjfztqqsbzxahxfnt.supabase.co";
+const SCOREA_SUPABASE_PUBLISHABLE_KEY="sb_publishable_-2O1fEqOGCQPSiMGQVSFrQ_bC3hf4WM";
+const scoreASupabase=window.supabase.createClient(SCOREA_SUPABASE_URL,SCOREA_SUPABASE_PUBLISHABLE_KEY);
+const IDENTITY_KEY="scorea_free_identity_v1",DIAGNOSTIC_KEY="scorea_free_diagnostic_v1",STARTER_KEY="htsa_5day_challenge_v1",PARENT_KEY="scorea_parent_free_diagnostic_v1",LANG_KEY="scorea_free_language_v1";
+let LANG=localStorage.getItem(LANG_KEY)||"zh";
+
+const I18N={
+zh:{
+ brandSub:"免费学习成长中心",
+ homeBadge:"✓ 免费 · 无需密码 · 即时结果",homeTitle:"先找对问题，<br>再开始改变。",homeLead:"学生和家长从同一个入口开始。学生找出真正影响学习的问题；家长看见自己最需要调整的陪伴方式。免费阶段完成后，再决定是否进入完整 365 天学习系统。",
+ studentRouteTitle:"我是学生",studentRouteDesc:"一次完成「3分钟学习能力诊断 → 5个学霸启动问题」，结果自动衔接同一个学习档案。",studentStep1:"15题诊断",studentStep2:"5个启动问题",studentStep3:"30天方向",
+ parentRouteTitle:"我是家长",parentRouteDesc:"免费 3 分钟「家庭学习支持诊断」，找出沟通、时间、自主学习、考试支持与 AI 使用中最值得先改善的一项。",parentStep1:"家庭观察",parentStep2:"5维度分析",parentStep3:"一个小行动",
+ back:"← 返回",exit:"退出",studentFreeBadge:"学生免费体验",studentStartTitle:"Step 1｜3分钟学习能力诊断",studentStartLead:"先建立同一个免费学习档案。之后的诊断、5个启动问题和正式课程都可以用相同 Email 衔接。",
+ studentNameLabel:"学生姓名",studentGradeLabel:"年级",choose:"请选择",studentWarn:"请填写姓名、年级和正确的 Email。",studentStartBtn:"开始学生免费体验 →",studentPrivacy:"隐私说明：这不是医疗、心理或智力测验。学生诊断与 5 个启动问题会沿用现有 HOW TO SCORE A Supabase 学习档案。",
+ studentQuizTitle:"Step 1｜学习能力诊断",prev:"← 上一题",studentResultBadge:"Step 1 完成 ✓",studentResultHeading:"你的学习分析结果",priority:"目前最需要优先改善",second:"第二改善方向：",symptoms:"你可能会出现这些情况",todayAction:"今天先做这一个小行动",
+ sync:"正在建立学习档案…",syncOK:"✓ 诊断结果已保存到 HOW TO SCORE A 学习档案。",syncFail:"⚠ 结果已保存在此装置，但暂时未能同步云端。",
+ studentNextTitle:"Step 2｜继续完成 5 个学霸启动问题",studentNextLead:"不用打开另一个网页。你的诊断结果会直接带入下一步。",studentNextBtn:"继续 5 个启动问题 →",
+ starterBadge:"Step 2｜5个学霸启动问题",progress:n=>`进度：${n} / 5 个问题完成`,questionTab:n=>`问题 ${n}`,starterContinue:"继续当前问题 →",
+ starterBanner:(name,a,b)=>`<b>${name}，系统已经带入你的诊断。</b><br>主要改善：<b>${a}</b>；第二方向：<b>${b}</b>。`,starterNoDiag:"<b>尚未找到学生诊断。</b> 你仍可以体验，但建议先完成 Step 1。",
+ core:"今天的核心：",complete:"完成",saved:"✅ 已完成。",fillAll:"请把资料填完整。",
+ parentFreeBadge:"家长免费测试",parentStartTitle:"3分钟｜家庭学习支持诊断",parentStartLead:"不是判断“好不好”的家长，而是帮助你找到：现在最值得先调整的一种陪伴方式。",
+ parentNameLabel:"家长称呼",parentChildNameLabel:"孩子姓名",parentGradeLabel:"孩子年级",parentEmailLabel:"家长 Email（用于保存本机记录）",parentWarn:"请填写家长称呼、孩子姓名、年级和正确 Email。",parentStartBtn:"开始家长免费测试 →",parentPrivacy:"家长测试目前只保存在这个浏览器，不会写入学生现有 Supabase 表，避免混淆学生数据。",
+ parentQuizTitle:"家庭学习支持诊断",parentResultBadge:"家长测试完成 ✓",parentResultHeading:"你的家庭学习支持分析",parentPriority:"现在最值得先改善",parentSymptomsTitle:"这种情况可能会出现",parentActionTitle:"今天先做这一个小行动",
+ parentCopy:"复制家长结果",parentShare:"分享到 WhatsApp",parentStudent:"让孩子做学生免费体验 →",parentNote:"建议：不要一次改变全部。先选一个家庭行为，连续做 7 天，再观察孩子的反应。",
+ options:["几乎没有","偶尔","经常","非常明显"],
+ labels:{A:"基础理解",B:"学习方法",C:"时间管理",D:"考试策略",E:"自主学习"},
+ parentLabels:{A:"沟通",B:"时间环境",C:"自主学习",D:"考试支持",E:"AI 使用"},
+ grades:["Year 1 / 一年级","Year 2 / 二年级","Year 3 / 三年级","Year 4 / 四年级","Year 5 / 五年级","Year 6 / 六年级","Form 1 / 中一","Form 2 / 中二","Form 3 / 中三","Form 4 / 中四","Form 5 / 中五","其他"]
+},
+ms:{
+ brandSub:"Pusat Pertumbuhan Pembelajaran Percuma",
+ homeBadge:"✓ Percuma · Tanpa kata laluan · Keputusan serta-merta",homeTitle:"Kenal pasti masalah yang betul,<br>kemudian mula berubah.",homeLead:"Pelajar dan ibu bapa bermula dari satu pintu masuk. Pelajar mengenal pasti masalah sebenar yang menjejaskan pembelajaran; ibu bapa melihat cara sokongan yang paling perlu diperbaiki. Selepas fasa percuma, barulah tentukan sama ada mahu meneruskan ke sistem pembelajaran 365 hari.",
+ studentRouteTitle:"Saya Pelajar",studentRouteDesc:"Lengkapkan Diagnosis Keupayaan Belajar 3 Minit → 5 Soalan Permulaan Pelajar Cemerlang dalam satu aliran. Semua keputusan disambungkan kepada profil pembelajaran yang sama.",studentStep1:"Diagnosis 15 soalan",studentStep2:"5 soalan permulaan",studentStep3:"Arah 30 hari",
+ parentRouteTitle:"Saya Ibu Bapa",parentRouteDesc:"Diagnosis Sokongan Pembelajaran Keluarga 3 minit untuk mengenal pasti perkara utama yang perlu dibaiki dalam komunikasi, masa, pembelajaran kendiri, sokongan peperiksaan dan penggunaan AI.",parentStep1:"Pemerhatian keluarga",parentStep2:"Analisis 5 dimensi",parentStep3:"Satu tindakan kecil",
+ back:"← Kembali",exit:"Keluar",studentFreeBadge:"Pengalaman Percuma Pelajar",studentStartTitle:"Langkah 1｜Diagnosis Keupayaan Belajar 3 Minit",studentStartLead:"Bina satu profil pembelajaran percuma. Diagnosis, 5 soalan permulaan dan kursus rasmi boleh disambungkan menggunakan Email yang sama.",
+ studentNameLabel:"Nama pelajar",studentGradeLabel:"Tahun / Tingkatan",choose:"Sila pilih",studentWarn:"Sila isi nama, tahun/tingkatan dan Email yang betul.",studentStartBtn:"Mula Pengalaman Percuma →",studentPrivacy:"Privasi: Ini bukan ujian perubatan, psikologi atau kecerdasan. Diagnosis pelajar dan 5 soalan permulaan menggunakan profil pembelajaran HOW TO SCORE A sedia ada di Supabase.",
+ studentQuizTitle:"Langkah 1｜Diagnosis Keupayaan Belajar",prev:"← Soalan sebelumnya",studentResultBadge:"Langkah 1 Selesai ✓",studentResultHeading:"Analisis Pembelajaran Anda",priority:"Keutamaan utama untuk diperbaiki",second:"Arah kedua：",symptoms:"Anda mungkin mengalami keadaan ini",todayAction:"Mulakan dengan satu tindakan kecil hari ini",
+ sync:"Sedang membina profil pembelajaran…",syncOK:"✓ Keputusan diagnosis telah disimpan ke profil HOW TO SCORE A.",syncFail:"⚠ Keputusan disimpan pada peranti ini tetapi belum berjaya diselaraskan ke awan.",
+ studentNextTitle:"Langkah 2｜Teruskan 5 Soalan Permulaan",studentNextLead:"Tidak perlu buka laman lain. Keputusan diagnosis anda dibawa terus ke langkah seterusnya.",studentNextBtn:"Teruskan 5 Soalan Permulaan →",
+ starterBadge:"Langkah 2｜5 Soalan Permulaan Pelajar Cemerlang",progress:n=>`Kemajuan: ${n} / 5 soalan selesai`,questionTab:n=>`Soalan ${n}`,starterContinue:"Teruskan Soalan Semasa →",
+ starterBanner:(name,a,b)=>`<b>${name}, sistem telah membawa masuk keputusan diagnosis anda.</b><br>Keutamaan utama: <b>${a}</b>; arah kedua: <b>${b}</b>.`,starterNoDiag:"<b>Diagnosis pelajar belum ditemui.</b> Anda masih boleh mencuba, tetapi disyorkan melengkapkan Langkah 1 dahulu.",
+ core:"Fokus hari ini：",complete:"Selesai",saved:"✅ Telah selesai.",fillAll:"Sila lengkapkan semua maklumat.",
+ parentFreeBadge:"Ujian Percuma Ibu Bapa",parentStartTitle:"3 Minit｜Diagnosis Sokongan Pembelajaran Keluarga",parentStartLead:"Ini bukan untuk menilai sama ada anda 'ibu bapa yang baik atau tidak'. Tujuannya ialah mencari satu cara sokongan yang paling berbaloi untuk diperbaiki sekarang.",
+ parentNameLabel:"Nama / panggilan ibu bapa",parentChildNameLabel:"Nama anak",parentGradeLabel:"Tahun / Tingkatan anak",parentEmailLabel:"Email ibu bapa (untuk simpan rekod pada peranti)",parentWarn:"Sila isi nama ibu bapa, nama anak, tahun/tingkatan dan Email yang betul.",parentStartBtn:"Mula Ujian Percuma Ibu Bapa →",parentPrivacy:"Ujian ibu bapa V1 hanya disimpan dalam pelayar ini dan tidak dimasukkan ke jadual Supabase pelajar supaya data ibu bapa dan pelajar tidak bercampur.",
+ parentQuizTitle:"Diagnosis Sokongan Pembelajaran Keluarga",parentResultBadge:"Ujian Ibu Bapa Selesai ✓",parentResultHeading:"Analisis Sokongan Pembelajaran Keluarga",parentPriority:"Keutamaan utama untuk diperbaiki",parentSymptomsTitle:"Keadaan yang mungkin berlaku",parentActionTitle:"Mulakan dengan satu tindakan hari ini",
+ parentCopy:"Salin Keputusan",parentShare:"Kongsi ke WhatsApp",parentStudent:"Minta anak cuba pengalaman percuma →",parentNote:"Cadangan: Jangan ubah semuanya sekali gus. Pilih satu tingkah laku keluarga, amalkan 7 hari, kemudian perhatikan perubahan.",
+ options:["Hampir tidak pernah","Kadang-kadang","Kerap","Sangat ketara"],
+ labels:{A:"Kefahaman Asas",B:"Kaedah Belajar",C:"Pengurusan Masa",D:"Strategi Peperiksaan",E:"Pembelajaran Kendiri"},
+ parentLabels:{A:"Komunikasi",B:"Masa & Persekitaran",C:"Pembelajaran Kendiri",D:"Sokongan Peperiksaan",E:"Penggunaan AI"},
+ grades:["Tahun 1","Tahun 2","Tahun 3","Tahun 4","Tahun 5","Tahun 6","Tingkatan 1","Tingkatan 2","Tingkatan 3","Tingkatan 4","Tingkatan 5","Lain-lain"]
+},
+en:{
+ brandSub:"Free Learning Growth Center",
+ homeBadge:"✓ Free · No password · Instant results",homeTitle:"Find the right problem first,<br>then start changing.",homeLead:"Students and parents begin from one entry point. Students identify the real learning problems holding them back; parents see which support approach is most worth improving. After the free stage, you can decide whether to continue into the full 365-day learning system.",
+ studentRouteTitle:"I’m a Student",studentRouteDesc:"Complete the 3-Minute Learning Ability Diagnostic → 5 Top-Student Starter Questions in one flow. Results connect to the same learning profile.",studentStep1:"15-question diagnostic",studentStep2:"5 starter questions",studentStep3:"30-day direction",
+ parentRouteTitle:"I’m a Parent",parentRouteDesc:"A free 3-minute Family Learning Support Diagnostic covering communication, time, independent learning, exam support and AI use.",parentStep1:"Family observation",parentStep2:"5-dimension analysis",parentStep3:"One small action",
+ back:"← Back",exit:"Exit",studentFreeBadge:"Student Free Experience",studentStartTitle:"Step 1｜3-Minute Learning Ability Diagnostic",studentStartLead:"Create one free learning profile. Your diagnostic, 5 starter questions and formal course can all connect through the same Email.",
+ studentNameLabel:"Student name",studentGradeLabel:"Year / Form",choose:"Please select",studentWarn:"Please enter the student name, year/form and a valid Email.",studentStartBtn:"Start Student Free Experience →",studentPrivacy:"Privacy: This is not a medical, psychological or intelligence test. The student diagnostic and 5 starter questions use the existing HOW TO SCORE A Supabase learning profile.",
+ studentQuizTitle:"Step 1｜Learning Ability Diagnostic",prev:"← Previous question",studentResultBadge:"Step 1 Complete ✓",studentResultHeading:"Your Learning Analysis",priority:"Highest-priority improvement area",second:"Second improvement area: ",symptoms:"You may notice these patterns",todayAction:"Start with this one small action today",
+ sync:"Building your learning profile…",syncOK:"✓ Diagnostic results saved to your HOW TO SCORE A learning profile.",syncFail:"⚠ Results are saved on this device but could not sync to the cloud yet.",
+ studentNextTitle:"Step 2｜Continue with 5 Starter Questions",studentNextLead:"No need to open another page. Your diagnostic result carries directly into the next step.",studentNextBtn:"Continue 5 Starter Questions →",
+ starterBadge:"Step 2｜5 Top-Student Starter Questions",progress:n=>`Progress: ${n} / 5 questions completed`,questionTab:n=>`Question ${n}`,starterContinue:"Continue Current Question →",
+ starterBanner:(name,a,b)=>`<b>${name}, the system has loaded your diagnostic.</b><br>Main improvement area: <b>${a}</b>; second area: <b>${b}</b>.`,starterNoDiag:"<b>No student diagnostic was found.</b> You can still try the experience, but completing Step 1 first is recommended.",
+ core:"Today’s core idea: ",complete:"Complete",saved:"✅ Completed.",fillAll:"Please complete all fields.",
+ parentFreeBadge:"Parent Free Test",parentStartTitle:"3 Minutes｜Family Learning Support Diagnostic",parentStartLead:"This is not a test of whether you are a “good parent.” It helps you identify one support behaviour that is most worth adjusting now.",
+ parentNameLabel:"Parent name / preferred name",parentChildNameLabel:"Child’s name",parentGradeLabel:"Child’s Year / Form",parentEmailLabel:"Parent Email (for saving this device’s record)",parentWarn:"Please enter the parent name, child name, year/form and a valid Email.",parentStartBtn:"Start Parent Free Test →",parentPrivacy:"The parent test is currently stored only in this browser and is not written into the existing student Supabase tables, keeping parent and student data separate.",
+ parentQuizTitle:"Family Learning Support Diagnostic",parentResultBadge:"Parent Test Complete ✓",parentResultHeading:"Your Family Learning Support Analysis",parentPriority:"Highest-priority improvement area",parentSymptomsTitle:"You may notice these patterns",parentActionTitle:"Start with this one action today",
+ parentCopy:"Copy Parent Result",parentShare:"Share to WhatsApp",parentStudent:"Let your child try the student free experience →",parentNote:"Recommendation: Do not change everything at once. Choose one family behaviour, practise it for 7 days, then observe the response.",
+ options:["Almost never","Sometimes","Often","Very noticeable"],
+ labels:{A:"Foundation Understanding",B:"Learning Method",C:"Time Management",D:"Exam Strategy",E:"Independent Learning"},
+ parentLabels:{A:"Communication",B:"Time & Environment",C:"Independent Learning",D:"Exam Support",E:"AI Use"},
+ grades:["Year 1","Year 2","Year 3","Year 4","Year 5","Year 6","Form 1","Form 2","Form 3","Form 4","Form 5","Other"]
+}
+};
+
+const STUDENT_Q={
+zh:[
+["A","我遇到新的知识点时，经常需要别人重复讲很多次才真正明白。"],["A","题目稍微换一种问法，我就容易不知道应该怎样回答。"],["A","学完一个章节后，过几天我很容易忘记重点内容。"],
+["B","我的“复习”主要是重复看课本、笔记或答案，很少自己测试是否真的会。"],["B","做错题后，我通常只是看正确答案，没有认真找出自己为什么会错。"],["B","我有时读了很久，却说不清楚自己今天到底学会了什么。"],
+["C","我经常到了考试前才开始集中温习。"],["C","写功课或复习时，我很容易被手机、游戏、YouTube或其他事情打断。"],["C","即使知道今天应该学习什么，我还是常常拖延，最后没有按照计划完成。"],
+["D","平时会做的题，我考试时还是常常因为粗心、看错题或漏步骤而失分。"],["D","考试时我不太会分配时间，容易在某些题目花太久。"],["D","考试前或考试过程中，我容易紧张，影响原本会做的题。"],
+["E","如果父母或老师没有提醒，我通常不会主动开始复习或学习。"],["E","遇到不会的题目时，我容易马上问别人或AI，而不是先尝试自己思考。"],["E","我不太清楚自己目前最弱在哪里，也不知道下一步应该怎样改善。"]],
+ms:[
+["A","Apabila saya belajar topik baharu, saya sering perlu mendengar penerangan berulang kali sebelum benar-benar faham."],["A","Apabila soalan diubah sedikit, saya mudah tidak tahu cara menjawabnya."],["A","Beberapa hari selepas belajar satu bab, saya mudah lupa isi penting."],
+["B","Ulang kaji saya kebanyakannya membaca semula buku, nota atau jawapan dan jarang menguji diri sendiri."],["B","Selepas salah menjawab soalan, saya biasanya hanya melihat jawapan betul tanpa mencari sebab sebenar saya salah."],["B","Kadang-kadang saya belajar lama tetapi sukar menerangkan apa yang sebenarnya saya pelajari."],
+["C","Saya sering mula mengulang kaji dengan serius hanya apabila peperiksaan sudah hampir."],["C","Semasa membuat kerja sekolah atau ulang kaji, saya mudah terganggu oleh telefon, permainan, YouTube atau perkara lain."],["C","Walaupun saya tahu apa yang patut dipelajari, saya sering menangguh dan tidak menyelesaikan rancangan."],
+["D","Soalan yang biasanya saya boleh buat masih boleh hilang markah dalam peperiksaan kerana cuai, salah baca atau tertinggal langkah."],["D","Saya sukar mengagihkan masa dalam peperiksaan dan kadang-kadang menghabiskan terlalu lama pada soalan tertentu."],["D","Saya mudah gementar sebelum atau semasa peperiksaan sehingga menjejaskan soalan yang sebenarnya saya tahu."],
+["E","Jika ibu bapa atau guru tidak mengingatkan saya, saya biasanya tidak akan mula mengulang kaji sendiri."],["E","Apabila saya tidak tahu sesuatu soalan, saya cenderung terus bertanya orang lain atau AI sebelum cuba berfikir sendiri."],["E","Saya tidak begitu jelas tentang kelemahan utama saya atau apa langkah seterusnya untuk memperbaikinya."]],
+en:[
+["A","When I learn a new concept, I often need it explained many times before I truly understand it."],["A","If a question is phrased a little differently, I can easily become unsure how to answer it."],["A","A few days after finishing a chapter, I often forget the key ideas."],
+["B","My revision is mostly rereading textbooks, notes or answers, with little self-testing."],["B","After getting a question wrong, I usually look at the correct answer without analysing why I made the mistake."],["B","Sometimes I study for a long time but cannot clearly explain what I actually learned."],
+["C","I often begin serious revision only when exams are close."],["C","While doing homework or revision, I am easily distracted by my phone, games, YouTube or other things."],["C","Even when I know what I should study, I often procrastinate and fail to complete the plan."],
+["D","Questions I normally know can still lose marks in exams because of carelessness, misreading or missing steps."],["D","I struggle to manage time in exams and may spend too long on certain questions."],["D","I get nervous before or during exams and it affects questions I normally know how to do."],
+["E","If parents or teachers do not remind me, I usually do not start revision on my own."],["E","When I cannot solve a question, I tend to ask someone or AI immediately instead of thinking first."],["E","I am not very clear about my biggest learning weakness or what I should improve next."]]
+};
+
+const STUDENT_TYPES={
+zh:{
+A:["A型｜基础理解薄弱型","基础理解","先加强真正理解知识的能力。不是做更多题，而是确认自己是否真的明白概念。","老师讲过但换题就不会、记得答案却不懂为什么、学过几天后很快忘记。","今天学完一个知识点后，把书合起来，用自己的话解释：它是什么？为什么？可以举一个例子吗？"],
+B:["B型｜学习方法需要升级型","学习方法","你可能花了不少时间，但方法未必有效。重点是主动回忆、测试和错题分析。","一直看书却记不牢、读很久不知道学会什么、做错题只看答案。","今天做 3–5 题小测试，不看答案先作答，再找出一个真正不会的问题。"],
+C:["C型｜时间管理失衡型","时间管理","最大的阻力可能不是能力，而是开始太迟、任务不清楚和容易被打断。","临近考试才读、一直拖延、手机游戏打断、计划很多但完成很少。","把“今晚读书”改成：7:30–7:55 数学，完成 5 题并检查一次。"],
+D:["D型｜考试失分型","考试策略","平时不一定不会，但考试时容易把会做的分数丢掉。","粗心、看错题、漏步骤、时间不够、会做却丢分、考试紧张。","从下一次练习开始，每个错题标记：粗心 / 不会 / 步骤 / 概念 / 时间。"],
+E:["E型｜自主学习不足型","自主学习","比较依赖别人提醒、安排或直接给答案，需要建立自己的学习判断。","不提醒就不开始、不会题马上问人或AI、不知道自己弱点在哪里。","学习前先写：我要完成什么？为什么先做这个？完成后怎样知道自己真的会了？"]},
+ms:{
+A:["Jenis A｜Kefahaman Asas Lemah","Kefahaman Asas","Utamakan kefahaman sebenar, bukan sekadar membuat lebih banyak soalan. Pastikan anda memahami konsep, bukan hanya mengingati jawapan.","Soalan berubah sedikit lalu tidak tahu menjawab, ingat jawapan tetapi tidak faham sebab, cepat lupa selepas beberapa hari.","Selepas belajar satu konsep hari ini, tutup buku dan terangkan dengan kata-kata sendiri: Apa konsep ini? Mengapa? Boleh beri satu contoh?"],
+B:["Jenis B｜Kaedah Belajar Perlu Dipertingkatkan","Kaedah Belajar","Anda mungkin sudah meluangkan banyak masa tetapi kaedahnya belum cukup berkesan. Fokus pada active recall, ujian kendiri dan analisis kesilapan.","Banyak membaca tetapi sukar ingat, belajar lama tetapi tidak tahu apa yang dikuasai, hanya melihat jawapan selepas silap.","Hari ini buat 3–5 soalan ujian kecil tanpa melihat jawapan dahulu, kemudian kenal pasti satu perkara yang benar-benar belum dikuasai."],
+C:["Jenis C｜Pengurusan Masa Tidak Stabil","Pengurusan Masa","Halangan terbesar mungkin bukan kemampuan tetapi mula terlalu lewat, tugas tidak jelas dan mudah terganggu.","Ulang kaji saat akhir, suka menangguh, telefon/permainan mengganggu, banyak rancangan tetapi sedikit yang siap.","Tukar “malam ini saya akan belajar” kepada: 7:30–7:55 Matematik, siapkan 5 soalan dan semak sekali."],
+D:["Jenis D｜Kehilangan Markah Peperiksaan","Strategi Peperiksaan","Anda mungkin tahu kandungan tetapi masih kehilangan markah dalam peperiksaan. Fokus pada membaca soalan, langkah, masa dan semakan.","Cuai, salah baca soalan, tertinggal langkah, masa tidak cukup, gementar ketika peperiksaan.","Mulai latihan seterusnya, label setiap kesilapan: cuai / tidak tahu / langkah / konsep / masa."],
+E:["Jenis E｜Pembelajaran Kendiri Belum Kuat","Pembelajaran Kendiri","Anda mungkin masih bergantung pada peringatan, susunan atau jawapan daripada orang lain. Fokus membina pertimbangan belajar sendiri.","Tidak mula tanpa diingatkan, terus bertanya orang/AI apabila tersekat, tidak jelas kelemahan sendiri.","Sebelum belajar, tulis: Apa yang saya mahu siapkan? Mengapa ini dahulu? Bagaimana saya tahu saya benar-benar sudah boleh?"]},
+en:{
+A:["Type A｜Weak Foundation Understanding","Foundation Understanding","Strengthen real understanding first. The goal is not simply to do more questions, but to make sure the concepts truly make sense.","You may know a taught example but struggle when the question changes, remember answers without understanding why, or forget quickly after a few days.","After learning one concept today, close the book and explain: What is it? Why does it work? Can I give one example?"],
+B:["Type B｜Learning Method Needs an Upgrade","Learning Method","You may already spend plenty of time studying, but the method may not be effective enough. Focus on active recall, self-testing and mistake analysis.","You may reread a lot without remembering, study for a long time without knowing what was learned, or only look at answers after mistakes.","Do a small 3–5-question test today without checking answers first, then identify one thing you genuinely do not know yet."],
+C:["Type C｜Unstable Time Management","Time Management","The biggest barrier may not be ability, but starting too late, unclear tasks and frequent distractions.","You may revise only near exams, procrastinate, get interrupted by phone/games, or plan a lot but complete little.","Replace “study tonight” with: 7:30–7:55 Mathematics, complete 5 questions and check once."],
+D:["Type D｜Exam Mark-Loss Pattern","Exam Strategy","You may know the material but still lose marks in exams. Focus on question-reading, steps, time allocation and checking.","Carelessness, misreading, missed steps, running out of time, losing marks on known work, exam nerves.","From your next practice, label every mistake: careless / do not know / steps / concept / time."],
+E:["Type E｜Independent Learning Needs Strengthening","Independent Learning","You may still depend heavily on reminders, planning or direct answers from others. Build your own learning judgement.","You may not start without reminders, ask people/AI immediately, or be unclear about your own weak areas.","Before studying, write: What will I complete? Why am I doing this first? How will I know I can truly do it?"]}
+};
+
+const STARTER={
+zh:[
+{title:"问题 1｜找出真正的失分原因",intro:"先找出真正失分在哪里。",lesson:"每一个错题都要有原因。最常见：粗心、不会、步骤错误、概念错误、时间问题。"},
+{title:"问题 2｜学会真正有效的复习",intro:"复习不是一直看，而是测试自己是不是真的会。",lesson:"有效复习闭环：学习 → 回忆 → 测试 → 找错 → 重学 → 再测试。"},
+{title:"问题 3｜解决拖延与时间管理",intro:"把“今晚要读书”变成一个可以马上开始的 25 分钟任务。",lesson:"有效任务必须有：什么时候开始、读什么、做多少、怎样算完成。"},
+{title:"问题 4｜把错题变成提分工具",intro:"错题本不是抄答案，而是帮助你下一次不再用同样方式错。",lesson:"错题4步：哪题错？为什么错？正确方法是什么？什么时候重做？"},
+{title:"问题 5｜建立自己的30天学习计划",intro:"把前面发现的问题变成接下来 30 天可以重复的学习系统。",lesson:"只回答：我最想改善什么？每天有多少时间？怎样知道自己进步？"}],
+ms:[
+{title:"Soalan 1｜Cari Punca Sebenar Kehilangan Markah",intro:"Jangan terus buat lebih banyak soalan. Kenal pasti dahulu mengapa markah hilang.",lesson:"Setiap kesilapan mesti ada sebab. Lima sebab biasa: cuai, tidak tahu, salah langkah, salah konsep dan masalah masa."},
+{title:"Soalan 2｜Belajar Ulang Kaji yang Betul-Betul Berkesan",intro:"Ulang kaji bukan sekadar melihat semula. Anda mesti menguji sama ada anda benar-benar boleh.",lesson:"Kitaran ulang kaji berkesan: Belajar → Ingat semula → Uji → Cari salah → Belajar semula → Uji semula."},
+{title:"Soalan 3｜Atasi Penangguhan & Urus Masa",intro:"Tukar “malam ini saya mahu belajar” kepada satu tugasan 25 minit yang boleh dimulakan sekarang.",lesson:"Tugasan berkesan mesti ada: bila mula, apa subjek, berapa banyak dan bagaimana mengira ia selesai."},
+{title:"Soalan 4｜Jadikan Kesilapan Alat Meningkatkan Markah",intro:"Buku kesilapan bukan tempat menyalin jawapan. Ia mesti membantu anda tidak mengulangi cara salah yang sama.",lesson:"4 langkah: Soalan mana salah? Mengapa salah? Apakah cara betul? Bila hendak buat semula?"},
+{title:"Soalan 5｜Bina Pelan Pembelajaran 30 Hari",intro:"Tukar apa yang anda temui tadi kepada sistem pembelajaran yang boleh diulang selama 30 hari.",lesson:"Jawab sahaja: Apa paling perlu diperbaiki? Berapa masa stabil setiap hari? Bagaimana saya tahu saya bertambah baik?"}],
+en:[
+{title:"Question 1｜Find the Real Reason You Lose Marks",intro:"Do not rush to do more questions. First identify where your marks are really being lost.",lesson:"Every mistake needs a cause. Five common causes: carelessness, not knowing, wrong steps, wrong concept and time problems."},
+{title:"Question 2｜Learn What Effective Revision Really Means",intro:"Revision is not just looking again. You need to test whether you can actually do it.",lesson:"Effective revision loop: Learn → Recall → Test → Find mistakes → Relearn → Retest."},
+{title:"Question 3｜Solve Procrastination & Time Management",intro:"Turn “I’ll study tonight” into one 25-minute task you can start immediately.",lesson:"An effective task needs: start time, subject, amount of work and a clear definition of done."},
+{title:"Question 4｜Turn Mistakes into Score-Improvement Tools",intro:"A mistake notebook is not an answer-copying book. It should prevent the same mistake next time.",lesson:"4 steps: What was wrong? Why? What is the correct method? When will I redo it?"},
+{title:"Question 5｜Build Your Own 30-Day Learning Plan",intro:"Turn what you have discovered into a repeatable 30-day learning system.",lesson:"Answer only: What do I most want to improve? How much stable time do I have? How will I know I am improving?"}]
+};
+
+const PARENT_Q={
+zh:[
+["A","当孩子成绩不好或做错时，我很容易先批评、讲道理或马上指出问题，而不是先听他说发生了什么。"],["A","我们谈学习时，常常很快变成争执、催促或孩子不想继续说。"],["A","我比较常问“考几分、做完了吗”，较少问“哪里最难、你怎样想、需要什么帮助”。"],
+["B","家里的学习时间常常临时决定，没有比较稳定的开始时间或学习环境。"],["B","手机、电视、游戏或家庭活动经常打断孩子原本的学习安排。"],["B","孩子常常到考试前才集中复习，平时缺少固定复习节奏。"],
+["C","如果我不提醒，孩子通常不会主动开始功课或复习。"],["C","孩子遇到不会的题时，我常常直接告诉他答案或步骤，帮助他尽快做完。"],["C","学习计划大多由我安排，孩子很少自己决定今天先做什么或怎样检查完成。"],
+["D","考试前，我容易不断提醒成绩、名次或“这次一定要考好”。"],["D","孩子考试失分后，我们比较常关注分数，而不是一起分析粗心、概念、步骤或时间问题。"],["D","孩子考试紧张时，我不太确定怎样帮助他稳定情绪和执行考试步骤。"],
+["E","孩子使用 AI 时，我不太清楚怎样判断他是在学习，还是直接让 AI 代做。"],["E","我还没有和孩子建立“先自己想、再问 AI、最后自己解释”的使用规则。"],["E","我担心 AI 让孩子越来越依赖，但又不知道怎样把 AI 变成真正的学习工具。"]],
+ms:[
+["A","Apabila anak mendapat keputusan kurang baik atau membuat kesilapan, saya mudah terus mengkritik, memberi nasihat atau menunjukkan masalah sebelum mendengar apa yang sebenarnya berlaku."],["A","Perbualan tentang pembelajaran mudah bertukar menjadi pertengkaran, desakan atau anak tidak mahu bercakap lagi."],["A","Saya lebih kerap bertanya “berapa markah” atau “sudah siap?” berbanding “bahagian mana paling susah?”, “apa yang kamu fikir?” atau “apa bantuan yang kamu perlukan?”"],
+["B","Masa belajar di rumah sering ditentukan secara spontan tanpa waktu mula atau persekitaran yang stabil."],["B","Telefon, TV, permainan atau aktiviti keluarga kerap mengganggu rancangan pembelajaran anak."],["B","Anak biasanya hanya belajar dengan serius apabila peperiksaan hampir dan kurang mempunyai rutin ulang kaji tetap."],
+["C","Jika saya tidak mengingatkan, anak biasanya tidak akan mula kerja sekolah atau ulang kaji sendiri."],["C","Apabila anak tidak tahu sesuatu soalan, saya sering terus memberi jawapan atau langkah supaya cepat siap."],["C","Kebanyakan pelan belajar disusun oleh saya dan anak jarang menentukan sendiri apa yang hendak dibuat dahulu atau bagaimana hendak menyemak hasil."],
+["D","Sebelum peperiksaan, saya mudah mengulang peringatan tentang markah, kedudukan atau bahawa “kali ini mesti dapat keputusan baik”."],["D","Selepas anak kehilangan markah, kami lebih banyak bercakap tentang markah berbanding menganalisis cuai, konsep, langkah atau masalah masa."],["D","Apabila anak gementar ketika peperiksaan, saya kurang pasti bagaimana hendak membantu menstabilkan emosi dan langkah peperiksaan."],
+["E","Apabila anak menggunakan AI, saya kurang pasti bagaimana hendak mengetahui sama ada dia sedang belajar atau hanya membiarkan AI membuat kerja."],["E","Kami belum mempunyai peraturan “fikir sendiri dahulu → tanya AI → terangkan semula sendiri”."],["E","Saya bimbang anak semakin bergantung pada AI tetapi tidak pasti bagaimana menjadikan AI alat pembelajaran sebenar."]],
+en:[
+["A","When my child gets a poor result or makes a mistake, I tend to criticise, explain or point out the problem before listening to what actually happened."],["A","Conversations about learning can quickly become arguments, repeated reminders or my child no longer wanting to talk."],["A","I more often ask “What score did you get?” or “Have you finished?” than “What was hardest?”, “What do you think?” or “What help do you need?”"],
+["B","Study time at home is often decided at the last minute without a stable start time or study environment."],["B","Phones, TV, games or family activities often interrupt my child’s planned study time."],["B","My child often begins serious revision only near exams and lacks a stable revision rhythm."],
+["C","If I do not remind my child, they usually will not start homework or revision independently."],["C","When my child cannot answer a question, I often give the answer or steps directly so they can finish faster."],["C","I organise most of the learning plan, and my child rarely decides what to do first or how to check whether it is complete."],
+["D","Before exams, I often repeat reminders about marks, ranking or that “this time you must do well”."],["D","After losing marks, we tend to focus on the score rather than analysing carelessness, concepts, steps or time problems."],["D","When my child feels nervous about exams, I am not always sure how to help them stabilise emotions and follow an exam process."],
+["E","When my child uses AI, I am not always sure whether they are learning or simply letting AI do the work."],["E","We have not yet established a rule of “think first → ask AI → explain it again independently”."],["E","I worry that AI may increase dependence, but I am not sure how to turn AI into a real learning tool."]]
+};
+
+const PARENT_TYPES={
+zh:{
+A:["沟通与情绪支持","现在最值得先改善的可能不是“讲更多”，而是让孩子愿意把真实困难说出来。先听见问题，才有机会一起解决问题。","一谈学习就争执；孩子说“你不懂”；家长越讲越多，孩子越不想回应。","今晚只问一个问题：『最近学习里，哪一件事最让你觉得麻烦？』先听完，不急着给答案。"],
+B:["学习环境与时间系统","家庭支持的重点可以先放在稳定节奏，而不是每天临时催促。环境与开始时间越清楚，执行越容易。","每天开始时间不同；经常被手机或家庭活动打断；考前才突然加大学习量。","和孩子一起定一个固定 25 分钟学习区块，只先执行 7 天，不把整天排满。"],
+C:["自主学习与责任","现在可能需要从“家长替孩子管理学习”逐步转向“孩子自己决定、自己尝试、自己检查”。","不提醒就不开始；遇到问题马上求助；孩子会做但缺少主动性。","今天遇到一个问题时，不直接给答案。先问：『你已经试过什么？下一步你想先试哪一个方法？』"],
+D:["考试支持与压力","家长可以把关注点从“这次一定要高分”转向“怎样稳定发挥、减少失分、完成过程”。","考试前家庭气氛紧张；孩子容易怕错；考后只谈分数，很少分析具体失分原因。","下一次考试后只做一次 10 分钟复盘：做得好 1 项、失分原因 1 项、下一步 1 项。"],
+E:["AI 使用与边界","AI 不需要完全禁止，重点是建立使用顺序：先思考、再求助、最后自己解释与验证。","直接复制 AI 答案；遇到不会马上问 AI；家长不知道怎样判断孩子有没有真正理解。","建立一个家庭 AI 规则：『先自己尝试 5 分钟 → 再问 AI 提示 → 最后不用 AI 自己解释一次。』"]},
+ms:{
+A:["Komunikasi & Sokongan Emosi","Perkara paling penting mungkin bukan “beri lebih banyak nasihat”, tetapi membantu anak bercakap tentang kesukaran sebenar. Dengarkan dahulu sebelum cuba menyelesaikan.","Perbincangan belajar cepat menjadi tegang; anak berkata “ibu/ayah tidak faham”; semakin banyak ibu bapa bercakap, semakin kurang anak mahu menjawab.","Malam ini tanya satu soalan sahaja: “Dalam pembelajaran kebelakangan ini, perkara apa paling menyusahkan kamu?” Dengar sampai habis tanpa terus memberi jawapan."],
+B:["Persekitaran Belajar & Sistem Masa","Fokus keluarga boleh bermula dengan ritma yang stabil, bukan desakan saat akhir. Lagi jelas masa mula dan persekitaran, lagi mudah dilaksanakan.","Waktu mula berubah-ubah; telefon atau aktiviti keluarga sering mengganggu; jumlah belajar meningkat mendadak sebelum peperiksaan.","Tetapkan satu blok belajar 25 minit bersama anak dan cuba kekalkan selama 7 hari dahulu. Jangan penuhkan seluruh hari."],
+C:["Pembelajaran Kendiri & Tanggungjawab","Perlu beralih secara beransur daripada “ibu bapa mengurus pembelajaran” kepada “anak memilih, mencuba dan menyemak sendiri”.","Tidak mula tanpa diingatkan; terus meminta bantuan; sebenarnya boleh belajar tetapi kurang inisiatif.","Apabila anak tersekat hari ini, jangan terus beri jawapan. Tanya: “Apa yang sudah kamu cuba? Langkah mana yang kamu mahu cuba seterusnya?”"],
+D:["Sokongan Peperiksaan & Tekanan","Alih fokus daripada “mesti dapat markah tinggi” kepada “bagaimana hendak stabil, kurangkan kehilangan markah dan ikuti proses”.","Suasana keluarga tegang sebelum peperiksaan; anak takut membuat kesilapan; selepas peperiksaan hanya bercakap tentang markah.","Selepas peperiksaan seterusnya, buat refleksi 10 minit: 1 perkara yang baik, 1 punca kehilangan markah, 1 langkah seterusnya."],
+E:["Penggunaan AI & Sempadan","AI tidak perlu diharamkan sepenuhnya. Yang penting ialah urutan penggunaan: fikir sendiri → minta bantuan → terangkan dan semak sendiri.","Terus salin jawapan AI; tanya AI sebaik sahaja tersekat; sukar tahu sama ada anak benar-benar faham.","Bina satu peraturan keluarga: “Cuba sendiri 5 minit → minta petunjuk AI → akhir sekali terangkan semula tanpa AI.”"]},
+en:{
+A:["Communication & Emotional Support","The best first improvement may not be “say more,” but helping your child talk about the real difficulty. Listening first makes problem-solving possible.","Learning conversations quickly become arguments; the child says “you don’t understand”; the more the parent talks, the less the child responds.","Tonight ask only one question: “What has been the most difficult part of learning lately?” Listen to the full answer before giving advice."],
+B:["Learning Environment & Time System","Family support can begin with a stable rhythm rather than last-minute reminders. Clear start times and environments make action easier.","Study start times change every day; phones/family activities interrupt; study suddenly increases before exams.","Agree on one fixed 25-minute study block and keep it for 7 days first. Do not fill the entire day."],
+C:["Independent Learning & Responsibility","The next step may be moving gradually from “parents manage learning” to “the child decides, tries and checks.”","The child does not start without reminders, immediately asks for help, or can learn but lacks initiative.","When your child gets stuck today, do not give the answer immediately. Ask: “What have you tried? What would you like to try next?”"],
+D:["Exam Support & Pressure","Shift attention from “you must score high” to “how to perform steadily, reduce lost marks and follow the process.”","Family tension rises before exams; the child fears mistakes; post-exam talks focus only on scores.","After the next exam, do a 10-minute review: 1 thing done well, 1 reason marks were lost, 1 next step."],
+E:["AI Use & Boundaries","AI does not need to be banned. The key is an order of use: think first → ask for help → explain and verify independently.","Copying AI answers directly, asking AI immediately, and not knowing whether the child truly understands.","Set one family AI rule: “Try independently for 5 minutes → ask AI for a hint → finally explain it again without AI.”"]}
+};
+
+function t(){return I18N[LANG]||I18N.zh}
+function uuid(){return (crypto&&crypto.randomUUID)?crypto.randomUUID():'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{const r=Math.random()*16|0,v=c==='x'?r:(r&3|8);return v.toString(16)})}
+function validEmail(v){return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)}
+function esc(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[m]))}
+function showScreen(id){document.querySelectorAll(".screen").forEach(x=>x.classList.remove("active"));document.getElementById(id)?.classList.add("active");window.scrollTo({top:0,behavior:"smooth"})}
+function getIdentity(){try{return JSON.parse(localStorage.getItem(IDENTITY_KEY)||"null")}catch(e){return null}}
+function getDiagnostic(){try{return JSON.parse(localStorage.getItem(DIAGNOSTIC_KEY)||"null")}catch(e){return null}}
+function saveIdentity(x){localStorage.setItem(IDENTITY_KEY,JSON.stringify(x))}
+function goHome(){showScreen("home")}
+
+function gradeOptions(selectId,current=""){
+ const el=document.getElementById(selectId);if(!el)return;
+ el.innerHTML=`<option value="">${t().choose}</option>`+t().grades.map(x=>`<option>${x}</option>`).join("");
+ if(current&&[...el.options].some(o=>o.value===current))el.value=current;
+}
+
+function applyStaticText(){
+ document.documentElement.lang=LANG==="zh"?"zh-CN":LANG==="ms"?"ms":"en";
+ document.querySelectorAll(".langBtn").forEach(b=>b.classList.toggle("active",b.dataset.lang===LANG));
+ const map={
+ brandSub:"brandSub",homeBadge:"homeBadge",studentRouteTitle:"studentRouteTitle",studentRouteDesc:"studentRouteDesc",studentStep1:"studentStep1",studentStep2:"studentStep2",studentStep3:"studentStep3",
+ parentRouteTitle:"parentRouteTitle",parentRouteDesc:"parentRouteDesc",parentStep1:"parentStep1",parentStep2:"parentStep2",parentStep3:"parentStep3",
+ studentFreeBadge:"studentFreeBadge",studentStartTitle:"studentStartTitle",studentStartLead:"studentStartLead",studentNameLabel:"studentNameLabel",studentGradeLabel:"studentGradeLabel",
+ studentStartBtn:"studentStartBtn",studentPrivacy:"studentPrivacy",studentQuizTitle:"studentQuizTitle",studentResultBadge:"studentResultBadge",studentResultHeading:"studentResultHeading",
+ priority:"studentPriorityLabel",symptoms:"studentSymptomsTitle",todayAction:"studentActionTitle",studentNextTitle:"studentNextTitle",studentNextLead:"studentNextLead",studentNextBtn:"studentNextBtn",
+ starterBadge:"starterBadge",parentFreeBadge:"parentFreeBadge",parentStartTitle:"parentStartTitle",parentStartLead:"parentStartLead",parentNameLabel:"parentNameLabel",parentChildNameLabel:"parentChildNameLabel",
+ parentGradeLabel:"parentGradeLabel",parentEmailLabel:"parentEmailLabel",parentStartBtn:"parentStartBtn",parentPrivacy:"parentPrivacy",parentQuizTitle:"parentQuizTitle",parentResultBadge:"parentResultBadge",
+ parentResultHeading:"parentResultHeading",parentPriority:"parentPriorityLabel",parentSymptomsTitle:"parentSymptomsTitle",parentActionTitle:"parentActionTitle",parentCopy:"parentCopyBtn",parentShare:"parentShareBtn",
+ parentStudent:"parentStudentBtn",parentNote:"parentResultNote"
+ };
+ Object.entries(map).forEach(([k,id])=>{let e=document.getElementById(id);if(e)e.textContent=t()[k]});
+ homeTitle.innerHTML=t().homeTitle;homeLead.textContent=t().homeLead;
+ studentBackHome.textContent=t().back;parentBackHome.textContent=t().back;studentExitBtn.textContent=t().exit;starterExitBtn.textContent=t().exit;parentExitBtn.textContent=t().exit;
+ studentBackBtn.textContent=t().prev;parentBackBtn.textContent=t().prev;starterContinueBtn.textContent=t().starterContinue;
+ studentProfileWarn.textContent=t().studentWarn;parentProfileWarn.textContent=t().parentWarn;
+ gradeOptions("studentGrade",studentGrade.value);gradeOptions("parentChildGrade",parentChildGrade.value);
+ if(document.getElementById("studentQuiz").classList.contains("active"))renderStudentQuestion();
+ if(document.getElementById("studentResult").classList.contains("active"))renderStudentResultOnly();
+ if(document.getElementById("starter").classList.contains("active")){renderStarterBanner();refreshStarter();renderStarterDay(starterDay)}
+ if(document.getElementById("parentQuiz").classList.contains("active"))renderParentQuestion();
+ if(document.getElementById("parentResult").classList.contains("active"))renderParentResultOnly();
+}
+function setLang(lang){LANG=["zh","ms","en"].includes(lang)?lang:"zh";localStorage.setItem(LANG_KEY,LANG);applyStaticText()}
+
+/* STUDENT */
+let sCurrent=0,sAnswers=Array(15).fill(null),lastStudentResult=null;
+function openStudentStart(){loadSavedStudentIdentity();showScreen("studentStart")}
+function loadSavedStudentIdentity(){const i=getIdentity();if(!i)return;studentName.value=i.student_name||"";studentEmail.value=i.email||"";gradeOptions("studentGrade",i.grade||"")}
+function startStudentDiagnostic(){const student_name=studentName.value.trim(),grade=studentGrade.value,email=studentEmail.value.trim();if(!student_name||!grade||!validEmail(email)){studentProfileWarn.classList.add("show");return}studentProfileWarn.classList.remove("show");const prev=getIdentity();saveIdentity({diagnostic_id:uuid(),client_session_id:prev?.client_session_id||uuid(),student_name,grade,email});sCurrent=0;sAnswers=Array(15).fill(null);showScreen("studentQuiz");renderStudentQuestion()}
+function renderStudentQuestion(){
+ const qs=STUDENT_Q[LANG]||STUDENT_Q.zh;studentQNum.textContent=LANG==="ms"?`Soalan ${sCurrent+1} / ${qs.length}`:LANG==="en"?`Question ${sCurrent+1} / ${qs.length}`:`第 ${sCurrent+1} / ${qs.length} 题`;studentQuestion.textContent=qs[sCurrent][1];studentProgress.style.width=`${sCurrent/qs.length*100}%`;studentBackBtn.style.visibility=sCurrent===0?"hidden":"visible";
+ studentOptions.innerHTML=t().options.map((x,i)=>`<button class="option" onclick="studentAnswer(${i})"><span>${x}</span><span class="score">${i}</span></button>`).join("");
+}
+function studentAnswer(score){sAnswers[sCurrent]=score;if(sCurrent<14){sCurrent++;renderStudentQuestion()}else showStudentResult()}
+function studentBack(){if(sCurrent>0){sCurrent--;renderStudentQuestion()}}
+function studentScores(){const s={A:0,B:0,C:0,D:0,E:0},qs=STUDENT_Q.zh;qs.forEach((q,i)=>s[q[0]]+=Number(sAnswers[i]??0));return s}
+async function saveStudentDiagnostic(scores,primary,secondary){const identity=getIdentity();if(!identity)return;const payload={id:identity.diagnostic_id,client_session_id:identity.client_session_id,email:identity.email.toLowerCase(),student_name:identity.student_name,grade:identity.grade,primary_type:primary,secondary_type:secondary,score_a:scores.A,score_b:scores.B,score_c:scores.C,score_d:scores.D,score_e:scores.E,answers:sAnswers};localStorage.setItem(DIAGNOSTIC_KEY,JSON.stringify({...payload,created_at:new Date().toISOString()}));studentSyncStatus.textContent=t().sync;try{const {error}=await scoreASupabase.from("scorea_free_diagnostics").insert(payload);if(error)throw error;studentSyncStatus.textContent=t().syncOK}catch(e){console.error(e);studentSyncStatus.textContent=t().syncFail}}
+function showStudentResult(){const scores=studentScores(),ranked=Object.entries(scores).sort((a,b)=>b[1]-a[1]);lastStudentResult={scores,primary:ranked[0][0],secondary:ranked[1][0]};showScreen("studentResult");renderStudentResultOnly();saveStudentDiagnostic(scores,lastStudentResult.primary,lastStudentResult.secondary)}
+function renderStudentResultOnly(){
+ if(!lastStudentResult){const d=getDiagnostic();if(!d)return;lastStudentResult={scores:{A:d.score_a||0,B:d.score_b||0,C:d.score_c||0,D:d.score_d||0,E:d.score_e||0},primary:d.primary_type,secondary:d.secondary_type}}
+ const {scores,primary:p,secondary:s}=lastStudentResult,types=STUDENT_TYPES[LANG]||STUDENT_TYPES.zh;
+ studentPrimaryTitle.textContent=types[p][0];studentPrimaryDesc.textContent=types[p][2];studentSecondary.innerHTML=`<b>${t().second}</b>${types[s][1]}（${scores[s]} / 9）`;
+ studentScoreGrid.innerHTML=["A","B","C","D","E"].map(k=>`<div class="scoreCard"><b>${scores[k]}/9</b><small>${t().labels[k]}</small></div>`).join("");studentSymptoms.textContent=types[p][3];studentAction.textContent=types[p][4];
+}
+
+/* STARTER */
+function loadStarter(){try{const x=JSON.parse(localStorage.getItem(STARTER_KEY)||"{}");return {completed:x.completed||[],currentDay:x.currentDay||1,data:x.data||{}}}catch(e){return {completed:[],currentDay:1,data:{}}}}
+let starterState=loadStarter(),starterDay=Math.min(starterState.currentDay||1,5),starterTemp={};
+function saveStarter(){localStorage.setItem(STARTER_KEY,JSON.stringify(starterState))}
+function openStarter(){starterState=loadStarter();starterDay=Math.min(Math.max(starterState.currentDay||1,1),5);showScreen("starter");renderStarterBanner();refreshStarter();renderStarterDay(starterDay)}
+function renderStarterBanner(){const d=getDiagnostic(),i=getIdentity();if(d&&i){const ty=STUDENT_TYPES[LANG]||STUDENT_TYPES.zh;starterDiagnosticBanner.innerHTML=t().starterBanner(esc(i.student_name),ty[d.primary_type]?.[1]||d.primary_type,ty[d.secondary_type]?.[1]||d.secondary_type)}else starterDiagnosticBanner.innerHTML=t().starterNoDiag}
+function refreshStarter(){const n=starterState.completed.length;starterProgressText.textContent=t().progress(n);starterProgress.style.width=`${n/5*100}%`;starterTabs.innerHTML="";for(let i=1;i<=5;i++){const b=document.createElement("button");b.className="dayTab";b.textContent=t().questionTab(i);if(i===starterDay)b.classList.add("active");if(starterState.completed.includes(i))b.classList.add("done");const unlocked=i===1||starterState.completed.includes(i)||starterState.completed.includes(i-1);if(!unlocked)b.classList.add("locked");b.onclick=()=>{if(unlocked){starterDay=i;renderStarterDay(i)}};starterTabs.appendChild(b)}}
+function openCurrentStarter(){starterDay=Math.min(Math.max(starterState.currentDay||1,1),5);renderStarterDay(starterDay);starterPanel.scrollIntoView({behavior:"smooth",block:"start"})}
+function starterHTML(day){
+ const L=LANG;
+ if(day===1){
+  const reasons=L==="ms"?["Cuai","Tidak tahu","Salah langkah","Salah konsep","Masa tidak cukup"]:L==="en"?["Carelessness","Do not know","Wrong steps","Concept error","Not enough time"]:["粗心","不会","步骤错误","概念错误","时间不够"];
+  return `<div class="field"><label>${L==="ms"?"Jenis kehilangan markah yang paling kerap?":L==="en"?"Which type of mark loss happens most often?":"最近最常失分的是哪一种？"}</label><div class="choices" id="d1choices">${reasons.map(x=>`<div class="choice" onclick="selectStarterChoice(this,'d1Reason')">${x}</div>`).join("")}</div></div><div class="field"><label>${L==="ms"?"Tulis satu soalan salah atau situasi sebenar:":L==="en"?"Write one recent wrong question or real situation:":"写下最近一道做错的题或真实情况："}</label><textarea id="d1Example"></textarea></div><button class="btn btn-primary btn-wide" onclick="completeStarter1()">${t().complete} 1</button><div class="warn" id="d1warn">${t().fillAll}</div><div class="dayResult" id="d1result"></div>`;
+ }
+ if(day===2){
+  const opts=L==="ms"?["Baca buku teks sekali lagi","Salin nota dengan lebih kemas","Tutup buku dan jawab soalan / buat latihan sendiri","Hafal jawapan"]:L==="en"?["Read the textbook again","Copy notes more neatly","Close the book and answer questions / practise independently","Memorise the answers"]:["把课本重新看一遍","把笔记抄得更整齐","把书合起来，自己回答问题或做题","把答案背下来"];
+  return `<div class="field"><label>${L==="ms"?"Kaedah mana paling baik untuk menguji penguasaan sebenar?":L==="en"?"Which method best checks whether you truly know it?":"哪一种方法最能检查你是否真的掌握？"}</label><div class="choices" id="d2choices">${opts.map((x,i)=>`<div class="choice" data-value="${i}" onclick="selectStarterChoice(this,'d2Method')">${x}</div>`).join("")}</div></div><div class="field"><label>${L==="ms"?"Tulis satu soalan untuk menguji diri hari ini:":L==="en"?"Write one question you can use to test yourself today:":"写一个今天可以用来测试自己的问题："}</label><textarea id="d2Question"></textarea></div><button class="btn btn-primary btn-wide" onclick="completeStarter2()">${t().complete} 2</button><div class="warn" id="d2warn">${t().fillAll}</div><div class="dayResult" id="d2result"></div>`;
+ }
+ if(day===3){
+  const distract=L==="ms"?["Notifikasi telefon","Permainan","YouTube / video pendek","Chat","Hal lain"]:L==="en"?["Phone notifications","Games","YouTube / short videos","Chat","Other distractions"]:["手机通知","游戏","YouTube / 短视频","聊天","其他杂事"];
+  return `<div class="field"><label>${L==="ms"?"Pukul berapa anda mula hari ini?":L==="en"?"What time will you start today?":"今天几点开始？"}</label><input id="d3Time" type="time"></div><div class="field"><label>${L==="ms"?"Subjek":L==="en"?"Subject":"科目"}</label><input id="d3Subject"></div><div class="field"><label>${L==="ms"?"Apakah satu tugasan untuk 25 minit?":L==="en"?"What one task will you complete in 25 minutes?":"25分钟内只完成什么？"}</label><input id="d3Task"></div><div class="field"><label>${L==="ms"?"Gangguan utama yang perlu ditutup?":L==="en"?"Which distraction should you remove first?":"今天最需要关掉哪一个干扰？"}</label><select id="d3Distraction"><option value="">${t().choose}</option>${distract.map(x=>`<option>${x}</option>`).join("")}</select></div><button class="btn btn-primary btn-wide" onclick="completeStarter3()">${t().complete} 3</button><div class="warn" id="d3warn">${t().fillAll}</div><div class="dayResult" id="d3result"></div>`;
+ }
+ if(day===4){
+  const reasons=L==="ms"?["Cuai","Tidak tahu","Salah langkah","Salah konsep","Masalah masa"]:L==="en"?["Carelessness","Do not know","Wrong steps","Concept error","Time problem"]:["粗心","不会","步骤错误","概念错误","时间问题"];
+  return `<div class="field"><label>${L==="ms"?"Subjek / soalan":L==="en"?"Subject / question":"科目 / 题目"}</label><input id="d4Question"></div><div class="field"><label>${L==="ms"?"Punca kesilapan":L==="en"?"Reason for the mistake":"错误原因"}</label><select id="d4Reason"><option value="">${t().choose}</option>${reasons.map(x=>`<option>${x}</option>`).join("")}</select></div><div class="field"><label>${L==="ms"?"Kaedah betul / perkara yang perlu diingat":L==="en"?"Correct method / what I should remember":"正确方法 / 我应该记住什么？"}</label><textarea id="d4Fix"></textarea></div><button class="btn btn-primary btn-wide" onclick="completeStarter4()">${t().complete} 4</button><div class="warn" id="d4warn">${t().fillAll}</div><div class="dayResult" id="d4result"></div>`;
+ }
+ const goals=L==="ms"?["Kurangkan kecuaian","Kurangkan penangguhan","Belajar mengurus masa","Belajar cara ulang kaji yang betul","Tingkatkan prestasi peperiksaan","Belajar lebih berdikari"]:L==="en"?["Reduce carelessness","Stop procrastinating","Learn time management","Learn effective revision","Improve exam performance","Become more independent"]:["减少粗心","不再拖延","学会安排时间","学会正确复习","提升考试表现","更主动学习"];
+ return `<div class="field"><label>${L==="ms"?"Subjek yang paling ingin diperbaiki dalam 30 hari":L==="en"?"Subject you most want to improve in the next 30 days":"未来30天最想改善的科目"}</label><input id="d5Subject"></div><div class="field"><label>${L==="ms"?"Masalah yang paling ingin diperbaiki dahulu":L==="en"?"The first problem you want to improve":"最想先改善的问题"}</label><select id="d5Goal"><option value="">${t().choose}</option>${goals.map(x=>`<option>${x}</option>`).join("")}</select></div><div class="field"><label>${L==="ms"?"Masa belajar stabil setiap hari":L==="en"?"Stable study time per day":"每天可以稳定学习多久？"}</label><select id="d5Minutes"><option value="">${t().choose}</option>${["20","30","45","60","90"].map(x=>`<option value="${x}">${x} ${L==="ms"?"minit":L==="en"?"minutes":"分钟"}</option>`).join("")}</select></div><div class="field"><label>${L==="ms"?"Bagaimana anda tahu anda benar-benar bertambah baik?":L==="en"?"How will you know you are truly improving?":"你会怎样知道自己真的进步了？"}</label><textarea id="d5Measure"></textarea></div><button class="btn btn-primary btn-wide" onclick="completeStarter5()">${t().complete} 5</button><div class="warn" id="d5warn">${t().fillAll}</div><div class="dayResult" id="d5result"></div><div id="starterFinish"></div>`;
+}
+function renderStarterDay(day){starterDay=day;const d=(STARTER[LANG]||STARTER.zh)[day-1];starterPanel.innerHTML=`<div class="dayHead"><div class="dayNo">${day}</div><div><h2>${d.title}</h2><p class="muted">${d.intro}</p></div></div><div class="lesson"><b>${t().core}</b>${d.lesson}</div>${starterHTML(day)}`;refreshStarter();restoreStarter(day);if(starterState.completed.includes(day))showStarterSaved(day)}
+function selectStarterChoice(el,key){el.parentElement.querySelectorAll(".choice").forEach(x=>x.classList.remove("selected"));el.classList.add("selected");starterTemp[key]=el.dataset.value!==undefined?el.dataset.value:el.textContent.trim()}
+async function saveChallengeDay(day,data){const i=getIdentity();if(!i)return;const payload={diagnostic_id:i.diagnostic_id,client_session_id:i.client_session_id,email:i.email.toLowerCase(),student_name:i.student_name,grade:i.grade,day_number:day,payload:data};try{const {error}=await scoreASupabase.from("scorea_free_challenge_days").insert(payload);if(error&&error.code!=="23505")throw error}catch(e){console.error(e)}}
+async function saveLearningProfile(data){const i=getIdentity(),d=getDiagnostic();if(!i||!data)return;const payload={diagnostic_id:i.diagnostic_id,client_session_id:i.client_session_id,email:i.email.toLowerCase(),student_name:i.student_name,grade:i.grade,primary_type:d?.primary_type||null,secondary_type:d?.secondary_type||null,main_subject:data.subject,improvement_goal:data.goal,daily_study_time:data.minutes,progress_measure:data.measure};try{const {error}=await scoreASupabase.from("scorea_free_learning_profiles").insert(payload);if(error&&error.code!=="23505")throw error}catch(e){console.error(e)}}
+function markStarter(day,data){const already=starterState.completed.includes(day);starterState.data["day"+day]=data;if(!already)starterState.completed.push(day);starterState.completed.sort((a,b)=>a-b);starterState.currentDay=day<5?Math.max(starterState.currentDay,day+1):5;saveStarter();refreshStarter();if(!already)saveChallengeDay(day,data)}
+function swarn(id,on=true){document.getElementById(id)?.classList.toggle("show",on)}function sresult(id,html){const e=document.getElementById(id);if(e){e.innerHTML=html;e.classList.add("show")}}
+function completeStarter1(){const reason=starterTemp.d1Reason||starterState.data.day1?.reason||"",example=d1Example.value.trim();if(!reason||!example){swarn("d1warn");return}swarn("d1warn",false);markStarter(1,{reason,example});sresult("d1result",LANG==="ms"?`✅ Punca utama kehilangan markah: <b>${esc(reason)}</b>. Sekarang anda sudah tahu mengapa markah hilang.`:LANG==="en"?`✅ Main cause of lost marks: <b>${esc(reason)}</b>. You now know why the mark was lost.`:`✅ 主要失分原因：<b>${esc(reason)}</b>。你已经从“我又错了”进步到“我知道为什么会错”。`)}
+function completeStarter2(){const method=starterTemp.d2Method!==undefined?Number(starterTemp.d2Method):starterState.data.day2?.method,q=d2Question.value.trim();if(method===undefined||!q){swarn("d2warn");return}swarn("d2warn",false);markStarter(2,{method,q});const ok=method===2;sresult("d2result",LANG==="ms"?`${ok?"✅ Betul.":"💡 Kaedah lebih berkesan ialah menutup buku dan menguji diri."}<br>Soalan ujian kendiri anda: <b>${esc(q)}</b>`:LANG==="en"?`${ok?"✅ Correct.":"💡 A stronger method is to close the book and test yourself."}<br>Your self-test question: <b>${esc(q)}</b>`:`${ok?"✅ 选对了。":"💡 更有效的是：把书合起来，自己回答问题或做题。"}<br>你的自测问题：<b>${esc(q)}</b>`)}
+function completeStarter3(){const time=d3Time.value,subject=d3Subject.value.trim(),task=d3Task.value.trim(),distraction=d3Distraction.value;if(!time||!subject||!task||!distraction){swarn("d3warn");return}swarn("d3warn",false);markStarter(3,{time,subject,task,distraction});sresult("d3result",`✅ ${time}｜${esc(subject)}｜25 min<br>${LANG==="ms"?"Tugas":LANG==="en"?"Task":"任务"}：${esc(task)}<br>${LANG==="ms"?"Alih keluar gangguan":LANG==="en"?"Remove distraction":"开始前处理"}：${esc(distraction)}`)}
+function completeStarter4(){const q=d4Question.value.trim(),reason=d4Reason.value,fix=d4Fix.value.trim();if(!q||!reason||!fix){swarn("d4warn");return}swarn("d4warn",false);markStarter(4,{q,reason,fix});sresult("d4result",LANG==="ms"?`✅ Soalan: ${esc(q)}<br>Punca: ${esc(reason)}<br>Kaedah betul: ${esc(fix)}<br>Cuba semula esok atau lusa tanpa melihat jawapan.`:LANG==="en"?`✅ Question: ${esc(q)}<br>Reason: ${esc(reason)}<br>Correct method: ${esc(fix)}<br>Redo it tomorrow or the day after without checking the answer.`:`✅ 题目：${esc(q)}<br>原因：${esc(reason)}<br>正确方法：${esc(fix)}<br>建议明天或后天遮住答案再做一次。`)}
+function completeStarter5(){const subject=d5Subject.value.trim(),goal=d5Goal.value,minutes=d5Minutes.value,measure=d5Measure.value.trim();if(!subject||!goal||!minutes||!measure){swarn("d5warn");return}swarn("d5warn",false);const data={subject,goal,minutes,measure};markStarter(5,data);saveLearningProfile(data);sresult("d5result",LANG==="ms"?"✅ Arah pembelajaran 30 hari anda telah siap.":LANG==="en"?"✅ Your 30-day learning direction is complete.":"✅ 你的30天学习方向已经完成，并正在同步学习档案。");showStarterFinish()}
+function restoreStarter(day){const d=starterState.data["day"+day];if(!d)return;setTimeout(()=>{if(day===1){d1Example.value=d.example||"";starterTemp.d1Reason=d.reason||""}[...document.querySelectorAll(day===1?"#d1choices .choice":day===2?"#d2choices .choice":"")].forEach((x,i)=>{if(day===1&&x.textContent.trim()===d.reason)x.classList.add("selected");if(day===2&&i===Number(d.method))x.classList.add("selected")});if(day===2){d2Question.value=d.q||"";starterTemp.d2Method=d.method}if(day===3){d3Time.value=d.time||"";d3Subject.value=d.subject||"";d3Task.value=d.task||"";d3Distraction.value=d.distraction||""}if(day===4){d4Question.value=d.q||"";d4Reason.value=d.reason||"";d4Fix.value=d.fix||""}if(day===5){d5Subject.value=d.subject||"";d5Goal.value=d.goal||"";d5Minutes.value=d.minutes||"";d5Measure.value=d.measure||"";if(starterState.completed.includes(5))showStarterFinish()}},0)}
+function showStarterSaved(day){setTimeout(()=>{const id="d"+day+"result";sresult(id,t().saved);if(day===5)showStarterFinish()},10)}
+function showStarterFinish(){const d=starterState.data.day5||{},title=LANG==="ms"?"🎉 Pengalaman percuma pelajar selesai":LANG==="en"?"🎉 Student free experience complete":"🎉 学生免费体验完成",h=LANG==="ms"?"Arah Pembelajaran 30 Hari Anda":LANG==="en"?"Your 30-Day Learning Direction":"你的30天学习方向";starterFinish.innerHTML=`<div class="finishCard"><span class="badge">${title}</span><h2>${h}</h2><p><b>${LANG==="ms"?"Subjek utama":LANG==="en"?"Focus subject":"重点科目"}：</b>${esc(d.subject||"")}<br><b>${LANG==="ms"?"Keutamaan":LANG==="en"?"Priority":"最想改善"}：</b>${esc(d.goal||"")}<br><b>${LANG==="ms"?"Masa harian":LANG==="en"?"Daily study":"每天稳定学习"}：</b>${esc(d.minutes||"")}<br><b>${LANG==="ms"?"Ukuran kemajuan":LANG==="en"?"Progress measure":"进步判断"}：</b>${esc(d.measure||"")}</p></div>`}
+
+/* PARENT */
+let pCurrent=0,pAnswers=Array(15).fill(null),lastParentResult=null;
+function openParentStart(){loadSavedParentIdentity();showScreen("parentStart")}
+function loadSavedParentIdentity(){try{const x=JSON.parse(localStorage.getItem(PARENT_KEY)||"null");if(!x)return;parentName.value=x.parent_name||"";parentEmail.value=x.parent_email||"";parentChildName.value=x.child_name||"";gradeOptions("parentChildGrade",x.child_grade||"")}catch(e){}}
+function startParentQuiz(){const pn=parentName.value.trim(),pe=parentEmail.value.trim(),cn=parentChildName.value.trim(),cg=parentChildGrade.value;if(!pn||!cn||!cg||!validEmail(pe)){parentProfileWarn.classList.add("show");return}parentProfileWarn.classList.remove("show");localStorage.setItem(PARENT_KEY,JSON.stringify({parent_name:pn,parent_email:pe,child_name:cn,child_grade:cg,answers:[],created_at:new Date().toISOString()}));pCurrent=0;pAnswers=Array(15).fill(null);showScreen("parentQuiz");renderParentQuestion()}
+function renderParentQuestion(){const qs=PARENT_Q[LANG]||PARENT_Q.zh;parentQNum.textContent=LANG==="ms"?`Soalan ${pCurrent+1} / ${qs.length}`:LANG==="en"?`Question ${pCurrent+1} / ${qs.length}`:`第 ${pCurrent+1} / ${qs.length} 题`;parentQuestion.textContent=qs[pCurrent][1];parentProgress.style.width=`${pCurrent/qs.length*100}%`;parentBackBtn.style.visibility=pCurrent===0?"hidden":"visible";parentOptions.innerHTML=t().options.map((x,i)=>`<button class="option" onclick="parentAnswer(${i})"><span>${x}</span><span class="score">${i}</span></button>`).join("")}
+function parentAnswer(score){pAnswers[pCurrent]=score;if(pCurrent<14){pCurrent++;renderParentQuestion()}else showParentResult()}
+function parentBack(){if(pCurrent>0){pCurrent--;renderParentQuestion()}}
+function parentScores(){const s={A:0,B:0,C:0,D:0,E:0};PARENT_Q.zh.forEach((q,i)=>s[q[0]]+=Number(pAnswers[i]??0));return s}
+function showParentResult(){const scores=parentScores(),ranked=Object.entries(scores).sort((a,b)=>b[1]-a[1]),p=ranked[0][0],s=ranked[1][0];lastParentResult={scores,primary:p,secondary:s};const old=JSON.parse(localStorage.getItem(PARENT_KEY)||"{}");localStorage.setItem(PARENT_KEY,JSON.stringify({...old,answers:pAnswers,scores,primary_type:p,secondary_type:s,updated_at:new Date().toISOString()}));showScreen("parentResult");renderParentResultOnly()}
+function renderParentResultOnly(){if(!lastParentResult){try{const x=JSON.parse(localStorage.getItem(PARENT_KEY)||"null");if(!x?.scores)return;lastParentResult={scores:x.scores,primary:x.primary_type,secondary:x.secondary_type}}catch(e){return}}const {scores,primary:p,secondary:s}=lastParentResult,types=PARENT_TYPES[LANG]||PARENT_TYPES.zh;parentPrimaryTitle.textContent=types[p][0];parentPrimaryDesc.textContent=types[p][1];parentSecondary.innerHTML=`<b>${t().second}</b>${types[s][0]}（${scores[s]} / 9）`;parentScoreGrid.innerHTML=["A","B","C","D","E"].map(k=>`<div class="parentDim"><b>${scores[k]}/9</b><small>${t().parentLabels[k]}</small></div>`).join("");parentSymptoms.textContent=types[p][2];parentAction.textContent=types[p][3];renderFamilyCompare(p)}
+function renderFamilyCompare(parentPrimary){const d=getDiagnostic();if(!d){familyCompare.style.display="none";return}const child=(STUDENT_TYPES[LANG]||STUDENT_TYPES.zh)[d.primary_type]?.[1]||d.primary_type,parent=(PARENT_TYPES[LANG]||PARENT_TYPES.zh)[parentPrimary][0];familyCompare.style.display="block";familyCompare.innerHTML=LANG==="ms"?`<b>👨‍👩‍👧 Cadangan Padanan Keluarga</b><br>Diagnosis anak pada peranti ini: <b>${child}</b>; keutamaan ibu bapa: <b>${parent}</b>.<br><span class="muted">Minggu ini, pilih hanya satu masalah untuk diperbaiki bersama.</span>`:LANG==="en"?`<b>👨‍👩‍👧 Family Alignment Suggestion</b><br>Child diagnostic on this device: <b>${child}</b>; parent priority: <b>${parent}</b>.<br><span class="muted">For this week, solve only one family learning problem together.</span>`:`<b>👨‍👩‍👧 家庭对照建议</b><br>这台装置上已有孩子的学习诊断：<b>${child}</b>；家长目前最值得先调整：<b>${parent}</b>。<br><span class="muted">建议家庭这周只共同解决一个问题，不要同时改变所有学习习惯。</span>`}
+function parentResultText(){const x=JSON.parse(localStorage.getItem(PARENT_KEY)||"{}"),s=x.scores||{},types=PARENT_TYPES[LANG]||PARENT_TYPES.zh;if(LANG==="ms")return `HOW TO SCORE A with AI｜Keputusan Ujian Ibu Bapa\n\nAnak: ${x.child_name||""}｜${x.child_grade||""}\nKeutamaan: ${types[x.primary_type]?.[0]||""}\nArah kedua: ${types[x.secondary_type]?.[0]||""}\n\nKomunikasi: ${s.A??0}/9\nMasa & Persekitaran: ${s.B??0}/9\nPembelajaran Kendiri: ${s.C??0}/9\nSokongan Peperiksaan: ${s.D??0}/9\nAI: ${s.E??0}/9\n\nTindakan hari ini:\n${types[x.primary_type]?.[3]||""}`;if(LANG==="en")return `HOW TO SCORE A with AI｜Parent Free Test Result\n\nChild: ${x.child_name||""}｜${x.child_grade||""}\nPriority: ${types[x.primary_type]?.[0]||""}\nSecond area: ${types[x.secondary_type]?.[0]||""}\n\nCommunication: ${s.A??0}/9\nTime & Environment: ${s.B??0}/9\nIndependent Learning: ${s.C??0}/9\nExam Support: ${s.D??0}/9\nAI Use: ${s.E??0}/9\n\nToday’s action:\n${types[x.primary_type]?.[3]||""}`;return `HOW TO SCORE A with AI｜家长免费测试结果\n\n孩子：${x.child_name||""}｜${x.child_grade||""}\n主要改善方向：${types[x.primary_type]?.[0]||""}\n第二方向：${types[x.secondary_type]?.[0]||""}\n\n沟通：${s.A??0}/9\n时间环境：${s.B??0}/9\n自主学习：${s.C??0}/9\n考试支持：${s.D??0}/9\nAI使用：${s.E??0}/9\n\n今天的小行动：\n${types[x.primary_type]?.[3]||""}`}
+async function copyParentResult(){try{await navigator.clipboard.writeText(parentResultText());alert(LANG==="ms"?"Keputusan telah disalin.":LANG==="en"?"Result copied.":"家长结果已复制。")}catch(e){alert(LANG==="ms"?"Tidak dapat menyalin secara automatik.":LANG==="en"?"Could not copy automatically.":"无法自动复制，请手动复制页面内容。")}}
+function shareParentWhatsApp(){window.open(`https://wa.me/?text=${encodeURIComponent(parentResultText())}`,"_blank")}
+
+applyStaticText();loadSavedStudentIdentity();loadSavedParentIdentity();
+</script>
+</body>
+</html>
