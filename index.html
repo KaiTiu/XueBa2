@@ -4182,5 +4182,231 @@ if("speechSynthesis" in window){
 /* Initialise the day-specific thought field after the final app is ready. */
 setTimeout(()=>scoreABindDailyThought(true), 320);
 
+
+
+/* ===== V8.3 FIX: TODAY'S ENEMY CHANGES WITH EACH DAILY TOPIC =====
+   Old behaviour: every Day inside the same 30-day World showed the same World enemy.
+   New behaviour:
+   - Normal days -> enemy follows the CURRENT day's unique topic.
+   - Weekly Review -> Reflection Blind Spot.
+   - Boss Day -> keeps the real World Boss.
+   - 中文 / BM / EN all change together.
+*/
+function scoreADailyEnemy(absDay,lang=getScoreALanguage()){
+  absDay=Math.max(1,Math.min(365,Number(absDay)||1));
+  const topic=scoreA365Topic(absDay,lang);
+  const topicZH=scoreA365Topic(absDay,'zh');
+  const tool=typeof scoreA365Tool==="function"?scoreA365Tool(absDay):"weeklycheck";
+  const world=scoreA365World(absDay);
+  const local=absDay<=360?((absDay-1)%30)+1:absDay-360;
+
+  /* Every 30th day remains the real World Boss. */
+  if(absDay<=360 && local===30){
+    const bosses={
+      zh:[
+        ['🌑','怀疑之影 · Awakening Boss','完成真实行动，证明“我做不到”不是事实。'],
+        ['🐉','时间吞噬兽 · Time Valley Boss','用优先级、时间区块和专注把时间拿回来。'],
+        ['🌫️','遗忘迷雾 · Thinking Lab Boss','用理解、回忆与复习证明知识真正留下来了。'],
+        ['👾','重复错误怪 · Mistake Hunter Boss','找出错误模式、重做并验证，关闭重复失分。'],
+        ['⚔️','考场压力王 · Exam Arena Boss','用考试策略把会的知识稳定变成分数。'],
+        ['🛡️','失分守卫 · Score Booster Boss','找回最值得拿回的分数，并建立稳定表现。'],
+        ['🌪️','混乱风暴 · Planner Island Boss','用计划、优先级和调整能力穿过混乱。'],
+        ['🧬','AI依赖病毒 · AI Intelligence Boss','证明 AI 在增强你的思考，而不是代替你的思考。'],
+        ['👹','拖延魔王 · Self-Mastery Boss','用稳定的小行动证明你能够管理自己。'],
+        ['🧠','知识迷宫 · Learning Strategy Boss','为不同学习任务选择真正有效的策略。'],
+        ['🌑','放弃之影 · Growth Kingdom Boss','用一年的成长证据继续向前。'],
+        ['🔥','Final Shadow · Mastery City Boss','证明你的个人学习系统已经能够独立运作。']
+      ],
+      ms:[
+        ['🌑','Bayang Keraguan · Awakening Boss','Buktikan melalui tindakan sebenar bahawa “saya tidak boleh” bukan fakta.'],
+        ['🐉','Pemakan Masa · Time Valley Boss','Ambil semula masa dengan keutamaan, blok masa dan fokus.'],
+        ['🌫️','Kabus Lupa · Thinking Lab Boss','Buktikan pengetahuan kekal melalui kefahaman, recall dan ulang kaji.'],
+        ['👾','Raksasa Kesilapan Berulang · Mistake Hunter Boss','Cari corak kesilapan, buat semula dan sahkan supaya kehilangan markah tidak berulang.'],
+        ['⚔️','Raja Tekanan Peperiksaan · Exam Arena Boss','Gunakan strategi peperiksaan untuk menukar pengetahuan kepada markah yang stabil.'],
+        ['🛡️','Pengawal Kehilangan Markah · Score Booster Boss','Dapatkan semula markah yang paling bernilai dan bina prestasi stabil.'],
+        ['🌪️','Ribut Kekacauan · Planner Island Boss','Gunakan perancangan, keutamaan dan pelarasan untuk keluar daripada kekacauan.'],
+        ['🧬','Virus Kebergantungan AI · AI Intelligence Boss','Buktikan AI menguatkan pemikiran anda dan bukan menggantikannya.'],
+        ['👹','Raja Penangguhan · Self-Mastery Boss','Buktikan anda boleh mengurus diri melalui tindakan kecil yang stabil.'],
+        ['🧠','Maze Pengetahuan · Learning Strategy Boss','Pilih strategi yang benar-benar sesuai untuk tugasan pembelajaran yang berbeza.'],
+        ['🌑','Bayang Putus Asa · Growth Kingdom Boss','Gunakan bukti perkembangan sepanjang tahun untuk terus bergerak.'],
+        ['🔥','Final Shadow · Mastery City Boss','Buktikan sistem pembelajaran peribadi anda boleh berfungsi secara berdikari.']
+      ],
+      en:[
+        ['🌑','Shadow of Doubt · Awakening Boss','Use real action to prove that “I can’t” is not a fact.'],
+        ['🐉','Time Eater · Time Valley Boss','Take back your time with priorities, time blocks and focus.'],
+        ['🌫️','Forgetting Fog · Thinking Lab Boss','Prove that knowledge stays through understanding, recall and review.'],
+        ['👾','Repeating-Error Monster · Mistake Hunter Boss','Find the error pattern, redo it and verify it until repeated mark loss is closed.'],
+        ['⚔️','Exam Pressure King · Exam Arena Boss','Use exam strategy to turn what you know into stable marks.'],
+        ['🛡️','Lost-Mark Guard · Score Booster Boss','Recover the highest-value marks and build stable performance.'],
+        ['🌪️','Chaos Storm · Planner Island Boss','Use planning, priorities and adjustment to move through chaos.'],
+        ['🧬','AI-Dependence Virus · AI Intelligence Boss','Prove that AI strengthens your thinking instead of replacing it.'],
+        ['👹','Procrastination King · Self-Mastery Boss','Prove you can manage yourself through stable small actions.'],
+        ['🧠','Knowledge Maze · Learning Strategy Boss','Choose the right strategy for different learning tasks.'],
+        ['🌑','Shadow of Giving Up · Growth Kingdom Boss','Use a year of growth evidence to keep moving forward.'],
+        ['🔥','Final Shadow · Mastery City Boss','Prove that your personal learning system can now run independently.']
+      ]
+    };
+    return (bosses[lang]||bosses.zh)[Math.min(11,world.world-1)];
+  }
+
+  /* Day 361–365 graduation gate. */
+  if(absDay>360){
+    const grad={
+      zh:['🎓',`毕业挑战 · ${topic}`,'最后的敌人不是一道题，而是能不能独立完成整个学习过程。'],
+      ms:['🎓',`Cabaran Graduasi · ${topic}`,'Cabaran terakhir bukan satu soalan, tetapi sama ada anda boleh melengkapkan seluruh proses pembelajaran secara berdikari.'],
+      en:['🎓',`Graduation Challenge · ${topic}`,'The final enemy is not one question; it is whether you can complete the whole learning process independently.']
+    };
+    return grad[lang]||grad.zh;
+  }
+
+  /* Weekly review days get their own enemy. */
+  if(/Weekly Review|每周|复盘|Review/i.test(topicZH) || tool==="weeklycheck"){
+    const x={
+      zh:['🔎',`复盘盲点 · ${topic}`,'不要只说“这周还可以”。找出真正做得好的证据、卡住的原因和下一步。'],
+      ms:['🔎',`Titik Buta Refleksi · ${topic}`,'Jangan hanya kata “minggu ini okay”. Cari bukti sebenar, punca tersekat dan langkah seterusnya.'],
+      en:['🔎',`Reflection Blind Spot · ${topic}`,'Do not just say “this week was okay.” Find real evidence, the cause of the problem and the next step.']
+    };
+    return x[lang]||x.zh;
+  }
+
+  /* Daily enemy family follows the learning tool/theme. */
+  const families={
+    zh:{
+      todayplan:[
+        ['⏳','行动拖延怪','今天要打败的是：知道要做什么，却没有把它变成一个真正开始的行动。'],
+        ['📱','分心磁铁','今天要保护你的注意力，不让外界干扰把任务拉走。'],
+        ['🧩','计划漏洞','把模糊计划变成有时间、有范围、可以完成的具体行动。'],
+        ['🌀','假忙碌怪','忙不等于有效。今天要找到真正带来结果的那一个行动。'],
+        ['🚧','启动障碍','不要等“有心情”。把第一步缩小到现在就能开始。']
+      ],
+      pomodoro:[
+        ['🌫️','理解迷雾','看懂不等于会。今天要用解释、回忆或练习证明自己真的理解。'],
+        ['🧠','记忆漏斗','不要让知识只停留几分钟。用主动回忆把它留下来。'],
+        ['📖','熟悉感陷阱','“看起来很熟”不代表真的会。今天要测试，而不是只重看。'],
+        ['🔁','复习循环怪','没有测试和调整的重复阅读，很容易制造“我会了”的错觉。'],
+        ['🎯','浅层专注怪','专注不是坐得久，而是把注意力放在一个明确学习目标上。']
+      ],
+      mistakes:[
+        ['🕳️','错误黑洞','只看正确答案会让错误再次出现。今天要找出真正原因。'],
+        ['👾','重复错误怪','同一种错误再次出现，说明错误模式还没有被关闭。'],
+        ['⚠️','粗心陷阱','“下次小心”不够。要找到具体在哪一步失去分数。'],
+        ['🧱','概念缺口','先修补真正不会的概念，再继续做更多题。'],
+        ['🔍','弱点伪装怪','把模糊的“我不会”拆成一个可以修复的具体弱点。']
+      ],
+      exam:[
+        ['⚔️','失分陷阱','今天不是只追求做完，而是减少可以避免的失分。'],
+        ['⏱️','时间压力怪','把考试时间主动分配给最值得拿分的题目。'],
+        ['👁️','审题迷雾','先看清题目真正要什么，再决定怎样作答。'],
+        ['😰','紧张干扰怪','用清楚步骤和节奏，让会做的题稳定发挥出来。'],
+        ['🛡️','检查漏洞','最后检查要有目标，不是从头到尾随便再看一次。']
+      ],
+      default:[
+        ['🌑','怀疑之影','把“我不行”变成一个今天可以采取行动的问题。'],
+        ['🪞','标签陷阱','成绩是线索，不是身份。今天用行动收集新的证据。'],
+        ['🌁','问题迷雾','把模糊的学习困难拆成一个可以解决的具体问题。'],
+        ['🧭','方向迷失','先决定真正重要的下一步，不要同时改变所有事情。'],
+        ['🪨','行动阻力','成长不是等状态变好，而是先完成一个真实的小行动。']
+      ]
+    },
+    ms:{
+      todayplan:[
+        ['⏳','Raksasa Penangguhan','Hari ini, kalahkan tabiat tahu apa perlu dibuat tetapi tidak benar-benar bermula.'],
+        ['📱','Magnet Gangguan','Lindungi perhatian anda supaya gangguan luar tidak menarik anda keluar daripada tugasan.'],
+        ['🧩','Lubang Perancangan','Tukar rancangan kabur kepada tindakan dengan masa, skop dan definisi siap yang jelas.'],
+        ['🌀','Raksasa Sibuk Palsu','Sibuk tidak sama dengan berkesan. Cari satu tindakan yang benar-benar menghasilkan kemajuan.'],
+        ['🚧','Halangan Permulaan','Jangan tunggu mood. Kecilkan langkah pertama supaya boleh dimulakan sekarang.']
+      ],
+      pomodoro:[
+        ['🌫️','Kabus Kefahaman','Nampak faham belum tentu benar-benar boleh. Buktikan dengan menerangkan, mengingat semula atau berlatih.'],
+        ['🧠','Corong Ingatan','Jangan biarkan pengetahuan hilang selepas beberapa minit. Gunakan active recall.'],
+        ['📖','Perangkap Familiar','Rasa biasa tidak bermaksud sudah menguasai. Uji diri, bukan sekadar baca semula.'],
+        ['🔁','Raksasa Ulang Kaji','Membaca berulang tanpa ujian dan pelarasan mudah menghasilkan ilusi penguasaan.'],
+        ['🎯','Raksasa Fokus Cetek','Fokus bukan duduk lama; fokus ialah perhatian pada satu matlamat belajar yang jelas.']
+      ],
+      mistakes:[
+        ['🕳️','Lubang Hitam Kesilapan','Hanya melihat jawapan betul membolehkan kesilapan yang sama berulang. Cari puncanya.'],
+        ['👾','Raksasa Kesilapan Berulang','Kesilapan sama muncul lagi bermaksud coraknya belum ditutup.'],
+        ['⚠️','Perangkap Kecuaian','“Lain kali lebih berhati-hati” tidak cukup. Cari langkah sebenar tempat markah hilang.'],
+        ['🧱','Jurang Konsep','Baiki konsep yang benar-benar belum dikuasai sebelum membuat lebih banyak soalan.'],
+        ['🔍','Penyamaran Kelemahan','Tukar “saya tidak tahu” kepada satu kelemahan khusus yang boleh dibaiki.']
+      ],
+      exam:[
+        ['⚔️','Perangkap Kehilangan Markah','Hari ini bukan sekadar menyiapkan soalan; kurangkan kehilangan markah yang boleh dielakkan.'],
+        ['⏱️','Raksasa Tekanan Masa','Agihkan masa peperiksaan kepada soalan yang paling bernilai.'],
+        ['👁️','Kabus Kehendak Soalan','Fahami apa yang soalan benar-benar minta sebelum memilih cara menjawab.'],
+        ['😰','Raksasa Gangguan Cemas','Gunakan langkah dan ritma yang jelas supaya ilmu yang anda tahu dapat keluar dengan stabil.'],
+        ['🛡️','Lubang Semakan','Semakan akhir mesti ada sasaran, bukan membaca semula secara rawak.']
+      ],
+      default:[
+        ['🌑','Bayang Keraguan','Tukar “saya tidak boleh” kepada satu masalah yang boleh diambil tindakan hari ini.'],
+        ['🪞','Perangkap Label','Markah ialah petunjuk, bukan identiti. Kumpul bukti baharu melalui tindakan.'],
+        ['🌁','Kabus Masalah','Pecahkan kesukaran belajar yang kabur kepada satu masalah khusus yang boleh diselesaikan.'],
+        ['🧭','Hilang Arah','Pilih satu langkah seterusnya yang paling penting, bukan cuba mengubah semuanya sekali gus.'],
+        ['🪨','Rintangan Tindakan','Pertumbuhan tidak menunggu keadaan sempurna. Mulakan dengan satu tindakan sebenar.']
+      ]
+    },
+    en:{
+      todayplan:[
+        ['⏳','Procrastination Monster','Defeat the gap between knowing what to do and actually starting.'],
+        ['📱','Distraction Magnet','Protect your attention so outside distractions do not pull you away from the task.'],
+        ['🧩','Planning Gap','Turn a vague plan into a specific action with a time, scope and definition of done.'],
+        ['🌀','Fake-Busy Monster','Busy is not the same as effective. Find the one action that creates a real result.'],
+        ['🚧','Start Barrier','Do not wait for motivation. Make the first step small enough to start now.']
+      ],
+      pomodoro:[
+        ['🌫️','Understanding Fog','Looking familiar is not mastery. Prove understanding through explanation, recall or practice.'],
+        ['🧠','Memory Funnel','Do not let knowledge disappear after a few minutes. Use active recall to keep it.'],
+        ['📖','Familiarity Trap','Feeling familiar does not mean you can do it. Test yourself instead of only rereading.'],
+        ['🔁','Review Loop Monster','Repeated reading without testing and adjustment can create an illusion of mastery.'],
+        ['🎯','Shallow-Focus Monster','Focus is not just sitting longer; it is attention on one clear learning goal.']
+      ],
+      mistakes:[
+        ['🕳️','Mistake Black Hole','Only looking at the correct answer lets the same mistake return. Find the real cause.'],
+        ['👾','Repeating-Error Monster','If the same mistake appears again, the error pattern has not been closed.'],
+        ['⚠️','Carelessness Trap','“Be more careful next time” is not enough. Find exactly where the mark was lost.'],
+        ['🧱','Concept Gap','Repair the concept you truly do not understand before doing more questions.'],
+        ['🔍','Hidden-Weakness Monster','Turn a vague “I don’t know” into one specific weakness you can repair.']
+      ],
+      exam:[
+        ['⚔️','Lost-Mark Trap','Today is not only about finishing; it is about reducing avoidable mark loss.'],
+        ['⏱️','Time-Pressure Monster','Allocate exam time to the questions that are most worth the marks.'],
+        ['👁️','Question-Reading Fog','Understand what the question truly asks before choosing how to answer.'],
+        ['😰','Anxiety Interference','Use a clear process and rhythm so the knowledge you have can come out reliably.'],
+        ['🛡️','Checking Gap','Final checking needs a purpose, not a random reread from beginning to end.']
+      ],
+      default:[
+        ['🌑','Shadow of Doubt','Turn “I can’t” into one problem you can act on today.'],
+        ['🪞','Label Trap','A score is evidence, not identity. Use action to collect new evidence.'],
+        ['🌁','Problem Fog','Break a vague learning difficulty into one specific problem you can solve.'],
+        ['🧭','Direction Loss','Choose the single most important next step instead of changing everything at once.'],
+        ['🪨','Action Resistance','Growth does not wait for perfect conditions. Start with one real action.']
+      ]
+    }
+  };
+
+  let group=(families[lang]||families.zh)[tool] || (families[lang]||families.zh).default;
+  let pick=group[(absDay-1)%group.length];
+
+  /* Put the unique daily topic directly into the enemy name.
+     This guarantees the card visibly changes from Day to Day. */
+  let shortTopic=String(topic).replace(/^Weekly Review\s*\d*\s*[｜|·:-]?\s*/i,'').trim();
+  if(shortTopic.length>28) shortTopic=shortTopic.slice(0,28)+'…';
+
+  return [pick[0],`${pick[1]} · ${shortTopic}`,pick[2]];
+}
+
+/* Keep the old public function name so every existing screen
+   (Today's Enemy, Home A-BOT, etc.) automatically uses the new daily enemy. */
+localizedEnemy=function(day=CYCLE.day){
+  const abs=scoreAGlobalDay(day);
+  return scoreADailyEnemy(abs,getScoreALanguage());
+};
+
+/* Refresh any currently visible enemy immediately after the patch loads. */
+setTimeout(()=>{
+  if(typeof render==="function") render();
+  if(typeof renderPremiumHomeFeatures==="function") renderPremiumHomeFeatures();
+},180);
+
 </script>
 </body></html>
