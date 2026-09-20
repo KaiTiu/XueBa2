@@ -2272,10 +2272,19 @@ function localizeRouteDom(){
       h.textContent=l==="ms"?"Sistem mencadangkan anda bermula dengan 3 modul ini":"The system suggests starting with these 3 modules";
   });
   body.querySelectorAll('.routeEmpty').forEach(x=>{
-    if(x.textContent.includes('这3个模块')||x.textContent.includes('3 modul')||x.textContent.includes('3 modules'))
+    if(x.textContent.includes('这3个模块')||x.textContent.includes('3 modul')||x.textContent.includes('3 modules')){
       x.innerHTML=l==="ms"
         ?'<b>3 modul ini bukan cadangan tetap.</b><br>Sistem menyusun keutamaan berdasarkan arah penambahbaikan, subjek utama, matlamat 30 hari dan masa belajar harian.'
         :'<b>These 3 modules are not fixed recommendations.</b><br>The system ranks them using your improvement direction, main subject, 30-day goal and daily study time.';
+    }else if(x.textContent.includes('5个学霸启动问题')||x.textContent.includes('5 Starter Questions')){
+      x.innerHTML=l==="ms"
+        ?'Sistem telah menemui diagnosis pembelajaran anda, tetapi anda belum melengkapkan <b>5 Soalan Permulaan Pelajar Cemerlang</b>. Selepas selesai, sistem akan membina analisis titik mula dan laluan pembelajaran yang lebih sesuai. <a href="free.html">Teruskan di Free Learning Growth Center →</a>'
+        :'The system found your learning diagnostic, but you have not completed the <b>5 Top-Student Starter Questions</b>. After completion, the system will build your starting-point analysis and a more suitable learning route. <a href="free.html">Continue in Free Learning Growth Center →</a>';
+    }else if(x.textContent.includes('先完成学习诊断')){
+      x.innerHTML=l==="ms"
+        ?'<b>Lengkapkan diagnosis pembelajaran dahulu supaya sistem boleh membina laluan peribadi anda.</b><br>Gunakan Email yang sama seperti akaun rasmi anda.<br><a href="free.html">Pergi ke Free Learning Growth Center →</a>'
+        :'<b>Complete the learning diagnostic first so the system can build your personalised route.</b><br>Use the same Email as your formal account.<br><a href="free.html">Go to Free Learning Growth Center →</a>';
+    }
   });
 }
 const SCOREA_ROUTE_TYPES={
@@ -2451,7 +2460,7 @@ async function loadPersonalizedLearning(email,student){
     if(!diag){
       tag.textContent='尚未完成诊断';
       intro.textContent='你的正式课程已经开通，但系统还没有找到与你当前登录 Email 对应的学习诊断或学习档案。';
-      body.innerHTML=`<div class="routeEmpty"><b>先完成学习诊断，系统才能给你专属路线。</b><br>请使用与你现在登录相同的 Email 完成：<br><a href="how-to-score-a-free-diagnostic-supabase.html">① 3分钟学习能力诊断 →</a><br><a href="how-to-score-a-5-day-challenge-supabase.html">② 5个学霸启动问题 →</a></div>`;
+      body.innerHTML=`<div class="routeEmpty"><b>先完成学习诊断，系统才能给你专属路线。</b><br>请使用与你现在登录相同的 Email 完成：<br><a href="free.html">前往 Free Learning Growth Center →</a></div>`;
       return;
     }
 
@@ -2473,7 +2482,7 @@ async function loadPersonalizedLearning(email,student){
 
     const profileHtml=profile
       ? `<div class="routeGrid"><div class="routeStat"><small>30天目标</small><b>${esc(profile.improvement_goal)}</b></div><div class="routeStat"><small>每日学习</small><b>${esc(profile.daily_study_time)}</b></div><div class="routeStat" style="grid-column:span 2"><small>怎样判断进步</small><b>${esc(profile.progress_measure)}</b></div></div>`
-      : `<div class="routeEmpty">系统已找到你的诊断，但还没有找到完整的 Day 5 学习档案。<a href="how-to-score-a-5-day-challenge-supabase.html">继续完成5个问题 →</a></div>`;
+      : `<div class="routeEmpty">系统已找到你的学习诊断，但还没有完成「5个学霸启动问题」。完成后，系统会生成你的学习起点分析，并为你安排更适合的学习路线。<a href="free.html">前往 Free Learning Growth Center 继续完成 →</a></div>`;
 
     const personalizedSteps=profile ? buildSecondLayerRoute(diag,profile) : cfg.steps;
     const stepsHtml=`<div class="routePlan">${personalizedSteps.map((s,i)=>`<div class="routeStep"><div class="n">${i+1}</div><b>${esc(s[0])}</b><p>${esc(s[1])}</p><button onclick="routeAction('${s[2]}')">现在开始 →</button></div>`).join('')}</div>`;
@@ -4407,6 +4416,105 @@ setTimeout(()=>{
   if(typeof render==="function") render();
   if(typeof renderPremiumHomeFeatures==="function") renderPremiumHomeFeatures();
 },180);
+
+
+
+/* ===== V8.6 FIX: "MY THOUGHT" ALWAYS STARTS BLANK =====
+   Requirement:
+   - The My Thought answer box must NOT auto-fill old/saved answers.
+   - When a new Day is opened, the box starts blank.
+   - When the page is re-opened/refreshed, the box starts blank.
+   - The student must type a fresh answer themselves.
+   - Previously submitted reflections remain stored in CYCLE.readThought / cloud;
+     they are simply not written back into the input box.
+*/
+let SCOREA_THOUGHT_LAST_DAY_KEY = null;
+
+function scoreAForceBlankThought(force=false){
+  const ta=document.getElementById("dailyThink");
+  if(!ta)return;
+
+  const key=(typeof scoreAThoughtKey==="function")
+    ? scoreAThoughtKey()
+    : ((typeof ck==="function")?ck():`${CYCLE.cycle}-${CYCLE.day}`);
+
+  if(force || SCOREA_THOUGHT_LAST_DAY_KEY!==key){
+    ta.value="";
+    ta.dataset.dayKey=key;
+    SCOREA_THOUGHT_LAST_DAY_KEY=key;
+  }
+
+  ta.disabled=false;
+  ta.readOnly=false;
+  ta.removeAttribute("readonly");
+  ta.removeAttribute("disabled");
+}
+
+/* Override the earlier restore behaviour: never restore saved/draft text
+   into the visible textarea. */
+scoreABindDailyThought=function(force=false){
+  scoreAForceBlankThought(force);
+};
+
+/* Do not keep an unsent draft for automatic refill.
+   Submitted reflections are still saved by markDailyRead(). */
+scoreASaveThoughtDraftNow=function(){
+  const ta=document.getElementById("dailyThink");
+  if(!ta)return;
+  const key=(typeof scoreAThoughtKey==="function")
+    ? scoreAThoughtKey()
+    : ((typeof ck==="function")?ck():`${CYCLE.cycle}-${CYCLE.day}`);
+
+  if(CYCLE.readDraft && Object.prototype.hasOwnProperty.call(CYCLE.readDraft,key)){
+    delete CYCLE.readDraft[key];
+    if(typeof csave==="function")csave();
+  }
+};
+
+/* After each gate render, blank only when entering a different Day.
+   Normal typing is not erased while the student is still on the same Day. */
+const __scoreAV86RenderDailyGate=renderDailyGate;
+renderDailyGate=function(){
+  const beforeKey=SCOREA_THOUGHT_LAST_DAY_KEY;
+  const r=__scoreAV86RenderDailyGate.apply(this,arguments);
+  const currentKey=(typeof scoreAThoughtKey==="function")
+    ? scoreAThoughtKey()
+    : ((typeof ck==="function")?ck():`${CYCLE.cycle}-${CYCLE.day}`);
+  scoreAForceBlankThought(beforeKey!==currentKey);
+  return r;
+};
+
+/* After a successful submission, clear the box again.
+   The saved reflection stays in the stored record/history. */
+const __scoreAV86MarkDailyRead=markDailyRead;
+markDailyRead=function(){
+  const ta=document.getElementById("dailyThink");
+  const answer=ta?.value?.trim()||"";
+  const r=__scoreAV86MarkDailyRead.apply(this,arguments);
+
+  /* Only clear after an actual non-empty submission attempt.
+     Existing validation inside markDailyRead() still decides whether it saves. */
+  setTimeout(()=>{
+    const current=document.getElementById("dailyThink");
+    const key=(typeof scoreAThoughtKey==="function")
+      ? scoreAThoughtKey()
+      : ((typeof ck==="function")?ck():`${CYCLE.cycle}-${CYCLE.day}`);
+
+    if(current && answer && CYCLE.readThought &&
+       Object.prototype.hasOwnProperty.call(CYCLE.readThought,key)){
+      current.value="";
+      current.dataset.dayKey=key;
+      SCOREA_THOUGHT_LAST_DAY_KEY=key;
+    }
+  },60);
+  return r;
+};
+
+/* On initial app entry / refresh, always start blank. */
+window.addEventListener("load",()=>{
+  setTimeout(()=>scoreAForceBlankThought(true),450);
+});
+setTimeout(()=>scoreAForceBlankThought(true),520);
 
 </script>
 </body></html>

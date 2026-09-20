@@ -57,6 +57,27 @@ textarea{min-height:96px;resize:vertical}input:focus,select:focus,textarea:focus
 .actionRow{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px}.actionRow .btn{flex:1;min-width:170px}
 .footer{text-align:center;color:#8a95a7;font-size:11px;margin-top:18px}
 @media(max-width:760px){.brand{align-items:flex-start}.langSwitch{flex-shrink:0}.routeGrid,.profileGrid{grid-template-columns:1fr}.steps{grid-template-columns:1fr}.card,.hero,.panel{padding:21px}.scoreGrid,.parentDims{grid-template-columns:repeat(2,1fr)}.dayTabs{overflow-x:auto;grid-template-columns:repeat(5,minmax(75px,1fr))}}
+
+/* ===== V3 RESULT + CONVERSION UPGRADE ===== */
+.resultReportGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:14px 0}
+.resultReportItem{background:#fff;border:1px solid #e1e8f3;border-radius:15px;padding:13px}
+.resultReportItem small{display:block;color:#718096;font-weight:800;margin-bottom:4px}
+.resultReportItem b{display:block;color:#10213e;line-height:1.45}
+.recommendList{display:grid;gap:9px;margin:12px 0}
+.recommendItem{display:grid;grid-template-columns:34px 1fr;gap:10px;align-items:start;background:#f8faff;border:1px solid #e0e7f3;border-radius:14px;padding:12px}
+.recommendNo{width:34px;height:34px;border-radius:10px;background:#eef1ff;color:#4f55ce;display:grid;place-items:center;font-weight:950}
+.recommendItem b{display:block;margin-bottom:4px;color:#132443}
+.recommendItem p{margin:0;color:#64748b;line-height:1.55;font-size:13px}
+.salesBridge{margin-top:18px;background:linear-gradient(135deg,#10213e,#253c72);color:#fff;border-radius:20px;padding:20px;border:1px solid #314b82}
+.salesBridge h3{margin:4px 0 9px}.salesBridge p{color:#dce6f7;line-height:1.7;margin:7px 0}
+.salesBridge ul{margin:10px 0 14px;padding-left:20px;color:#f0f5ff;line-height:1.75}
+.salesBridge .btn{margin-top:6px}
+.studentShareRow{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px}
+@media(max-width:650px){.resultReportGrid{grid-template-columns:1fr}.studentShareRow .btn{width:100%}}
+
+
+.courseContactNote{font-size:12px;color:#6b7890;margin-top:8px;line-height:1.55}
+
 </style>
 </head>
 <body>
@@ -167,6 +188,7 @@ textarea{min-height:96px;resize:vertical}input:focus,select:focus,textarea:focus
     <div class="info"><b id="parentSymptomsTitle"></b><div id="parentSymptoms" style="margin-top:7px"></div></div>
     <div class="info good"><b id="parentActionTitle"></b><div id="parentAction" style="margin-top:7px"></div></div>
     <div id="familyCompare" class="familyCompare" style="display:none"></div>
+    <div id="parentCourseBridge"></div>
     <div class="actionRow">
       <button class="btn btn-primary" onclick="copyParentResult()" id="parentCopyBtn"></button>
       <button class="btn btn-soft" onclick="shareParentWhatsApp()" id="parentShareBtn"></button>
@@ -175,7 +197,7 @@ textarea{min-height:96px;resize:vertical}input:focus,select:focus,textarea:focus
     <p class="small" style="margin-top:14px" id="parentResultNote"></p>
   </div></section>
 
-  <div class="footer">HOW TO SCORE A with AI · Free Learning Growth Center</div>
+  <div class="footer">HOW TO SCORE A with AI · Free Learning Growth Center · V3</div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -467,7 +489,176 @@ function completeStarter4(){const q=d4Question.value.trim(),reason=d4Reason.valu
 function completeStarter5(){const subject=d5Subject.value.trim(),goal=d5Goal.value,minutes=d5Minutes.value,measure=d5Measure.value.trim();if(!subject||!goal||!minutes||!measure){swarn("d5warn");return}swarn("d5warn",false);const data={subject,goal,minutes,measure};markStarter(5,data);saveLearningProfile(data);sresult("d5result",LANG==="ms"?"✅ Arah pembelajaran 30 hari anda telah siap.":LANG==="en"?"✅ Your 30-day learning direction is complete.":"✅ 你的30天学习方向已经完成，并正在同步学习档案。");showStarterFinish()}
 function restoreStarter(day){const d=starterState.data["day"+day];if(!d)return;setTimeout(()=>{if(day===1){d1Example.value=d.example||"";starterTemp.d1Reason=d.reason||""}[...document.querySelectorAll(day===1?"#d1choices .choice":day===2?"#d2choices .choice":"")].forEach((x,i)=>{if(day===1&&x.textContent.trim()===d.reason)x.classList.add("selected");if(day===2&&i===Number(d.method))x.classList.add("selected")});if(day===2){d2Question.value=d.q||"";starterTemp.d2Method=d.method}if(day===3){d3Time.value=d.time||"";d3Subject.value=d.subject||"";d3Task.value=d.task||"";d3Distraction.value=d.distraction||""}if(day===4){d4Question.value=d.q||"";d4Reason.value=d.reason||"";d4Fix.value=d.fix||""}if(day===5){d5Subject.value=d.subject||"";d5Goal.value=d.goal||"";d5Minutes.value=d.minutes||"";d5Measure.value=d.measure||"";if(starterState.completed.includes(5))showStarterFinish()}},0)}
 function showStarterSaved(day){setTimeout(()=>{const id="d"+day+"result";sresult(id,t().saved);if(day===5)showStarterFinish()},10)}
-function showStarterFinish(){const d=starterState.data.day5||{},title=LANG==="ms"?"🎉 Pengalaman percuma pelajar selesai":LANG==="en"?"🎉 Student free experience complete":"🎉 学生免费体验完成",h=LANG==="ms"?"Arah Pembelajaran 30 Hari Anda":LANG==="en"?"Your 30-Day Learning Direction":"你的30天学习方向";starterFinish.innerHTML=`<div class="finishCard"><span class="badge">${title}</span><h2>${h}</h2><p><b>${LANG==="ms"?"Subjek utama":LANG==="en"?"Focus subject":"重点科目"}：</b>${esc(d.subject||"")}<br><b>${LANG==="ms"?"Keutamaan":LANG==="en"?"Priority":"最想改善"}：</b>${esc(d.goal||"")}<br><b>${LANG==="ms"?"Masa harian":LANG==="en"?"Daily study":"每天稳定学习"}：</b>${esc(d.minutes||"")}<br><b>${LANG==="ms"?"Ukuran kemajuan":LANG==="en"?"Progress measure":"进步判断"}：</b>${esc(d.measure||"")}</p></div>`}
+function studentStarterModules(primary){
+ const packs={
+  zh:{
+   A:[["Feynman 理解训练","用自己的话解释知识，确认不是“看过”而是真正理解。"],["错题与粗心分析","把错误分类、找原因、重做，确认概念真的修好。"],["AI 辅导老师","先自己思考，再让 AI 解释、追问和出题。"]],
+   B:[["Feynman + 番茄学习法","把被动看书升级成专注、回忆、测试和自己讲出来。"],["错题与粗心分析","每一个错误都找原因，不只看正确答案。"],["30天学习冲刺","诊断 → 补弱 → 强化 → 测试 → 复盘。"]],
+   C:[["时间管理","把“今晚读书”变成明确开始时间、科目和任务。"],["番茄工作法","先完成一个 25 分钟专注区块，减少拖延和分心。"],["今日挑战","每天只解决一个最重要的真实学习问题。"]],
+   D:[["错题与粗心分析","找出粗心、步骤、概念、审题和时间问题。"],["考试高分系统","训练审题、时间分配、作答和检查。"],["30天考试冲刺","用模拟与复盘把考试策略练成习惯。"]],
+   E:[["今日挑战","自己决定今天要解决的一个真实学习问题。"],["学习成长路径","从被提醒，逐步成长到自己规划、执行和检查。"],["AI 辅导老师","把 AI 当教练，不把 AI 当答案机器。"]]
+  },
+  ms:{
+   A:[["Latihan Feynman","Terangkan ilmu dengan kata sendiri supaya benar-benar faham."],["Analisis Kesilapan","Klasifikasikan kesilapan, cari punca dan cuba semula."],["Tutor AI","Fikir dahulu, kemudian gunakan AI untuk menerangkan, menyoal dan memberi latihan."]],
+   B:[["Feynman + Pomodoro","Naik taraf membaca pasif kepada fokus, recall, ujian dan penerangan sendiri."],["Analisis Kesilapan","Cari sebab setiap kesilapan, bukan sekadar melihat jawapan."],["Pecutan 30 Hari","Diagnosis → baiki kelemahan → kukuhkan → uji → refleksi."]],
+   C:[["Pengurusan Masa","Tukar “belajar malam ini” kepada masa mula, subjek dan tugas yang jelas."],["Pomodoro","Mulakan dengan satu blok fokus 25 minit untuk mengurangkan penangguhan."],["Cabaran Hari Ini","Selesaikan hanya satu masalah pembelajaran paling penting setiap hari."]],
+   D:[["Analisis Kesilapan","Cari masalah cuai, langkah, konsep, bacaan soalan dan masa."],["Sistem Strategi Peperiksaan","Latih bacaan soalan, agihan masa, menjawab dan menyemak."],["Pecutan Peperiksaan 30 Hari","Gunakan simulasi dan refleksi untuk membina strategi yang stabil."]],
+   E:[["Cabaran Hari Ini","Tentukan sendiri satu masalah pembelajaran sebenar untuk diselesaikan."],["Laluan Perkembangan","Bergerak daripada perlu diingatkan kepada merancang, melaksana dan menyemak sendiri."],["Tutor AI","Gunakan AI sebagai jurulatih, bukan mesin jawapan."]]
+  },
+  en:{
+   A:[["Feynman Understanding","Explain ideas in your own words to prove real understanding."],["Mistake Analysis","Classify errors, find the cause and retry until the concept is repaired."],["AI Tutor","Think first, then use AI to explain, question and generate practice."]],
+   B:[["Feynman + Pomodoro","Upgrade passive rereading into focus, recall, testing and self-explanation."],["Mistake Analysis","Find the cause of every error instead of only checking the answer."],["30-Day Learning Sprint","Diagnose → repair → strengthen → test → reflect."]],
+   C:[["Time Management","Turn “study tonight” into a clear start time, subject and task."],["Pomodoro","Start with one 25-minute focus block to reduce procrastination."],["Today’s Challenge","Solve one important real learning problem each day."]],
+   D:[["Mistake Analysis","Identify carelessness, steps, concepts, question-reading and time problems."],["Exam Strategy System","Train question reading, time allocation, answering and checking."],["30-Day Exam Sprint","Use simulation and reflection to make exam strategy stable."]],
+   E:[["Today’s Challenge","Choose one real learning problem to solve independently today."],["Growth Path","Move from being reminded to planning, acting and checking independently."],["AI Tutor","Use AI as a coach, not an answer machine."]]
+  }
+ };
+ return (packs[LANG]||packs.zh)[primary]||(packs[LANG]||packs.zh).B;
+}
+
+function studentStarterResultText(){
+ const i=getIdentity()||{},diag=getDiagnostic()||{},d=starterState.data.day5||{},d3=starterState.data.day3||{};
+ const types=STUDENT_TYPES[LANG]||STUDENT_TYPES.zh;
+ const p=diag.primary_type||"B",s=diag.secondary_type||"";
+ const mods=studentStarterModules(p);
+ if(LANG==="ms")return `HOW TO SCORE A with AI｜Keputusan Permulaan Pembelajaran Saya
+
+Pelajar: ${i.student_name||""}｜${i.grade||""}
+Arah utama: ${types[p]?.[1]||""}
+Arah kedua: ${types[s]?.[1]||"—"}
+Subjek fokus: ${d.subject||""}
+Matlamat 30 hari: ${d.goal||""}
+Masa belajar harian: ${d.minutes||""} minit
+Cara mengukur kemajuan: ${d.measure||""}
+
+3 latihan yang disyorkan:
+1. ${mods[0][0]}
+2. ${mods[1][0]}
+3. ${mods[2][0]}
+
+Tindakan pertama saya:
+${d3.task||types[p]?.[4]||""}
+
+Saya akan bermula dengan satu langkah kecil dahulu.`;
+ if(LANG==="en")return `HOW TO SCORE A with AI｜My Learning Starter Result
+
+Student: ${i.student_name||""}｜${i.grade||""}
+Primary direction: ${types[p]?.[1]||""}
+Second direction: ${types[s]?.[1]||"—"}
+Focus subject: ${d.subject||""}
+30-day goal: ${d.goal||""}
+Daily study time: ${d.minutes||""} minutes
+How I will measure progress: ${d.measure||""}
+
+3 recommended starting modules:
+1. ${mods[0][0]}
+2. ${mods[1][0]}
+3. ${mods[2][0]}
+
+My first action:
+${d3.task||types[p]?.[4]||""}
+
+I will start with one small action first.`;
+ return `HOW TO SCORE A with AI｜我的学习启动结果
+
+学生：${i.student_name||""}｜${i.grade||""}
+主要改善方向：${types[p]?.[1]||""}
+第二方向：${types[s]?.[1]||"—"}
+重点科目：${d.subject||""}
+30天目标：${d.goal||""}
+每日学习时间：${d.minutes||""}分钟
+怎样判断进步：${d.measure||""}
+
+系统建议我先从：
+1. ${mods[0][0]}
+2. ${mods[1][0]}
+3. ${mods[2][0]}
+
+我今天先做的一件事：
+${d3.task||types[p]?.[4]||""}
+
+我会先从一个小目标开始。`;
+}
+
+async function copyStudentStarterResult(){
+ try{
+  await navigator.clipboard.writeText(studentStarterResultText());
+  alert(LANG==="ms"?"Keputusan pelajar telah disalin.":LANG==="en"?"Student result copied.":"学生结果已复制。");
+ }catch(e){
+  alert(LANG==="ms"?"Tidak dapat menyalin secara automatik.":LANG==="en"?"Could not copy automatically.":"无法自动复制，请手动复制页面内容。");
+ }
+}
+function shareStudentStarterWhatsApp(){
+ const prefix=LANG==="ms"?"Ibu/Ayah, ini keputusan pembelajaran saya.\n\n":LANG==="en"?"Mum/Dad, this is my learning result.\n\n":"爸爸妈妈，这是我的学习测试结果。\n\n";
+ window.open(`https://wa.me/?text=${encodeURIComponent(prefix+studentStarterResultText())}`,"_blank");
+}
+
+function contactCourseWhatsApp(source="student"){
+ const phone="601149553191";
+ const isParent=source==="parent";
+ const msg=LANG==="ms"
+  ?(isParent
+    ?"Hai, saya baru selesai Ujian Percuma Ibu Bapa HOW TO SCORE A with AI. Saya ingin mengetahui dengan lebih lanjut tentang kursus, cara ia membantu anak saya dan yuran."
+    :"Hai, saya baru selesai Free Learning Growth Center HOW TO SCORE A with AI. Saya ingin mengetahui dengan lebih lanjut tentang kursus dan yuran.")
+  :LANG==="en"
+  ?(isParent
+    ?"Hi, I just completed the HOW TO SCORE A with AI Parent Free Test. I would like to know more about the course, how it can help my child, and the fees."
+    :"Hi, I just completed the HOW TO SCORE A with AI Free Learning Growth Center. I would like to know more about the course and the fees.")
+  :(isParent
+    ?"你好，我刚完成 HOW TO SCORE A with AI 家长免费测试。我想进一步了解课程内容、怎样帮助孩子，以及课程收费。"
+    :"你好，我刚完成 HOW TO SCORE A with AI Free Learning Growth Center。我想进一步了解课程详情和收费。");
+ window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`,"_blank");
+}
+function openFormalStudentOS(){window.location.href="index.html"}
+
+function showStarterFinish(){
+ const i=getIdentity()||{},diag=getDiagnostic()||{},d=starterState.data.day5||{},d3=starterState.data.day3||{};
+ const types=STUDENT_TYPES[LANG]||STUDENT_TYPES.zh;
+ const p=diag.primary_type||"B",s=diag.secondary_type||"";
+ const mods=studentStarterModules(p);
+ const title=LANG==="ms"?"🎉 Pengalaman percuma pelajar selesai":LANG==="en"?"🎉 Student free experience complete":"🎉 学生免费体验完成";
+ const h=LANG==="ms"?"Laporan Permulaan Pembelajaran Saya":LANG==="en"?"My Learning Starter Report":"我的学习启动报告";
+ const primary=types[p]?.[1]||"—",secondary=types[s]?.[1]||"—";
+ const labels=LANG==="ms"
+   ?["Arah utama","Arah kedua","Subjek fokus","Matlamat 30 hari","Belajar harian","Ukuran kemajuan"]
+   :LANG==="en"
+   ?["Primary direction","Second direction","Focus subject","30-day goal","Daily study","Progress measure"]
+   :["主要改善","第二方向","重点科目","30天目标","每日学习","怎样判断进步"];
+ const intro=LANG==="ms"
+   ?`${esc(i.student_name||"Pelajar")}, sistem telah menggabungkan diagnosis 15 soalan dan 5 soalan permulaan anda. Fokusnya bukan melakukan semuanya sekali gus, tetapi bermula dengan perkara yang paling bernilai.`
+   :LANG==="en"
+   ?`${esc(i.student_name||"Student")}, the system has combined your 15-question diagnostic and 5 starter questions. The goal is not to change everything at once, but to start with the highest-value area.`
+   :`${esc(i.student_name||"同学")}，系统已经把你的15题学习诊断和5个启动问题综合起来。重点不是一次改变全部，而是先从最值得改善的地方开始。`;
+ const firstAction=d3.task||types[p]?.[4]||"";
+ const recTitle=LANG==="ms"?"Sistem mencadangkan anda bermula dengan 3 latihan ini":LANG==="en"?"Start with these 3 recommended modules":"系统建议你先从这3个训练开始";
+ const actionTitle=LANG==="ms"?"Tindakan pertama saya hari ini":LANG==="en"?"My first action today":"我今天先做的一件事";
+ const copyLabel=LANG==="ms"?"📋 Salin keputusan saya":LANG==="en"?"📋 Copy my result":"📋 复制我的结果";
+ const shareLabel=LANG==="ms"?"💬 WhatsApp kepada ibu bapa":LANG==="en"?"💬 WhatsApp to parent":"💬 WhatsApp 给家长";
+ const formalLabel=LANG==="ms"?"🚀 Masuk sistem pembelajaran rasmi":LANG==="en"?"🚀 Enter the formal learning system":"🚀 开始我的正式学习路线";
+
+ starterFinish.innerHTML=`<div class="finishCard">
+  <span class="badge">${title}</span>
+  <h2>${h}</h2>
+  <p class="muted">${intro}</p>
+  <div class="resultReportGrid">
+   <div class="resultReportItem"><small>${labels[0]}</small><b>${esc(primary)}</b></div>
+   <div class="resultReportItem"><small>${labels[1]}</small><b>${esc(secondary)}</b></div>
+   <div class="resultReportItem"><small>${labels[2]}</small><b>${esc(d.subject||"—")}</b></div>
+   <div class="resultReportItem"><small>${labels[3]}</small><b>${esc(d.goal||"—")}</b></div>
+   <div class="resultReportItem"><small>${labels[4]}</small><b>${esc(d.minutes||"—")}${d.minutes?(LANG==="ms"?" minit":LANG==="en"?" minutes":"分钟"):""}</b></div>
+   <div class="resultReportItem"><small>${labels[5]}</small><b>${esc(d.measure||"—")}</b></div>
+  </div>
+  <h3>${recTitle}</h3>
+  <div class="recommendList">${mods.map((m,idx)=>`<div class="recommendItem"><div class="recommendNo">${idx+1}</div><div><b>${esc(m[0])}</b><p>${esc(m[1])}</p></div></div>`).join("")}</div>
+  <div class="info good"><b>${actionTitle}</b><div style="margin-top:7px">${esc(firstAction)}</div></div>
+  <div class="studentShareRow">
+   <button class="btn btn-primary" onclick="copyStudentStarterResult()">${copyLabel}</button>
+   <button class="btn btn-soft" onclick="shareStudentStarterWhatsApp()">${shareLabel}</button>
+   <button class="btn btn-green" onclick="openFormalStudentOS()">${formalLabel}</button>
+   <button class="btn btn-soft" onclick="contactCourseWhatsApp('student')">${LANG==="ms"?"💬 WhatsApp tanya kursus & yuran":LANG==="en"?"💬 WhatsApp course details & fees":"💬 WhatsApp 了解课程详情与收费"}</button>
+  </div>
+ </div>`;
+}
 
 /* PARENT */
 let pCurrent=0,pAnswers=Array(15).fill(null),lastParentResult=null;
@@ -479,9 +670,103 @@ function parentAnswer(score){pAnswers[pCurrent]=score;if(pCurrent<14){pCurrent++
 function parentBack(){if(pCurrent>0){pCurrent--;renderParentQuestion()}}
 function parentScores(){const s={A:0,B:0,C:0,D:0,E:0};PARENT_Q.zh.forEach((q,i)=>s[q[0]]+=Number(pAnswers[i]??0));return s}
 function showParentResult(){const scores=parentScores(),ranked=Object.entries(scores).sort((a,b)=>b[1]-a[1]),p=ranked[0][0],s=ranked[1][0];lastParentResult={scores,primary:p,secondary:s};const old=JSON.parse(localStorage.getItem(PARENT_KEY)||"{}");localStorage.setItem(PARENT_KEY,JSON.stringify({...old,answers:pAnswers,scores,primary_type:p,secondary_type:s,updated_at:new Date().toISOString()}));showScreen("parentResult");renderParentResultOnly()}
-function renderParentResultOnly(){if(!lastParentResult){try{const x=JSON.parse(localStorage.getItem(PARENT_KEY)||"null");if(!x?.scores)return;lastParentResult={scores:x.scores,primary:x.primary_type,secondary:x.secondary_type}}catch(e){return}}const {scores,primary:p,secondary:s}=lastParentResult,types=PARENT_TYPES[LANG]||PARENT_TYPES.zh;parentPrimaryTitle.textContent=types[p][0];parentPrimaryDesc.textContent=types[p][1];parentSecondary.innerHTML=`<b>${t().second}</b>${types[s][0]}（${scores[s]} / 9）`;parentScoreGrid.innerHTML=["A","B","C","D","E"].map(k=>`<div class="parentDim"><b>${scores[k]}/9</b><small>${t().parentLabels[k]}</small></div>`).join("");parentSymptoms.textContent=types[p][2];parentAction.textContent=types[p][3];renderFamilyCompare(p)}
+function renderParentCourseBridge(primary){
+ const el=document.getElementById("parentCourseBridge");if(!el)return;
+ const x=JSON.parse(localStorage.getItem(PARENT_KEY)||"{}"),types=PARENT_TYPES[LANG]||PARENT_TYPES.zh;
+ const focus=types[primary]?.[0]||"";
+ const title=LANG==="ms"?"Apa makna keputusan ini untuk langkah seterusnya?":LANG==="en"?"What does this result mean for the next step?":"这个结果代表下一步应该怎样做？";
+ const body=LANG==="ms"
+   ?`Keputusan ini bukan label untuk anak. Ia menunjukkan <b>${esc(focus)}</b> ialah satu titik mula yang bernilai. Daripada menambah lebih banyak desakan atau latihan secara rawak, lebih berkesan jika anak mempunyai sistem harian yang jelas untuk merancang, belajar, menyemak kesilapan dan membuat refleksi.`
+   :LANG==="en"
+   ?`This result is not a label for your child. It shows that <b>${esc(focus)}</b> is a useful starting point. Instead of adding more reminders or random practice, it is more effective to give the child a clear daily system for planning, learning, analysing mistakes and reflecting.`
+   :`这个结果不是给孩子贴标签，而是说明 <b>${esc(focus)}</b> 是目前最值得开始的地方。与其继续增加催促或盲目刷题，更有效的是让孩子有一套每天可以执行的系统：规划 → 学习 → 找错 → 反思 → 调整。`;
+ const helpTitle=LANG==="ms"?"How to Score A with AI boleh membantu anak membina：":LANG==="en"?"How to Score A with AI helps students build:":"How to Score A with AI 可以帮助孩子逐步建立：";
+ const bullets=LANG==="ms"
+   ?["tugasan pembelajaran harian yang jelas","pengurusan masa & fokus","analisis kesilapan dan kelemahan","kaedah belajar & ulang kaji yang betul","penggunaan AI sebagai jurulatih, bukan mesin jawapan","refleksi pertumbuhan + pandangan ibu bapa"]
+   :LANG==="en"
+   ?["clear daily learning missions","time and focus management","mistake and weakness analysis","effective study and revision methods","AI used as a coach, not an answer machine","growth reflection + parent visibility"]
+   :["清楚的每日学习任务","时间与专注管理","错题与弱点分析","正确学习与复习方法","把 AI 当教练，而不是答案机器","成长反思 + 家长可看见的进度"];
+ const cta=LANG==="ms"?"Lihat sistem pembelajaran rasmi →":LANG==="en"?"View the formal learning system →":"查看正式学习成长系统 →";
+ el.innerHTML=`<div class="salesBridge"><div class="small" style="color:#9fc2ff;font-weight:900">HOW TO SCORE A with AI</div><h3>${title}</h3><p>${body}</p><b>${helpTitle}</b><ul>${bullets.map(x=>`<li>${esc(x)}</li>`).join("")}</ul><div class="studentShareRow">
+ <button class="btn btn-green" onclick="openFormalStudentOS()">${cta}</button>
+ <button class="btn btn-soft" onclick="contactCourseWhatsApp('parent')">${LANG==="ms"?"💬 WhatsApp tanya kursus & yuran":LANG==="en"?"💬 WhatsApp course details & fees":"💬 WhatsApp 了解课程详情与收费"}</button>
+ </div></div>`;
+}
+
+function renderParentResultOnly(){
+ if(!lastParentResult){try{const x=JSON.parse(localStorage.getItem(PARENT_KEY)||"null");if(!x?.scores)return;lastParentResult={scores:x.scores,primary:x.primary_type,secondary:x.secondary_type}}catch(e){return}}
+ const {scores,primary:p,secondary:s}=lastParentResult,types=PARENT_TYPES[LANG]||PARENT_TYPES.zh;
+ parentPrimaryTitle.textContent=types[p][0];
+ parentPrimaryDesc.textContent=types[p][1];
+ parentSecondary.innerHTML=`<b>${t().second}</b>${types[s][0]}（${scores[s]} / 9）`;
+ parentScoreGrid.innerHTML=["A","B","C","D","E"].map(k=>`<div class="parentDim"><b>${scores[k]}/9</b><small>${t().parentLabels[k]}</small></div>`).join("");
+ parentSymptoms.textContent=types[p][2];
+ parentAction.textContent=types[p][3];
+ renderFamilyCompare(p);
+ renderParentCourseBridge(p);
+}
 function renderFamilyCompare(parentPrimary){const d=getDiagnostic();if(!d){familyCompare.style.display="none";return}const child=(STUDENT_TYPES[LANG]||STUDENT_TYPES.zh)[d.primary_type]?.[1]||d.primary_type,parent=(PARENT_TYPES[LANG]||PARENT_TYPES.zh)[parentPrimary][0];familyCompare.style.display="block";familyCompare.innerHTML=LANG==="ms"?`<b>👨‍👩‍👧 Cadangan Padanan Keluarga</b><br>Diagnosis anak pada peranti ini: <b>${child}</b>; keutamaan ibu bapa: <b>${parent}</b>.<br><span class="muted">Minggu ini, pilih hanya satu masalah untuk diperbaiki bersama.</span>`:LANG==="en"?`<b>👨‍👩‍👧 Family Alignment Suggestion</b><br>Child diagnostic on this device: <b>${child}</b>; parent priority: <b>${parent}</b>.<br><span class="muted">For this week, solve only one family learning problem together.</span>`:`<b>👨‍👩‍👧 家庭对照建议</b><br>这台装置上已有孩子的学习诊断：<b>${child}</b>；家长目前最值得先调整：<b>${parent}</b>。<br><span class="muted">建议家庭这周只共同解决一个问题，不要同时改变所有学习习惯。</span>`}
-function parentResultText(){const x=JSON.parse(localStorage.getItem(PARENT_KEY)||"{}"),s=x.scores||{},types=PARENT_TYPES[LANG]||PARENT_TYPES.zh;if(LANG==="ms")return `HOW TO SCORE A with AI｜Keputusan Ujian Ibu Bapa\n\nAnak: ${x.child_name||""}｜${x.child_grade||""}\nKeutamaan: ${types[x.primary_type]?.[0]||""}\nArah kedua: ${types[x.secondary_type]?.[0]||""}\n\nKomunikasi: ${s.A??0}/9\nMasa & Persekitaran: ${s.B??0}/9\nPembelajaran Kendiri: ${s.C??0}/9\nSokongan Peperiksaan: ${s.D??0}/9\nAI: ${s.E??0}/9\n\nTindakan hari ini:\n${types[x.primary_type]?.[3]||""}`;if(LANG==="en")return `HOW TO SCORE A with AI｜Parent Free Test Result\n\nChild: ${x.child_name||""}｜${x.child_grade||""}\nPriority: ${types[x.primary_type]?.[0]||""}\nSecond area: ${types[x.secondary_type]?.[0]||""}\n\nCommunication: ${s.A??0}/9\nTime & Environment: ${s.B??0}/9\nIndependent Learning: ${s.C??0}/9\nExam Support: ${s.D??0}/9\nAI Use: ${s.E??0}/9\n\nToday’s action:\n${types[x.primary_type]?.[3]||""}`;return `HOW TO SCORE A with AI｜家长免费测试结果\n\n孩子：${x.child_name||""}｜${x.child_grade||""}\n主要改善方向：${types[x.primary_type]?.[0]||""}\n第二方向：${types[x.secondary_type]?.[0]||""}\n\n沟通：${s.A??0}/9\n时间环境：${s.B??0}/9\n自主学习：${s.C??0}/9\n考试支持：${s.D??0}/9\nAI使用：${s.E??0}/9\n\n今天的小行动：\n${types[x.primary_type]?.[3]||""}`}
+function parentResultText(){
+ const x=JSON.parse(localStorage.getItem(PARENT_KEY)||"{}"),s=x.scores||{},types=PARENT_TYPES[LANG]||PARENT_TYPES.zh;
+ const focus=types[x.primary_type]?.[0]||"",second=types[x.secondary_type]?.[0]||"",action=types[x.primary_type]?.[3]||"";
+ if(LANG==="ms")return `HOW TO SCORE A with AI｜Keputusan Ujian Ibu Bapa
+
+Anak: ${x.child_name||""}｜${x.child_grade||""}
+Keutamaan: ${focus}
+Arah kedua: ${second}
+
+Komunikasi: ${s.A??0}/9
+Masa & Persekitaran: ${s.B??0}/9
+Pembelajaran Kendiri: ${s.C??0}/9
+Sokongan Peperiksaan: ${s.D??0}/9
+AI: ${s.E??0}/9
+
+Tindakan kecil hari ini:
+${action}
+
+Langkah seterusnya:
+Keputusan ini bukan label. Ia menunjukkan ${focus} ialah titik mula yang paling bernilai sekarang. Fokus pada satu sistem harian yang jelas: rancang → belajar → analisis kesilapan → refleksi → laraskan.
+
+How to Score A with AI membantu anak membina pengurusan masa, fokus, analisis kesilapan, kaedah ulang kaji, penggunaan AI yang betul dan pembelajaran kendiri.`;
+ if(LANG==="en")return `HOW TO SCORE A with AI｜Parent Free Test Result
+
+Child: ${x.child_name||""}｜${x.child_grade||""}
+Priority: ${focus}
+Second area: ${second}
+
+Communication: ${s.A??0}/9
+Time & Environment: ${s.B??0}/9
+Independent Learning: ${s.C??0}/9
+Exam Support: ${s.D??0}/9
+AI Use: ${s.E??0}/9
+
+Today’s small action:
+${action}
+
+Next step:
+This result is not a label. It shows ${focus} is the highest-value starting point right now. Build one clear daily system: plan → learn → analyse mistakes → reflect → adjust.
+
+How to Score A with AI helps students build time management, focus, mistake analysis, effective revision, responsible AI use and independent learning.`;
+ return `HOW TO SCORE A with AI｜家长免费测试结果
+
+孩子：${x.child_name||""}｜${x.child_grade||""}
+主要改善方向：${focus}
+第二方向：${second}
+
+沟通：${s.A??0}/9
+时间环境：${s.B??0}/9
+自主学习：${s.C??0}/9
+考试支持：${s.D??0}/9
+AI使用：${s.E??0}/9
+
+今天的小行动：
+${action}
+
+下一步建议：
+这个结果不是给孩子贴标签，而是说明「${focus}」是目前最值得开始的地方。先建立一套清楚的日常学习系统：规划 → 学习 → 找错 → 反思 → 调整。
+
+How to Score A with AI 会帮助孩子逐步建立时间管理、专注力、错题分析、正确复习方法、正确使用 AI 和自主学习能力。`;
+}
 async function copyParentResult(){try{await navigator.clipboard.writeText(parentResultText());alert(LANG==="ms"?"Keputusan telah disalin.":LANG==="en"?"Result copied.":"家长结果已复制。")}catch(e){alert(LANG==="ms"?"Tidak dapat menyalin secara automatik.":LANG==="en"?"Could not copy automatically.":"无法自动复制，请手动复制页面内容。")}}
 function shareParentWhatsApp(){window.open(`https://wa.me/?text=${encodeURIComponent(parentResultText())}`,"_blank")}
 
