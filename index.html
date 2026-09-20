@@ -3876,5 +3876,311 @@ scoreALogout=async function(){
 
 setTimeout(()=>{scoreANPCSyncVisual();scoreANPCPanel(document.querySelector(".panel.show")?.id||"home");if(!SCOREA_NPC.currentText)scoreANPCSet("idle",{},false)},260);
 
+
+
+/* ===== V8.2 FIX: DAY-SPECIFIC "MY THOUGHT" + MOBILE A-BOT VOICE ===== */
+
+/* ---------------------------------------------------------
+   A) MY THOUGHT
+   - Each Day has its own textarea state.
+   - Day 2 starts blank instead of carrying Day 1 text.
+   - Returning to Day 1 restores Day 1 text and it remains editable.
+   - Unsubmitted drafts are also kept separately by Day.
+--------------------------------------------------------- */
+CYCLE.readDraft = CYCLE.readDraft || {};
+let SCOREA_THOUGHT_SAVE_TIMER = null;
+
+function scoreAThoughtKey(){
+  return (typeof ck === "function") ? ck() : `${CYCLE.cycle}-${CYCLE.day}`;
+}
+
+function scoreASaveThoughtDraftNow(){
+  const ta = document.getElementById("dailyThink");
+  if(!ta) return;
+  const key = ta.dataset.dayKey || scoreAThoughtKey();
+  CYCLE.readDraft = CYCLE.readDraft || {};
+  CYCLE.readDraft[key] = ta.value || "";
+  csave();
+}
+
+function scoreABindDailyThought(force=false){
+  const ta = document.getElementById("dailyThink");
+  if(!ta) return;
+
+  const key = scoreAThoughtKey();
+  const changedDay = ta.dataset.dayKey !== key;
+
+  if(force || changedDay){
+    ta.dataset.dayKey = key;
+
+    /* A saved reflection belongs only to its own day.
+       Otherwise restore only that day's unsent draft; new day = blank. */
+    if(Object.prototype.hasOwnProperty.call(CYCLE.readThought || {}, key)){
+      ta.value = CYCLE.readThought[key] || "";
+    }else if(Object.prototype.hasOwnProperty.call(CYCLE.readDraft || {}, key)){
+      ta.value = CYCLE.readDraft[key] || "";
+    }else{
+      ta.value = "";
+    }
+  }
+
+  ta.disabled = false;
+  ta.readOnly = false;
+
+  if(!ta.dataset.scoreaThoughtBound){
+    ta.dataset.scoreaThoughtBound = "1";
+    ta.addEventListener("input", ()=>{
+      const currentKey = ta.dataset.dayKey || scoreAThoughtKey();
+      CYCLE.readDraft = CYCLE.readDraft || {};
+      CYCLE.readDraft[currentKey] = ta.value || "";
+      clearTimeout(SCOREA_THOUGHT_SAVE_TIMER);
+      SCOREA_THOUGHT_SAVE_TIMER = setTimeout(()=>csave(), 220);
+    });
+  }
+}
+
+/* renderDailyGate previously wrote directly into textarea every render.
+   Save the current day's draft first, then restore the correct day after render. */
+const __scoreAV82RenderDailyGate = renderDailyGate;
+renderDailyGate = function(){
+  const ta = document.getElementById("dailyThink");
+  const beforeKey = ta?.dataset?.dayKey || null;
+  const currentKey = scoreAThoughtKey();
+
+  if(ta && beforeKey === currentKey && !Object.prototype.hasOwnProperty.call(CYCLE.readThought || {}, currentKey)){
+    CYCLE.readDraft = CYCLE.readDraft || {};
+    CYCLE.readDraft[currentKey] = ta.value || "";
+  }
+
+  const r = __scoreAV82RenderDailyGate.apply(this, arguments);
+  scoreABindDailyThought(beforeKey !== scoreAThoughtKey());
+  return r;
+};
+
+/* Once the student presses Save, move the value from draft -> saved reflection. */
+const __scoreAV82MarkDailyRead = markDailyRead;
+markDailyRead = function(){
+  const key = scoreAThoughtKey();
+  const r = __scoreAV82MarkDailyRead.apply(this, arguments);
+
+  if(CYCLE.readThought && Object.prototype.hasOwnProperty.call(CYCLE.readThought, key)){
+    if(CYCLE.readDraft) delete CYCLE.readDraft[key];
+    csave();
+    scoreABindDailyThought(true);
+  }
+  return r;
+};
+
+/* Explicitly refresh the textarea after Day changes.
+   This guarantees Day 1 text cannot remain visible in Day 2. */
+const __scoreAV82FinishTodayChallenge = finishTodayChallenge;
+finishTodayChallenge = function(){
+  const beforeKey = scoreAThoughtKey();
+  scoreASaveThoughtDraftNow();
+
+  const r = __scoreAV82FinishTodayChallenge.apply(this, arguments);
+
+  setTimeout(()=>{
+    const afterKey = scoreAThoughtKey();
+    if(afterKey !== beforeKey){
+      scoreABindDailyThought(true);
+      renderDailyGate();
+    }else{
+      scoreABindDailyThought(false);
+    }
+  }, 160);
+  return r;
+};
+
+
+/* ---------------------------------------------------------
+   B) MOBILE A-BOT VOICE
+   Browser speech is kept free, but mobile browsers need a
+   more defensive implementation:
+   - start from a real tap/click
+   - resume speech engine
+   - load voices when available
+   - split long A-BOT messages into short chunks
+   - choose zh / ms / en voice more flexibly
+--------------------------------------------------------- */
+let SCOREA_MOBILE_VOICES = [];
+let SCOREA_ABOT_SPEAK_TOKEN = 0;
+
+function scoreALoadMobileVoices(){
+  try{
+    SCOREA_MOBILE_VOICES = window.speechSynthesis?.getVoices?.() || [];
+  }catch(e){
+    SCOREA_MOBILE_VOICES = [];
+  }
+  return SCOREA_MOBILE_VOICES;
+}
+
+function scoreAChooseMobileVoice(lang){
+  const voices = scoreALoadMobileVoices();
+  if(!voices.length) return null;
+
+  const lower = v => String(v.lang || "").toLowerCase();
+
+  if(lang === "zh"){
+    return voices.find(v=>/^zh-(cn|sg)/.test(lower(v)))
+        || voices.find(v=>/^zh-(tw|hk)/.test(lower(v)))
+        || voices.find(v=>lower(v).startsWith("zh"))
+        || null;
+  }
+
+  if(lang === "ms"){
+    return voices.find(v=>/^ms(-|$)/.test(lower(v)))
+        || voices.find(v=>/^id(-|$)/.test(lower(v)))
+        || null;
+  }
+
+  return voices.find(v=>/^en-(my|sg)/.test(lower(v)))
+      || voices.find(v=>/^en-(us|gb|au)/.test(lower(v)))
+      || voices.find(v=>lower(v).startsWith("en"))
+      || null;
+}
+
+function scoreASpeechChunks(text){
+  text = String(text || "").replace(/\s+/g," ").trim();
+  if(!text) return [];
+
+  /* Short chunks prevent iOS / mobile Web Speech from silently stopping. */
+  const rough = text.match(/[^。！？!?；;,.，]{1,72}[。！？!?；;,.，]?/g) || [text];
+  const out = [];
+  let buf = "";
+
+  rough.forEach(part=>{
+    part = part.trim();
+    if(!part) return;
+    if((buf + " " + part).trim().length <= 105){
+      buf = (buf + " " + part).trim();
+    }else{
+      if(buf) out.push(buf);
+      buf = part;
+    }
+  });
+  if(buf) out.push(buf);
+  return out;
+}
+
+function scoreAMobileVoiceMessage(lang, kind){
+  const msg = {
+    zh:{
+      unsupported:"这个手机浏览器不支持 A-BOT 语音。请用 Safari 或 Chrome 打开网页后，再点击「听 A-BOT」。",
+      failed:"A-BOT 语音没有成功播放。请确认手机媒体音量已打开，然后再点一次「听 A-BOT」。"
+    },
+    ms:{
+      unsupported:"Pelayar telefon ini tidak menyokong suara A-BOT. Sila buka laman ini dalam Safari atau Chrome dan tekan “Dengar A-BOT” sekali lagi.",
+      failed:"Suara A-BOT tidak berjaya dimainkan. Pastikan kelantangan media telefon dibuka, kemudian tekan “Dengar A-BOT” sekali lagi."
+    },
+    en:{
+      unsupported:"This mobile browser does not support A-BOT voice. Open this page in Safari or Chrome, then tap “Hear A-BOT” again.",
+      failed:"A-BOT voice did not start. Make sure your phone media volume is on, then tap “Hear A-BOT” again."
+    }
+  };
+  return (msg[lang] || msg.zh)[kind];
+}
+
+function scoreASpeakABot(){
+  const lang = getScoreALanguage();
+  const mode = scoreAABotMode();
+
+  if(!("speechSynthesis" in window) || typeof SpeechSynthesisUtterance === "undefined"){
+    alert(scoreAMobileVoiceMessage(lang,"unsupported"));
+    return;
+  }
+
+  const synth = window.speechSynthesis;
+  const chunks = scoreASpeechChunks(scoreAABotCopy());
+
+  if(!chunks.length) return;
+
+  const token = ++SCOREA_ABOT_SPEAK_TOKEN;
+  const voice = scoreAChooseMobileVoice(lang);
+  const voiceLang = lang==="ms" ? "ms-MY" : lang==="en" ? "en-US" : "zh-CN";
+  let started = false;
+  let finished = false;
+
+  function stopVisual(){
+    scoreAABotSpeaking(false);
+    document.getElementById("scoreANPCMiniBot")?.classList.remove("speaking");
+  }
+
+  function speakChunk(index){
+    if(token !== SCOREA_ABOT_SPEAK_TOKEN || index >= chunks.length){
+      finished = true;
+      stopVisual();
+      return;
+    }
+
+    const u = new SpeechSynthesisUtterance(chunks[index]);
+    u.lang = voiceLang;
+    u.rate = mode==="junior" ? 0.92 : 1.0;
+    u.pitch = mode==="junior" ? 1.10 : 0.98;
+    u.volume = 1;
+    if(voice) u.voice = voice;
+
+    u.onstart = ()=>{
+      started = true;
+      scoreAABotSpeaking(true);
+      document.getElementById("scoreANPCMiniBot")?.classList.add("speaking");
+    };
+    u.onend = ()=> speakChunk(index + 1);
+    u.onerror = e=>{
+      console.warn("A-BOT mobile speech error", e);
+      stopVisual();
+    };
+
+    SCOREA_ABOT_UTTERANCE = u;
+    synth.speak(u);
+  }
+
+  /* Mobile browsers can remain paused after a previous cancel. */
+  try{ synth.resume(); }catch(e){}
+
+  /* Avoid cancel->speak in the same tick on iOS when possible. */
+  if(synth.speaking || synth.pending){
+    try{ synth.cancel(); }catch(e){}
+    setTimeout(()=>{ if(token===SCOREA_ABOT_SPEAK_TOKEN) speakChunk(0); }, 70);
+  }else{
+    /* This runs synchronously inside the user's tap/click. */
+    speakChunk(0);
+  }
+
+  /* If the browser exposes speech synthesis but never starts, show a useful hint. */
+  setTimeout(()=>{
+    if(token===SCOREA_ABOT_SPEAK_TOKEN && !started && !finished && !synth.speaking){
+      stopVisual();
+      const note = document.getElementById("aBotVoiceNote");
+      if(note) note.textContent = scoreAMobileVoiceMessage(lang,"failed");
+      const npc = document.getElementById("scoreANPCText");
+      if(npc && SCOREA_NPC?.currentText) npc.textContent = SCOREA_NPC.currentText;
+    }
+  }, 1400);
+}
+
+function scoreAStopABot(){
+  SCOREA_ABOT_SPEAK_TOKEN++;
+  try{
+    if("speechSynthesis" in window){
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.resume();
+    }
+  }catch(e){}
+  scoreAABotSpeaking(false);
+  document.getElementById("scoreANPCMiniBot")?.classList.remove("speaking");
+}
+
+/* Load mobile voices as soon as the browser makes them available. */
+if("speechSynthesis" in window){
+  scoreALoadMobileVoices();
+  window.speechSynthesis.onvoiceschanged = scoreALoadMobileVoices;
+  document.addEventListener("touchstart", scoreALoadMobileVoices, {once:true,passive:true});
+  document.addEventListener("pointerdown", scoreALoadMobileVoices, {once:true,passive:true});
+}
+
+/* Initialise the day-specific thought field after the final app is ready. */
+setTimeout(()=>scoreABindDailyThought(true), 320);
+
 </script>
 </body></html>
