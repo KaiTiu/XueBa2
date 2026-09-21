@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Score A Admin｜学生权限管理</title>
+<style>
+*{box-sizing:border-box}:root{--ink:#0b1930;--blue:#1769ff;--green:#138a5b;--red:#bd2f36;--amber:#a56600;--bg:#f4f7fb;--line:#dfe7f2;--muted:#6b7890}
+body{margin:0;font-family:Inter,"Microsoft YaHei",Arial,sans-serif;background:var(--bg);color:var(--ink)}
+button,input{font:inherit}.hide{display:none!important}
+.shell{max-width:1280px;margin:auto;padding:28px}.brand{display:flex;justify-content:space-between;gap:16px;align-items:center;margin-bottom:18px}.brand h1{margin:0;font-size:25px}.brand small{display:block;color:var(--muted);margin-top:5px}
+.card{background:#fff;border:1px solid var(--line);border-radius:20px;padding:20px;box-shadow:0 10px 30px rgba(20,49,93,.06)}
+.loginWrap{min-height:100vh;display:grid;place-items:center;padding:24px}.loginCard{width:min(520px,100%)}.loginHero{background:linear-gradient(135deg,#0b2457,#7047eb);color:#fff;border-radius:18px;padding:22px;margin-bottom:18px}.loginHero h1{margin:4px 0 8px}.loginHero p{margin:0;color:#dce6ff;line-height:1.65}
+label{font-size:12px;font-weight:850;color:#53627a;display:block;margin:12px 0 6px}.field{width:100%;padding:12px 13px;border:1px solid #d7e0ec;border-radius:12px;outline:none}.field:focus{border-color:#8bb3ff;box-shadow:0 0 0 3px #1769ff12}
+.btn{border:0;border-radius:12px;padding:11px 14px;font-weight:900;cursor:pointer}.btn.primary{background:var(--blue);color:#fff}.btn.dark{background:#10213e;color:#fff}.btn.light{background:#edf2f8;color:#31415d}.btn.green{background:#eaf8f1;color:#0e7048;border:1px solid #bde7d2}.btn.amber{background:#fff5df;color:#8b5c00;border:1px solid #eed398}.btn.red{background:#fff0f0;color:#9d2028;border:1px solid #f2c4c7}.btn:disabled{opacity:.4;cursor:not-allowed}
+.msg{margin-top:12px;padding:11px 13px;border-radius:11px;font-size:13px;line-height:1.55}.msg.err{background:#fff1f1;border:1px solid #ffcaca;color:#9b1c1c}.msg.ok{background:#eefaf4;border:1px solid #c7ecd8;color:#12633f}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}.search{flex:1;min-width:240px}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:16px 0}.stat{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px}.stat small{color:var(--muted);font-weight:800}.stat b{display:block;font-size:23px;margin-top:4px}
+.tableWrap{overflow:auto;border:1px solid var(--line);border-radius:16px}.table{width:100%;border-collapse:collapse;min-width:1120px;background:#fff}.table th,.table td{padding:12px;border-bottom:1px solid #e9eef5;text-align:left;vertical-align:middle;font-size:12px}.table th{background:#f7f9fd;position:sticky;top:0;z-index:1;color:#53627a}.table tr:hover td{background:#fbfdff}.name{font-size:13px;font-weight:900}.sub{color:var(--muted);font-size:10px;margin-top:3px}.actions{display:flex;gap:6px;flex-wrap:wrap}.actions .btn{padding:8px 9px;font-size:11px}
+.badge{display:inline-block;padding:6px 9px;border-radius:999px;font-size:10px;font-weight:900}.active{background:#eaf8f1;color:#0e7048}.expired{background:#fff0f0;color:#a5232b}.none{background:#eef2f7;color:#5e6b80}.warn{background:#fff5df;color:#855a00}.days.good{color:#0e7048;font-weight:900}.days.soon{color:#a56600;font-weight:900}.days.over{color:#bd2f36;font-weight:900}
+.note{font-size:12px;color:#66758d;line-height:1.65;margin-top:12px}.topRight{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.adminEmail{font-size:12px;color:#60708a;font-weight:800}
+@media(max-width:760px){.shell{padding:15px}.brand{align-items:flex-start;flex-direction:column}.stats{grid-template-columns:repeat(2,1fr)}.topRight{width:100%}.topRight .btn{flex:1}}
+</style>
+</head>
+<body>
+<div id="loginView" class="loginWrap">
+  <div class="card loginCard">
+    <div class="loginHero">
+      <div style="font-size:12px;opacity:.82;font-weight:800">HOW TO SCORE A WITH AI</div>
+      <h1>管理员登录</h1>
+      <p>这里只用于管理学生 SCORE-A 使用期限。页面只使用 Supabase Publishable Key；敏感权限由数据库中的管理员验证控制。</p>
+    </div>
+    <label>Email</label>
+    <input id="email" class="field" type="email" autocomplete="username" placeholder="admin@example.com">
+    <label>Password</label>
+    <input id="password" class="field" type="password" autocomplete="current-password" placeholder="请输入密码">
+    <button id="loginBtn" class="btn primary" style="width:100%;margin-top:14px" onclick="loginAdmin()">登录管理员后台 →</button>
+    <div id="loginMsg"></div>
+    <div class="note">如果账号可以登录但显示「不是管理员」，代表你还没有把该 Auth 用户加入 <b>scorea_admin_users</b>。</div>
+  </div>
+</div>
+
+<div id="appView" class="hide">
+  <div class="shell">
+    <div class="brand">
+      <div><h1>🎓 Score A 学生权限管理</h1><small>365 天普通权限 · 指定学生免费 +365 天 · 付费续费 +365 天</small></div>
+      <div class="topRight"><span id="adminEmail" class="adminEmail"></span><button class="btn light" onclick="refreshRows()">↻ 刷新</button><button class="btn dark" onclick="logoutAdmin()">登出</button></div>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><small>学生总数</small><b id="stTotal">0</b></div>
+      <div class="stat"><small>有效权限</small><b id="stActive">0</b></div>
+      <div class="stat"><small>30天内到期</small><b id="stSoon">0</b></div>
+      <div class="stat"><small>已到期 / 未开通</small><b id="stExpired">0</b></div>
+    </div>
+
+    <div class="card">
+      <div class="toolbar">
+        <input id="search" class="field search" placeholder="搜索姓名 / Student ID / Email / 年级" oninput="renderRows()">
+        <select id="filter" class="field" style="width:auto" onchange="renderRows()">
+          <option value="ALL">全部</option>
+          <option value="ACTIVE">ACTIVE</option>
+          <option value="SOON">30天内到期</option>
+          <option value="EXPIRED">已到期</option>
+          <option value="NOT_ENROLLED">未开通</option>
+        </select>
+      </div>
+      <div id="globalMsg"></div>
+      <div class="tableWrap">
+        <table class="table">
+          <thead><tr><th>学生</th><th>Email</th><th>年级</th><th>方案天数</th><th>开始日期</th><th>到期日期</th><th>状态</th><th>剩余</th><th>操作</th></tr></thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+      <div class="note"><b>按钮规则：</b>「开通1年」会从今天重新计算 365 天；「免费加1年」只给你指定的少数学生，现有到期日 +365 天；「续费1年」用于学生付款后，到期日 +365 天。免费与付费续费会分别记录在后台 Audit Log。</div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL='https://htzkjfztqqsbzxahxfnt.supabase.co';
+const SUPABASE_PUBLISHABLE_KEY='sb_publishable_-2O1fEqOGCQPSiMGQVSFrQ_bC3hf4WM';
+const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
+let ROWS=[];
+
+function e(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function msg(el,text,type='err'){el.innerHTML=text?`<div class="msg ${type}">${e(text)}</div>`:''}
+function fmtDate(v){if(!v)return '—';const [y,m,d]=String(v).split('-');return `${d}/${m}/${y}`}
+function statusBadge(r){const s=r.effective_status||'NOT_ENROLLED';if(s==='ACTIVE')return '<span class="badge active">ACTIVE</span>';if(s==='EXPIRED')return '<span class="badge expired">EXPIRED</span>';if(s==='NOT_ENROLLED')return '<span class="badge none">未开通</span>';return `<span class="badge warn">${e(s)}</span>`}
+function dayText(r){if(r.days_left==null)return '—';const n=Number(r.days_left);if(n<0)return `<span class="days over">已过期 ${Math.abs(n)} 天</span>`;if(n<=30)return `<span class="days soon">${n} 天</span>`;return `<span class="days good">${n} 天</span>`}
+
+async function isAdmin(){const {data,error}=await db.rpc('scorea_is_admin');if(error)throw error;return data===true}
+
+async function loginAdmin(){
+  const email=document.getElementById('email').value.trim(),password=document.getElementById('password').value;
+  const box=document.getElementById('loginMsg');msg(box,'');
+  if(!email||!password)return msg(box,'请输入 Email 和 Password。');
+  const b=document.getElementById('loginBtn');b.disabled=true;b.textContent='正在验证…';
+  try{
+    const {data,error}=await db.auth.signInWithPassword({email,password});if(error)throw error;
+    if(!data.user)throw new Error('没有取得用户资料');
+    if(!(await isAdmin())){await db.auth.signOut();throw new Error('这个账号不是已授权的 Score A 管理员。');}
+    openApp(data.user);
+  }catch(err){msg(box,'登录失败：'+(err.message||err));}
+  finally{b.disabled=false;b.textContent='登录管理员后台 →'}
+}
+
+async function openApp(user){
+  document.getElementById('loginView').classList.add('hide');document.getElementById('appView').classList.remove('hide');
+  document.getElementById('adminEmail').textContent=user?.email||'';
+  await refreshRows();
+}
+
+async function logoutAdmin(){await db.auth.signOut();ROWS=[];document.getElementById('appView').classList.add('hide');document.getElementById('loginView').classList.remove('hide');document.getElementById('password').value=''}
+
+async function refreshRows(){
+  const gm=document.getElementById('globalMsg');msg(gm,'');
+  try{
+    const {data,error}=await db.rpc('scorea_admin_list_students');if(error)throw error;
+    ROWS=data||[];updateStats();renderRows();
+  }catch(err){msg(gm,'读取学生资料失败：'+(err.message||err));}
+}
+
+function updateStats(){
+  const total=ROWS.length,active=ROWS.filter(r=>r.effective_status==='ACTIVE').length,soon=ROWS.filter(r=>r.effective_status==='ACTIVE'&&Number(r.days_left)>=0&&Number(r.days_left)<=30).length,expired=ROWS.filter(r=>r.effective_status==='EXPIRED'||r.effective_status==='NOT_ENROLLED').length;
+  stTotal.textContent=total;stActive.textContent=active;stSoon.textContent=soon;stExpired.textContent=expired;
+}
+
+function renderRows(){
+  const q=document.getElementById('search').value.trim().toLowerCase(),f=document.getElementById('filter').value;
+  let rows=ROWS.filter(r=>{
+    const hay=[r.full_name,r.student_code,r.email,r.grade].join(' ').toLowerCase();if(q&&!hay.includes(q))return false;
+    if(f==='ALL')return true;if(f==='SOON')return r.effective_status==='ACTIVE'&&Number(r.days_left)>=0&&Number(r.days_left)<=30;return r.effective_status===f;
+  });
+  const tb=document.getElementById('tbody');
+  if(!rows.length){tb.innerHTML='<tr><td colspan="9" style="text-align:center;color:#6b7890;padding:30px">没有符合条件的学生。</td></tr>';return}
+  tb.innerHTML=rows.map(r=>{
+    const enrolled=!!r.enrollment_id;
+    return `<tr>
+      <td><div class="name">${e(r.full_name||'未填写姓名')}</div><div class="sub">${e(r.student_code||'—')}</div></td>
+      <td>${e(r.email||'—')}</td><td>${e(r.grade||'—')}</td><td>${r.plan_days??'—'}</td>
+      <td>${fmtDate(r.start_date)}</td><td><b>${fmtDate(r.expiry_date)}</b></td><td>${statusBadge(r)}</td><td>${dayText(r)}</td>
+      <td><div class="actions">
+        <button class="btn primary" onclick="manage('${e(r.student_uuid)}','ACTIVATE_365','${e(r.full_name||r.student_code||'该学生')}')">开通1年</button>
+        <button class="btn green" ${enrolled?'':'disabled'} onclick="manage('${e(r.student_uuid)}','FREE_365','${e(r.full_name||r.student_code||'该学生')}')">免费加1年</button>
+        <button class="btn amber" ${enrolled?'':'disabled'} onclick="manage('${e(r.student_uuid)}','RENEW_365','${e(r.full_name||r.student_code||'该学生')}')">续费1年</button>
+      </div></td>
+    </tr>`
+  }).join('');
+}
+
+async function manage(studentId,action,name){
+  const labels={ACTIVATE_365:'从今天重新开通 365 天',FREE_365:'免费增加 365 天',RENEW_365:'付费续费增加 365 天'};
+  if(!confirm(`确认要为「${name}」${labels[action]}吗？`))return;
+  const gm=document.getElementById('globalMsg');msg(gm,'');
+  try{
+    const {data,error}=await db.rpc('scorea_admin_manage_access',{p_student_id:studentId,p_action:action});if(error)throw error;
+    const r=Array.isArray(data)?data[0]:data;
+    msg(gm,`完成：${labels[action]}。新到期日 ${fmtDate(r?.expiry_date)}。`,'ok');
+    await refreshRows();
+  }catch(err){msg(gm,'操作失败：'+(err.message||err));}
+}
+
+document.getElementById('password').addEventListener('keydown',ev=>{if(ev.key==='Enter')loginAdmin()});
+(async()=>{
+  const {data:{session}}=await db.auth.getSession();
+  if(session?.user){try{if(await isAdmin())openApp(session.user);else await db.auth.signOut()}catch(e){}}
+})();
+</script>
+</body>
+</html>
