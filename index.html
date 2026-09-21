@@ -199,6 +199,7 @@ body{margin:0;font-family:Inter,"Microsoft YaHei",Arial,sans-serif;background:va
 .authBrand{padding:42px;background:linear-gradient(145deg,#0b2457,#7047eb);color:#fff}.authBrand h1{font-size:34px;margin:10px 0}.authBrand p{color:#dce6ff;line-height:1.75}.authBrand .authPoint{padding:11px 0;border-bottom:1px solid #ffffff20;font-weight:800}
 .authForm{padding:42px}.authForm h2{margin:0 0 7px}.authForm .field{background:#fff}.authMsg{display:none;margin:12px 0;padding:12px 14px;border-radius:12px;font-size:13px;line-height:1.55}.authMsg.show{display:block}.authMsg.err{background:#fff1f1;border:1px solid #ffcaca;color:#9b1c1c}.authMsg.ok{background:#eefaf4;border:1px solid #c7ecd8;color:#12633f}.authMeta{font-size:12px;color:#6b7890;line-height:1.6;margin-top:14px}.authLoading{display:none;align-items:center;gap:8px;font-size:13px;color:#53627a;margin:10px 0}.authLoading.show{display:flex}.authSpinner{width:18px;height:18px;border:3px solid #dce6f5;border-top-color:#1769ff;border-radius:50%;animation:authSpin .8s linear infinite}@keyframes authSpin{to{transform:rotate(360deg)}}
 .authDenied{display:none}.authDenied.show{display:block}.authInfo{background:#f6f8fc;border:1px solid #e1e8f2;border-radius:14px;padding:13px;margin:10px 0;font-size:13px;line-height:1.7}.authTopUser{font-size:11px;font-weight:850;color:#53627a}.logoutBtn{border:0;background:#eef2f8;color:#30415e;padding:8px 11px;border-radius:10px;font-weight:850;cursor:pointer;margin-left:6px}.topProfileBtn{border:0;background:#eef2f8;color:#243a5b;padding:8px 12px;border-radius:12px;font-weight:900;cursor:pointer;white-space:nowrap}.topProfileBtn:hover{background:#e3ebf7}@media(max-width:980px){.topProfileBtn{padding:8px 10px}.topProfileBtn .profileText{display:none}}
+.firstPasswordBox{display:none}.firstPasswordBox.show{display:block}.firstPasswordHero{background:linear-gradient(135deg,#eef5ff,#f6f2ff);border:1px solid #dce5f5;border-radius:16px;padding:15px;margin:12px 0 16px}.firstPasswordHero b{display:block;color:#173a73;margin-bottom:5px}.firstPasswordHero span{display:block;color:#64748b;font-size:12px;line-height:1.6}.passwordRule{font-size:11px;color:#6b7890;line-height:1.6;margin:-5px 0 12px}.firstPasswordActions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.firstPasswordActions .btn:first-child{flex:1}.firstPasswordStudent{font-weight:900;color:#10213e}
 @media(max-width:760px){.authShell{grid-template-columns:1fr}.authBrand{padding:28px}.authForm{padding:28px}.authBrand h1{font-size:28px}}
 
 /* ===== V23 Personalized Learning Route ===== */
@@ -563,6 +564,28 @@ body.premiumTeen .scoreANPCMiniBot{animation:scoreANPCTeenIdle 5s ease-in-out in
         <div id="authMsg" class="authMsg"></div>
         <div class="authMeta" data-i18n="authMetaText">账号必须同时满足：学生状态 ACTIVE、SCORE-A 课程有效、Enrollment 状态 ACTIVE，并且尚未超过 expiry date。</div>
       </div>
+      <div id="firstPasswordBox" class="firstPasswordBox">
+        <div style="display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap">
+          <div style="font-size:12px;font-weight:950;color:#1769ff;letter-spacing:1px">FIRST LOGIN SECURITY</div>
+          <div class="premiumControls"><button class="premiumControl premiumLang" onclick="setScoreALanguage('zh');renderFirstPasswordLanguage()">中文</button><button class="premiumControl premiumLang" onclick="setScoreALanguage('ms');renderFirstPasswordLanguage()">BM</button><button class="premiumControl premiumLang" onclick="setScoreALanguage('en');renderFirstPasswordLanguage()">EN</button></div>
+        </div>
+        <h2 id="firstPasswordTitle">第一次登录｜请先设置新密码</h2>
+        <div class="firstPasswordHero">
+          <b><span id="firstPasswordWelcome">欢迎</span> <span id="firstPasswordStudent" class="firstPasswordStudent">Student</span></b>
+          <span id="firstPasswordHint">你现在使用的是管理员提供的临时密码。为了保护账号，请先建立自己的新密码，完成后才能进入课程。</span>
+        </div>
+        <label class="formLabel" id="firstNewPasswordLabel">新密码</label>
+        <input class="field" id="firstNewPassword" type="password" autocomplete="new-password" placeholder="至少 8 个字符">
+        <label class="formLabel" id="firstConfirmPasswordLabel">确认新密码</label>
+        <input class="field" id="firstConfirmPassword" type="password" autocomplete="new-password" placeholder="再次输入新密码">
+        <div class="passwordRule" id="firstPasswordRule">密码至少 8 个字符。请使用只有你自己知道的新密码。</div>
+        <div id="firstPasswordMsg" class="authMsg"></div>
+        <div class="firstPasswordActions">
+          <button class="btn" id="firstPasswordBtn" onclick="scoreAChangeFirstPassword()">更新密码并进入课程 →</button>
+          <button class="btn light" id="firstPasswordLogoutBtn" onclick="scoreALogout()">退出</button>
+        </div>
+      </div>
+
       <div id="authDenied" class="authDenied">
         <div style="font-size:12px;font-weight:950;color:#b45309;letter-spacing:1px">ACCESS STATUS</div>
         <h2 id="authDeniedTitle" data-i18n="authDeniedTitle">暂时无法进入课程</h2>
@@ -2342,9 +2365,58 @@ async function loadParentReflectionJournal(){
 
 function authMessage(text,type='err'){const el=document.getElementById('authMsg');if(!el)return;el.textContent=text;el.className='authMsg show '+type}
 function authLoading(on){document.getElementById('authLoading')?.classList.toggle('show',!!on);const b=document.getElementById('authLoginBtn');if(b)b.disabled=!!on}
-function showLogin(){document.getElementById('authGate').style.display='grid';document.getElementById('scoreApp').style.display='none';document.getElementById('loginBox').style.display='block';document.getElementById('authDenied').classList.remove('show')}
-function showDenied(title,html){document.getElementById('authGate').style.display='grid';document.getElementById('scoreApp').style.display='none';document.getElementById('loginBox').style.display='none';document.getElementById('authDeniedTitle').textContent=title;document.getElementById('authDeniedInfo').innerHTML=html;document.getElementById('authDenied').classList.add('show')}
-function openScoreA(student,enrollment){document.getElementById('authGate').style.display='none';document.getElementById('scoreApp').style.display='block';const u=document.getElementById('authTopUser');if(u)u.textContent=(student.full_name||student.student_id||'Student')+' · '+(enrollment.expiry_date||'');if(typeof renderPremiumUI==='function'){renderPremiumUI();show('home');}}
+let SCOREA_PENDING_PASSWORD_USER=null;
+function scoreARequiresFirstPasswordChange(user){return !!(user&&user.user_metadata&&user.user_metadata.account_type==='student'&&user.user_metadata.password_changed!==true)}
+function firstPasswordMessage(text,type='err'){const el=document.getElementById('firstPasswordMsg');if(!el)return;el.textContent=text||'';el.className=text?'authMsg show '+type:'authMsg'}
+function renderFirstPasswordLanguage(){
+  const lang=(typeof getScoreALanguage==='function'?getScoreALanguage():'zh');
+  const t={
+    zh:{title:'第一次登录｜请先设置新密码',welcome:'欢迎',hint:'你现在使用的是管理员提供的临时密码。为了保护账号，请先建立自己的新密码，完成后才能进入课程。',newLabel:'新密码',newPH:'至少 8 个字符',confirmLabel:'确认新密码',confirmPH:'再次输入新密码',rule:'密码至少 8 个字符。请使用只有你自己知道的新密码。',button:'更新密码并进入课程 →',logout:'退出'},
+    ms:{title:'Log Masuk Pertama｜Tetapkan kata laluan baharu',welcome:'Selamat datang',hint:'Anda sedang menggunakan kata laluan sementara yang diberikan oleh pentadbir. Untuk melindungi akaun, sila tetapkan kata laluan baharu sebelum memasuki kursus.',newLabel:'Kata laluan baharu',newPH:'Sekurang-kurangnya 8 aksara',confirmLabel:'Sahkan kata laluan baharu',confirmPH:'Masukkan semula kata laluan',rule:'Kata laluan mesti sekurang-kurangnya 8 aksara. Gunakan kata laluan baharu yang hanya anda tahu.',button:'Kemas kini kata laluan & masuk kursus →',logout:'Log keluar'},
+    en:{title:'First Login｜Set a New Password',welcome:'Welcome',hint:'You are currently using a temporary password provided by the administrator. For account security, set your own new password before entering the course.',newLabel:'New password',newPH:'At least 8 characters',confirmLabel:'Confirm new password',confirmPH:'Enter the new password again',rule:'Password must contain at least 8 characters. Use a new password known only to you.',button:'Update Password & Enter Course →',logout:'Log out'}
+  }[lang]||null;
+  if(!t)return;
+  const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v};
+  set('firstPasswordTitle',t.title);set('firstPasswordWelcome',t.welcome+' ');set('firstPasswordHint',t.hint);set('firstNewPasswordLabel',t.newLabel);set('firstConfirmPasswordLabel',t.confirmLabel);set('firstPasswordRule',t.rule);set('firstPasswordBtn',t.button);set('firstPasswordLogoutBtn',t.logout);
+  const p1=document.getElementById('firstNewPassword'),p2=document.getElementById('firstConfirmPassword');if(p1)p1.placeholder=t.newPH;if(p2)p2.placeholder=t.confirmPH;
+  const student=document.getElementById('firstPasswordStudent');if(student&&SCOREA_PENDING_PASSWORD_USER)student.textContent=SCOREA_PENDING_PASSWORD_USER.user_metadata?.full_name||SCOREA_PENDING_PASSWORD_USER.email||'Student';
+}
+function showFirstPasswordChange(user){
+  SCOREA_PENDING_PASSWORD_USER=user;
+  document.getElementById('authGate').style.display='grid';document.getElementById('scoreApp').style.display='none';
+  document.getElementById('loginBox').style.display='none';document.getElementById('authDenied').classList.remove('show');
+  document.getElementById('firstPasswordBox')?.classList.add('show');
+  firstPasswordMessage('');
+  const p1=document.getElementById('firstNewPassword'),p2=document.getElementById('firstConfirmPassword');if(p1)p1.value='';if(p2)p2.value='';
+  renderFirstPasswordLanguage();
+  setTimeout(()=>document.getElementById('firstNewPassword')?.focus(),120);
+}
+async function scoreAChangeFirstPassword(){
+  const p1=document.getElementById('firstNewPassword')?.value||'';const p2=document.getElementById('firstConfirmPassword')?.value||'';
+  const lang=(typeof getScoreALanguage==='function'?getScoreALanguage():'zh');
+  const m={zh:{short:'新密码至少需要 8 个字符。',match:'两次输入的新密码不一致。',same:'新密码不能与临时密码相同。',fail:'密码更新失败：',saving:'正在更新…'},ms:{short:'Kata laluan baharu mesti sekurang-kurangnya 8 aksara.',match:'Kedua-dua kata laluan baharu tidak sama.',same:'Kata laluan baharu tidak boleh sama dengan kata laluan sementara.',fail:'Kemas kini kata laluan gagal: ',saving:'Sedang mengemas kini…'},en:{short:'New password must contain at least 8 characters.',match:'The two new passwords do not match.',same:'The new password cannot be the same as the temporary password.',fail:'Password update failed: ',saving:'Updating…'}}[lang]||{};
+  firstPasswordMessage('');
+  if(p1.length<8)return firstPasswordMessage(m.short);
+  if(p1!==p2)return firstPasswordMessage(m.match);
+  const temp=document.getElementById('authPassword')?.value||'';if(temp&&p1===temp)return firstPasswordMessage(m.same);
+  const btn=document.getElementById('firstPasswordBtn');const original=btn?.textContent||'';if(btn){btn.disabled=true;btn.textContent=m.saving||'Updating…'}
+  try{
+    const current=SCOREA_PENDING_PASSWORD_USER||((await scoreASupabase.auth.getUser()).data?.user);
+    if(!current)throw new Error('No authenticated user');
+    const meta={...(current.user_metadata||{}),password_changed:true,password_changed_at:new Date().toISOString()};
+    const {data,error}=await scoreASupabase.auth.updateUser({password:p1,data:meta});
+    if(error)throw error;
+    SCOREA_PENDING_PASSWORD_USER=null;
+    document.getElementById('firstPasswordBox')?.classList.remove('show');
+    document.getElementById('authPassword').value='';
+    await verifyScoreAAccess(data?.user||current);
+  }catch(err){firstPasswordMessage((m.fail||'Password update failed: ')+(err?.message||String(err)))}
+  finally{if(btn){btn.disabled=false;btn.textContent=original||'Update Password & Enter Course →'}}
+}
+async function scoreAHandleAuthenticatedUser(user){if(scoreARequiresFirstPasswordChange(user))return showFirstPasswordChange(user);return verifyScoreAAccess(user)}
+function showLogin(){document.getElementById('authGate').style.display='grid';document.getElementById('scoreApp').style.display='none';document.getElementById('loginBox').style.display='block';document.getElementById('firstPasswordBox')?.classList.remove('show');document.getElementById('authDenied').classList.remove('show');SCOREA_PENDING_PASSWORD_USER=null}
+function showDenied(title,html){document.getElementById('authGate').style.display='grid';document.getElementById('scoreApp').style.display='none';document.getElementById('loginBox').style.display='none';document.getElementById('firstPasswordBox')?.classList.remove('show');document.getElementById('authDeniedTitle').textContent=title;document.getElementById('authDeniedInfo').innerHTML=html;document.getElementById('authDenied').classList.add('show')}
+function openScoreA(student,enrollment){document.getElementById('firstPasswordBox')?.classList.remove('show');document.getElementById('authGate').style.display='none';document.getElementById('scoreApp').style.display='block';const u=document.getElementById('authTopUser');if(u)u.textContent=(student.full_name||student.student_id||'Student')+' · '+(enrollment.expiry_date||'');if(typeof renderPremiumUI==='function'){renderPremiumUI();show('home');}}
 function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 
 
@@ -2968,7 +3040,7 @@ async function scoreALogin(){
   authLoading(false);
   if(error)return authMessage('登录失败：'+error.message);
   if(!data.user)return authMessage('登录失败：没有取得用户资料。');
-  await verifyScoreAAccess(data.user);
+  await scoreAHandleAuthenticatedUser(data.user);
 }
 async function scoreALogout(){
   try{
@@ -2983,9 +3055,10 @@ async function scoreALogout(){
 }
 
 document.getElementById('authPassword')?.addEventListener('keydown',e=>{if(e.key==='Enter')scoreALogin()});
+document.getElementById('firstConfirmPassword')?.addEventListener('keydown',e=>{if(e.key==='Enter')scoreAChangeFirstPassword()});
 (async()=>{
   const {data:{session}}=await scoreASupabase.auth.getSession();
-  if(session?.user)await verifyScoreAAccess(session.user);else showLogin();
+  if(session?.user)await scoreAHandleAuthenticatedUser(session.user);else showLogin();
 })();
 
 /* ===== V7.3 FULL TRILINGUAL LIBRARY ENGINE ===== */
