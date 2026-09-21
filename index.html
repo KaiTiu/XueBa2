@@ -460,6 +460,33 @@ body.premiumTeen .scoreANPCMiniBot{animation:scoreANPCTeenIdle 5s ease-in-out in
 .v814Ordinary{background:#fff4f1;border:1px solid #ffd8ce;border-radius:12px;padding:11px}
 .v814Top{background:#eefaf4;border:1px solid #cbeed9;border-radius:12px;padding:11px}
 
+
+/* ===== V8.15 MOBILE MY THOUGHT INPUT FIX ===== */
+#dailyThink{
+  display:block!important;
+  width:100%!important;
+  min-height:96px!important;
+  padding:12px 13px!important;
+  margin-top:8px!important;
+  border:2px solid #d59a00!important;
+  border-radius:4px!important;
+  background:#fff!important;
+  color:#10213e!important;
+  caret-color:#1769ff!important;
+  font-size:16px!important;
+  line-height:1.55!important;
+  resize:vertical!important;
+  pointer-events:auto!important;
+  touch-action:manipulation!important;
+  user-select:text!important;
+  -webkit-user-select:text!important;
+  opacity:1!important;
+}
+#dailyThink:focus{
+  outline:3px solid #1769ff33!important;
+  border-color:#1769ff!important;
+}
+
 </style></head><body>
 <div id="authGate" class="authGate">
   <div class="authShell">
@@ -612,7 +639,7 @@ body.premiumTeen .scoreANPCMiniBot{animation:scoreANPCTeenIdle 5s ease-in-out in
 
   <div class="field" style="margin-top:12px">
     <label><b data-i18n="myThought">✍️ 我的思考</b></label>
-    <textarea id="dailyThink" placeholder=""></textarea>
+    <textarea id="dailyThink" rows="4" inputmode="text" enterkeyhint="done" autocomplete="off" autocorrect="on" spellcheck="true" placeholder=""></textarea>
   </div>
   <div style="display:flex;gap:8px;flex-wrap:wrap">
     <button class="btn" id="readDoneBtn" onclick="markDailyRead()">✓ 保存思考并完成今日必读</button>
@@ -5669,6 +5696,169 @@ setTimeout(()=>scoreAForceBlankThought(true),520);
 
   /* Refresh the current open library page so language switch uses the synced data immediately. */
   setTimeout(()=>{try{if(window.SCOREA_LIBRARY_V74_CURRENT)openScoreALibraryV74(window.SCOREA_LIBRARY_V74_CURRENT)}catch(e){}},220);
+})();
+
+
+
+/* ===== V8.15 FINAL MY THOUGHT MOBILE EDITOR =====
+   This supersedes earlier My Thought display helpers.
+
+   FINAL RULES:
+   - Existing Day with saved reflection: show that Day's saved text AND allow editing.
+   - New Day with no saved reflection: blank AND immediately editable.
+   - Typing must not be overwritten by background re-renders.
+   - Save updates that Day only; text remains visible after save.
+   - No previous Day text can flow into a new Day.
+   - Mobile tap explicitly removes readonly/disabled and focuses the textarea.
+*/
+(function(){
+  let V815_KEY=null;
+  let V815_LIVE='';
+  let V815_DIRTY=false;
+  let V815_BOUND=false;
+
+  function key(){
+    try{
+      if(typeof scoreAThoughtKey==='function')return scoreAThoughtKey();
+      if(typeof ck==='function')return ck();
+      return `${CYCLE?.cycle||1}-${CYCLE?.day||1}`;
+    }catch(e){return ''}
+  }
+  function saved(k=key()){
+    try{
+      if(CYCLE?.readThought && Object.prototype.hasOwnProperty.call(CYCLE.readThought,k)){
+        return String(CYCLE.readThought[k]??'');
+      }
+    }catch(e){}
+    return '';
+  }
+  function makeWritable(ta){
+    if(!ta)return;
+    ta.disabled=false;
+    ta.readOnly=false;
+    ta.removeAttribute('disabled');
+    ta.removeAttribute('readonly');
+    ta.removeAttribute('aria-disabled');
+    ta.removeAttribute('data-i18n-placeholder');
+    ta.placeholder='';
+    ta.style.pointerEvents='auto';
+    ta.style.userSelect='text';
+    ta.style.webkitUserSelect='text';
+    ta.style.touchAction='manipulation';
+  }
+  function bind(ta){
+    if(!ta || ta.dataset.v815Bound==='1')return;
+    ta.dataset.v815Bound='1';
+
+    ta.addEventListener('input',()=>{
+      if(key()!==V815_KEY)return;
+      V815_LIVE=ta.value;
+      V815_DIRTY=true;
+    });
+
+    /* Mobile browsers: make sure a direct tap is treated as an editable text action. */
+    const mobileFocus=()=>{
+      makeWritable(ta);
+      try{ta.focus({preventScroll:true})}catch(e){try{ta.focus()}catch(_){}}
+    };
+    ta.addEventListener('pointerdown',mobileFocus,{passive:true});
+    ta.addEventListener('touchend',mobileFocus,{passive:true});
+    ta.addEventListener('click',mobileFocus);
+    ta.addEventListener('focus',()=>makeWritable(ta));
+  }
+  function apply({forceNewView=false}={}){
+    const ta=document.getElementById('dailyThink');
+    if(!ta)return;
+    makeWritable(ta);bind(ta);
+
+    const k=key();
+    const dayChanged=V815_KEY!==k;
+    const s=saved(k);
+
+    if(dayChanged || forceNewView){
+      /* Entering this Day: show this Day's own saved text, otherwise blank. */
+      V815_KEY=k;
+      V815_LIVE=s||'';
+      V815_DIRTY=false;
+      ta.value=V815_LIVE;
+    }else if(V815_DIRTY){
+      /* Critical mobile fix: do NOT let background render() overwrite live typing. */
+      ta.value=V815_LIVE;
+    }else{
+      ta.value=s||'';
+      V815_LIVE=ta.value;
+    }
+
+    ta.dataset.dayKey=k;
+    ta.dataset.thoughtDay=k;
+  }
+
+  /* Final render wrapper: preserve unsaved typing on the SAME Day. */
+  if(typeof renderDailyGate==='function'){
+    const previous=renderDailyGate;
+    renderDailyGate=function(){
+      const beforeKey=key();
+      const beforeTa=document.getElementById('dailyThink');
+      if(beforeTa && V815_KEY===beforeKey && V815_DIRTY){
+        V815_LIVE=beforeTa.value;
+      }
+
+      const r=previous.apply(this,arguments);
+      const afterKey=key();
+      apply({forceNewView:beforeKey!==afterKey});
+      return r;
+    };
+  }
+
+  /* Final save wrapper: save typed value and keep it visible/editable. */
+  if(typeof markDailyRead==='function'){
+    const previousSave=markDailyRead;
+    markDailyRead=function(){
+      const ta=document.getElementById('dailyThink');
+      makeWritable(ta);
+      const k=key();
+      const typed=String(ta?.value||'').trim();
+      V815_KEY=k;
+      V815_LIVE=typed;
+      V815_DIRTY=true;
+
+      const r=previousSave.apply(this,arguments);
+
+      setTimeout(()=>{
+        const current=document.getElementById('dailyThink');
+        makeWritable(current);
+        const nowKey=key();
+        const s=saved(nowKey);
+        V815_KEY=nowKey;
+        V815_LIVE=s||((nowKey===k)?typed:'');
+        V815_DIRTY=false;
+        if(current)current.value=V815_LIVE;
+      },60);
+      setTimeout(()=>apply({forceNewView:false}),220);
+      return r;
+    };
+  }
+
+  /* Override earlier helper one final time. */
+  scoreABindDailyThought=function(force=false){
+    apply({forceNewView:!!force && V815_KEY!==key()});
+  };
+
+  /* Language switch must never erase current typing. */
+  if(typeof applyScoreAI18n==='function'){
+    const oldI18n=applyScoreAI18n;
+    applyScoreAI18n=function(){
+      const ta=document.getElementById('dailyThink');
+      if(ta && V815_KEY===key() && V815_DIRTY)V815_LIVE=ta.value;
+      const r=oldI18n.apply(this,arguments);
+      apply({forceNewView:false});
+      return r;
+    };
+  }
+
+  /* Initial load: current Day's saved answer if it exists; otherwise blank. */
+  setTimeout(()=>apply({forceNewView:true}),180);
+  window.addEventListener('load',()=>setTimeout(()=>apply({forceNewView:true}),260));
 })();
 
 </script>
