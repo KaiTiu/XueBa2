@@ -406,6 +406,21 @@ input{width:100%;padding:12px 13px;border:1px solid #d8e1ed;border-radius:12px;o
       </div>
     </div>
 
+    <div class="accountBox">
+      <h3>🔄 重置学习进度</h3>
+      <div class="accountHint">
+        用于测试账号或需要重新开始课程的学生。只重置学习进度，不会删除学生账号、Student ID 或课程权限。
+      </div>
+      <div style="height:10px"></div>
+      <label style="display:flex;gap:8px;align-items:flex-start;font-size:13px">
+        <input id="resetClearReflections" type="checkbox" checked style="width:auto;margin-top:2px">
+        <span><b>同时清除「我的思考」历史记录</b><br><span class="muted">重新从 Day 1 测试时建议勾选；否则旧 Day 的思考仍会重新显示。</span></span>
+      </label>
+      <div style="height:10px"></div>
+      <button class="btn danger" onclick="resetStudentLearningProgress()">↺ 重置到 Day 1</button>
+      <div id="resetProgressResult" class="manageResult hidden" style="margin-top:10px"></div>
+    </div>
+
     <div id="manageResult" class="manageResult hidden"></div>
   </div>
 </div>
@@ -833,6 +848,9 @@ function openEnrollmentManager(info){
   const box=$("manageResult");
   box.className="manageResult hidden";
   box.textContent="";
+  const resetBox=$("resetProgressResult");
+  if(resetBox){resetBox.className="manageResult hidden";resetBox.textContent="";}
+  if($("resetClearReflections"))$("resetClearReflections").checked=true;
   $("enrollmentModal").classList.remove("hidden");
 
   loadStudentAccount();
@@ -960,6 +978,79 @@ async function resetStudentTemporaryPassword(){
     console.error("Reset temporary password failed",err);
     box.className="manageResult bad";
     box.textContent="✗ Temporary Password Reset 失败\n"+(err.result?.error||err.message||"Unknown error");
+  }
+}
+
+
+async function resetStudentLearningProgress(){
+  if(!CURRENT_ENROLLMENT?.student_id)return;
+
+  const clearReflections=$("resetClearReflections")?.checked===true;
+  const warning=
+`确认将 ${CURRENT_ENROLLMENT.full_name} 的学习进度重置到 Day 1？
+
+将重置：
+• Day / Cycle
+• XP / Streak
+• Badge / Reward
+• 每日任务完成状态
+• Boss / Challenge 进度
+• Avatar Outfit 解锁进度
+
+不会删除：
+• 学生登录账号
+• Student ID
+• 课程权限 / 到期日期
+• Parent 绑定
+
+${clearReflections?"同时会清除这个学生现有的「我的思考」历史记录。":"「我的思考」历史记录会保留。"}
+
+这项操作无法自动还原。`;
+
+  if(!confirm(warning))return;
+
+  const box=$("resetProgressResult");
+  box.className="manageResult";
+  box.textContent="正在重置学习进度…";
+
+  try{
+    const {data:sessionData,error:sessionError}=await db.auth.getSession();
+    if(sessionError)throw sessionError;
+    const token=sessionData?.session?.access_token;
+    if(!token)throw new Error("Admin session 已过期，请重新登录。");
+
+    const r=await fetch("/api/admin-reset-student-progress",{
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json",
+        "Authorization":"Bearer "+token
+      },
+      body:JSON.stringify({
+        student_id:CURRENT_ENROLLMENT.student_id,
+        clear_reflections:clearReflections
+      })
+    });
+
+    const raw=await r.text();
+    let result;
+    try{result=JSON.parse(raw)}catch{result={error:raw}}
+    if(!r.ok || !result?.ok){
+      throw Object.assign(new Error(result?.error||`HTTP ${r.status}`),{result});
+    }
+
+    box.className="manageResult good";
+    box.textContent=
+`✓ ${result.message}
+学生：${result.student?.student_id||CURRENT_ENROLLMENT.student_id} · ${result.student?.full_name||CURRENT_ENROLLMENT.full_name}
+「我的思考」：${result.cleared_reflections?"已清除":"保留"}
+
+请让学生重新登录或刷新 Student OS；Cloud Progress V2 会恢复为 Day 1。`;
+
+    await loadDashboard();
+  }catch(err){
+    console.error("Reset learning progress failed",err);
+    box.className="manageResult bad";
+    box.textContent="✗ 重置失败\n"+(err.result?.error||err.message||"Unknown error");
   }
 }
 
