@@ -78,10 +78,24 @@ module.exports=async function handler(req,res){
 
     if(!studentId)return send(res,400,{ok:false,error:"student_id is required."});
 
-    const students=await serviceRest(
-      `students?id=eq.${encodeURIComponent(studentId)}&select=id,student_id,full_name,user_id&limit=1`,
-      {method:"GET"}
-    );
+    // Accept BOTH:
+    // 1) public Student ID, e.g. SCORE-A00001
+    // 2) internal UUID from public.students.id
+    const looksLikeUuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(studentId);
+
+    let students;
+    if(looksLikeUuid){
+      students=await serviceRest(
+        `students?id=eq.${encodeURIComponent(studentId)}&select=id,student_id,full_name,user_id&limit=1`,
+        {method:"GET"}
+      );
+    }else{
+      students=await serviceRest(
+        `students?student_id=eq.${encodeURIComponent(studentId)}&select=id,student_id,full_name,user_id&limit=1`,
+        {method:"GET"}
+      );
+    }
+
     const student=students?.[0];
     if(!student)return send(res,404,{ok:false,error:"Student not found."});
 
