@@ -1501,19 +1501,27 @@ async function createStudent(){
       throw Object.assign(new Error(result?.error||`HTTP ${r.status}`),{result});
     }
 
+    const student=result.student||{};
+    const enrollment=result.enrollment||student.enrollment||{};
+    const courseCode=enrollment.course_code||result.course?.course_code||'SCORE-A';
+    const shownPlanDays=enrollment.plan_days??student.plan_days??planDays;
+    const shownStartDate=enrollment.start_date??student.start_date??startDate??'—';
+    const shownExpiryDate=enrollment.expiry_date??student.expiry_date??'—';
+    const shownStatus=enrollment.status??student.status??'ACTIVE';
+
     box.className="resultBox good";
     box.textContent=
 `✓ 学生建立成功
 
-Student ID: ${result.student.student_id}
-姓名: ${result.student.full_name}
-Email: ${result.student.email}
-年级: ${result.student.grade}
-课程: ${result.enrollment.course_code}
-期限: ${result.enrollment.plan_days} 天
-开始: ${result.enrollment.start_date}
-到期: ${result.enrollment.expiry_date}
-状态: ${result.enrollment.status}
+Student ID: ${student.student_id||'—'}
+姓名: ${student.full_name||fullName}
+Email: ${student.email||email}
+年级: ${student.grade||grade}
+课程: ${courseCode}
+期限: ${shownPlanDays} 天
+开始: ${shownStartDate}
+到期: ${shownExpiryDate}
+状态: ${shownStatus}
 
 请把登录 Email 与 Temporary Password 安全地交给学生/家长。学生第一次登录必须先更改为自己的新 Password。`;
     await loadDashboard();
