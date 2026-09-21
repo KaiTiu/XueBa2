@@ -537,7 +537,33 @@ body.premiumTeen .scoreANPCMiniBot{animation:scoreANPCTeenIdle 5s ease-in-out in
 .abotVoiceHint{margin-top:8px;padding:9px 11px;border-radius:11px;background:#fff8e8;border:1px solid #f2d89a;color:#795100;font-size:11px;line-height:1.5}
 .abotVoiceHint.good{background:#edf9f3;border-color:#caead8;color:#17694b}
 
-</style></head><body>
+</style>
+<style id="scorea-v92-boss-chat-fix">
+/* V9.2 Boss completion + ChatGPT return */
+#boss{pointer-events:auto}
+#boss.challengeLocked{pointer-events:auto;opacity:1;filter:none}
+.bossQuizBox{margin:14px 0 16px;padding:15px;border:1px solid #49617b;background:#0c2239;border-radius:16px}
+.bossQuizBox .bossQuizKicker{font-size:10px;font-weight:950;letter-spacing:.10em;color:#8fd7ff;margin-bottom:6px}
+.bossQuizBox h3{margin:0 0 10px;color:#fff;font-size:17px;line-height:1.45}
+.bossQuizChoices{display:grid;gap:8px}
+.bossQuizChoice{width:100%;border:1px solid #49627e;background:#15314d;color:#eef7ff;border-radius:12px;padding:11px 12px;text-align:left;font-weight:800;cursor:pointer;line-height:1.45}
+.bossQuizChoice:hover{border-color:#74caff;background:#193a5b}
+.bossQuizChoice.correct{border-color:#4ad49b;background:#123e38;color:#eafff7}
+.bossQuizChoice.wrong{border-color:#ff9b9b;background:#4b2730;color:#fff1f1}
+.bossQuizFeedback{margin-top:9px;font-size:12px;line-height:1.55;color:#d9e8f7}
+#bossChecks{margin-top:10px}
+#bossChecks .check{cursor:pointer;border-bottom-color:#ffffff24}
+#bossChecks input.bc{width:18px;height:18px;vertical-align:-3px;margin-right:7px;cursor:pointer}
+.bossStatus{margin-top:13px;padding:11px 12px;border-radius:12px;background:#0a1d31;border:1px solid #38536d;color:#cfe0ef;font-size:12px;line-height:1.65}
+.bossStatus.ready{background:#123c34;border-color:#3fbf8d;color:#eafff5}
+#bossDefeatBtn{pointer-events:auto!important;opacity:1!important;cursor:pointer!important;touch-action:manipulation}
+.scoreaChatActions{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:14px}
+.scoreaChatActions .btn{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;margin:0}
+.scoreaChatBackBtn{background:#fff!important;color:#173a73!important;border:1px solid #d9e6ff!important}
+@media(max-width:560px){.scoreaChatActions .btn{width:100%}}
+</style>
+
+</head><body>
 <div id="authGate" class="authGate">
   <div class="authShell">
     <section class="authBrand">
@@ -746,7 +772,7 @@ body.premiumTeen .scoreANPCMiniBot{animation:scoreANPCTeenIdle 5s ease-in-out in
 <div class="eyebrow" style="color:#1769ff" id="ep"></div><h2 id="title"></h2><div class="story" id="story"></div><h3 id="q"></h3><div class="choices" id="choices"></div><div class="feedback" id="feedback"></div>
 </div>
 <div class="card" id="verify" style="display:none"><h3 data-i18n="returnAfterTraining">✅ 完成训练后回来这里</h3><p class="muted" data-i18n="verifyNote">完成真实训练后，在这里写下反思并确认今日挑战。</p><textarea id="reflect" class="field" data-i18n-placeholder="reflectPlaceholder" placeholder="今天我发现了什么？我明天要改善什么？"></textarea><button class="btn green" onclick="completeDay()" data-i18n="confirmChallenge">确认完成今日挑战</button></div>
-<div class="card boss" id="boss" style="display:none"><div class="eyebrow">BOSS BATTLE</div><h2 id="bossTitle"></h2><p class="muted" data-i18n="bossRule">完成所有真实训练，才能领取阶段徽章。</p><div id="bossChecks"></div><br><button class="btn" onclick="beatBoss()" data-i18n="beatBoss">击败 Boss</button></div>
+<div class="card boss" id="boss" style="display:none"><div class="eyebrow">BOSS BATTLE</div><h2 id="bossTitle"></h2><p class="muted" data-i18n="bossRule">完成所有真实训练，才能领取阶段徽章。</p><div id="bossQuiz"></div><div id="bossChecks"></div><div id="bossStatus" class="bossStatus"></div><br><button class="btn" id="bossDefeatBtn" type="button" onclick="beatBoss()" data-i18n="beatBoss">击败 Boss</button></div>
 </div><aside><div class="card"><h3 data-i18n="challengeMapTitle">🗺️ 30-Day Challenge Map</h3><div class="days" id="days"></div></div><div class="card"><h3 data-i18n="abilityTitle">📊 我的能力</h3><div class="stats"><div class="stat">🎯<b id="sf">20</b><small data-i18n="skillFocus">专注</small></div><div class="stat">⏰<b id="st">20</b><small data-i18n="skillTime">时间</small></div><div class="stat">🧠<b id="sl">20</b><small data-i18n="skillLearning">学习力</small></div></div></div></aside></div></section>
 
 
@@ -7397,5 +7423,244 @@ scoreA365Episode=function(absDay,lang=getScoreALanguage()){
 };
 </script>
 <!-- ===== END V9.1 365 UNIQUE STORY CHALLENGES ===== -->
+
+
+<script id="scorea-v92-runtime-fix">
+/* ===== V9.2 FINAL FIX: Boss can be completed + ChatGPT return button ===== */
+(function(){
+  const V92 = window.SCOREA_V92 = window.SCOREA_V92 || {};
+
+  function lang(){
+    try{return getScoreALanguage()}catch(e){return "zh"}
+  }
+  function txt(zh,ms,en){
+    const l=lang(); return l==="ms"?ms:l==="en"?en:zh;
+  }
+  function bossQuizKey(abs){return String(abs)}
+  function bossQuizStore(){
+    CYCLE.bossQuizCorrect=CYCLE.bossQuizCorrect||{};
+    CYCLE.bossQuizChoice=CYCLE.bossQuizChoice||{};
+    return CYCLE.bossQuizCorrect;
+  }
+
+  window.scoreAV92BossQuizChoose=function(abs,index){
+    bossQuizStore();
+    CYCLE.bossQuizChoice[bossQuizKey(abs)]=Number(index);
+    CYCLE.bossQuizCorrect[bossQuizKey(abs)]=Number(index)===1;
+    csave();
+    bossRender();
+    if(CYCLE.bossQuizCorrect[bossQuizKey(abs)]){
+      try{scoreANPCSet?.("correct",{})}catch(e){}
+    }else{
+      try{scoreANPCSet?.("wrong",{level:1})}catch(e){}
+    }
+  };
+
+  window.scoreAV92UpdateBossState=function(abs){
+    bossQuizStore();
+    const quizOK=!!CYCLE.bossQuizCorrect[bossQuizKey(abs)];
+    const arr=CYCLE.bossTasks?.[scoreABossKey(abs)]||[false,false,false,false];
+    const tasksOK=arr.length>=4 && arr.slice(0,4).every(Boolean);
+    const dailyOK=!!CYCLE.challengeCorrect?.[ck()];
+    const gate=!!gateOK();
+    const ready=gate && dailyOK && quizOK && tasksOK;
+    const box=document.getElementById("bossStatus");
+    if(box){
+      box.classList.toggle("ready",ready);
+      if(ready){
+        box.innerHTML=txt(
+          "✅ Boss 条件全部完成。现在按「击败 Boss」领取徽章并解锁下一 World。",
+          "✅ Semua syarat Boss selesai. Tekan “Kalahkan Boss” untuk mendapatkan lencana dan membuka World seterusnya.",
+          "✅ All Boss requirements are complete. Press “Defeat Boss” to claim the badge and unlock the next World."
+        );
+      }else{
+        const parts=[
+          gate?txt("✓ 今日解锁任务","✓ Tugasan buka kunci hari ini","✓ Today’s unlock tasks"):txt("○ 今日解锁任务","○ Tugasan buka kunci hari ini","○ Today’s unlock tasks"),
+          dailyOK?txt("✓ 今日故事挑战题","✓ Soalan cabaran cerita hari ini","✓ Today’s story challenge"):txt("○ 今日故事挑战题","○ Soalan cabaran cerita hari ini","○ Today’s story challenge"),
+          quizOK?txt("✓ Boss 最终题","✓ Soalan akhir Boss","✓ Boss final question"):txt("○ Boss 最终题","○ Soalan akhir Boss","○ Boss final question"),
+          tasksOK?txt("✓ 4 项 Boss 真实任务","✓ 4 tugasan Boss sebenar","✓ 4 real Boss tasks"):txt(`○ ${arr.filter(Boolean).length}/4 Boss 真实任务`,`○ ${arr.filter(Boolean).length}/4 tugasan Boss sebenar`,`○ ${arr.filter(Boolean).length}/4 real Boss tasks`)
+        ];
+        box.innerHTML=txt("完成进度：","Kemajuan: ","Progress: ")+parts.join(" · ");
+      }
+    }
+    const btn=document.getElementById("bossDefeatBtn")||document.querySelector("#boss button");
+    if(btn){
+      btn.disabled=false; // Always clickable; beatBoss explains exactly what is missing.
+      btn.style.pointerEvents="auto";
+      btn.style.opacity="1";
+      btn.title=ready?txt("可以击败 Boss","Boss sedia dikalahkan","Boss ready to defeat"):txt("按下可查看还缺少什么","Tekan untuk melihat apa yang belum selesai","Press to see what is still missing");
+    }
+    return ready;
+  };
+
+  // Replace Boss rendering with a self-contained final question + four persistent real tasks.
+  window.bossRender=function(){
+    const abs=scoreAGlobalDay(), l=lang(), topic=scoreA365Topic(abs,l);
+    const title=document.getElementById("bossTitle");
+    if(title)title.textContent="🏆 "+topic;
+
+    bossQuizStore();
+    const qKey=bossQuizKey(abs);
+    const selected=Number.isFinite(Number(CYCLE.bossQuizChoice?.[qKey])) ? Number(CYCLE.bossQuizChoice[qKey]) : -1;
+    const quizOK=!!CYCLE.bossQuizCorrect[qKey];
+
+    const question=txt(
+      `最后的 Boss 要你证明什么？`,
+      `Apakah yang perlu anda buktikan untuk Boss terakhir ini?`,
+      `What must you prove to clear this Boss?`
+    );
+    const options= l==="ms" ? [
+      "Tekan butang Boss sahaja tanpa menunjukkan hasil pembelajaran.",
+      `Gunakan kaedah daripada World ini dalam tugasan pembelajaran sebenar, lengkapkan tindakan dan tinggalkan bukti yang boleh disemak.`,
+      "Lihat jumlah hari yang selesai sahaja tanpa membuktikan kaedah itu boleh digunakan."
+    ] : l==="en" ? [
+      "Just press the Boss button without showing any learning result.",
+      `Use a method from this World in a real learning task, complete the action, and leave evidence that can be checked.`,
+      "Only count completed days without proving the method can be applied."
+    ] : [
+      "只要按下 Boss 按钮，不需要展示任何学习成果。",
+      `把这个 World 学到的方法用在一个真实学习任务里，完成行动并留下可以检查的证据。`,
+      "只看完成了多少天，不需要证明这些方法真的会用。"
+    ];
+
+    const quiz=document.getElementById("bossQuiz");
+    if(quiz){
+      quiz.innerHTML=`<div class="bossQuizBox">
+        <div class="bossQuizKicker">${txt("BOSS 最终题","SOALAN AKHIR BOSS","BOSS FINAL QUESTION")}</div>
+        <h3>${question}</h3>
+        <div class="bossQuizChoices">${options.map((x,i)=>{
+          let cls="bossQuizChoice";
+          if(selected===i)cls+=i===1?" correct":" wrong";
+          return `<button type="button" class="${cls}" onclick="scoreAV92BossQuizChoose(${abs},${i})">${String.fromCharCode(65+i)}. ${x}</button>`;
+        }).join("")}</div>
+        <div class="bossQuizFeedback">${
+          selected<0
+            ?txt("请选择一个答案。答对后，再完成下面 4 项真实任务。","Pilih satu jawapan. Selepas betul, lengkapkan 4 tugasan sebenar di bawah.","Choose one answer. After answering correctly, complete the 4 real tasks below.")
+            :quizOK
+              ?txt("✅ 回答正确。现在完成下面 4 项真实任务。","✅ Betul. Sekarang lengkapkan 4 tugasan sebenar di bawah.","✅ Correct. Now complete the 4 real tasks below.")
+              :txt("再想一想：Boss 要看的是你能不能把方法真正用出来。","Cuba lagi: Boss mahu melihat sama ada anda benar-benar boleh menggunakan kaedah itu.","Try again: the Boss is checking whether you can actually apply the method.")
+        }</div>
+      </div>`;
+    }
+
+    const tasks=l==="ms"?[
+      "Tetapkan sendiri satu matlamat pembelajaran sebenar untuk hari ini",
+      "Lengkapkan satu sesi fokus sebenar dan dapatkan hasil yang boleh dilihat",
+      "Analisis satu masalah pembelajaran sebenar dan nyatakan puncanya",
+      "Buat refleksi: bukti apa yang menunjukkan anda bertambah baik, dan apakah langkah seterusnya?"
+    ]:l==="en"?[
+      "Set one real learning goal by yourself today",
+      "Complete one real focus session and produce a visible result",
+      "Analyse one real learning problem and identify its cause",
+      "Reflect: what evidence shows improvement, and what is your next step?"
+    ]:[
+      "自己制定一个今天真正要完成的学习目标",
+      "完成一次真实专注训练，并留下看得见的成果",
+      "分析一个真实学习问题，并找出原因",
+      "完成复盘：写出成长证据，以及下一步要怎样改善"
+    ];
+
+    const k=scoreABossKey(abs);
+    const saved=CYCLE.bossTasks[k]||[false,false,false,false];
+    const checks=document.getElementById("bossChecks");
+    if(checks){
+      checks.innerHTML=`<div style="font-weight:900;margin:6px 0 4px">${txt("⚔️ Boss 真实任务","⚔️ Tugasan Boss Sebenar","⚔️ Real Boss Tasks")}</div>`+
+        tasks.map((x,i)=>`<label class="check"><input type="checkbox" class="bc" ${saved[i]?"checked":""} onchange="scoreABossToggle(${abs},${i},this.checked);scoreAV92UpdateBossState(${abs})"> ${x}</label>`).join("");
+    }
+
+    const btn=document.getElementById("bossDefeatBtn")||document.querySelector("#boss button");
+    if(btn){
+      btn.textContent=l==="ms"?`Kalahkan Boss & Dapatkan ${scoreABadgeName(scoreABossWorld(abs),l)}`
+        :l==="en"?`Defeat Boss & Claim ${scoreABadgeName(scoreABossWorld(abs),l)}`
+        :`击败 Boss · 领取 ${scoreABadgeName(scoreABossWorld(abs),l)}`;
+    }
+    scoreAV92UpdateBossState(abs);
+  };
+
+  // Keep the Boss card clickable. Completion rules remain enforced inside beatBoss().
+  if(typeof renderDailyGate==="function"){
+    const previousRenderDailyGate=renderDailyGate;
+    window.renderDailyGate=function(){
+      const r=previousRenderDailyGate.apply(this,arguments);
+      const boss=document.getElementById("boss");
+      if(boss){
+        boss.classList.remove("challengeLocked");
+        boss.style.pointerEvents="auto";
+      }
+      if(typeof scoreAIsBossDay==="function" && scoreAIsBossDay(scoreAGlobalDay())){
+        setTimeout(()=>scoreAV92UpdateBossState(scoreAGlobalDay()),0);
+      }
+      return r;
+    };
+  }
+
+  // Add one extra Boss-final-question requirement while preserving all existing
+  // daily-gate, story-question, checklist, badge, cloud and A-BOT logic.
+  if(typeof beatBoss==="function"){
+    const previousBeatBoss=beatBoss;
+    window.beatBoss=function(){
+      const abs=scoreAGlobalDay(), l=lang();
+      if(!scoreAIsBossDay(abs))return previousBeatBoss.apply(this,arguments);
+      bossQuizStore();
+
+      if(!CYCLE.bossQuizCorrect[bossQuizKey(abs)]){
+        const status=document.getElementById("bossStatus");
+        if(status)status.innerHTML=txt(
+          "⚠️ 还差一步：请先回答上面的 Boss 最终题。",
+          "⚠️ Satu langkah lagi: jawab soalan akhir Boss di atas dahulu.",
+          "⚠️ One step remains: answer the Boss final question above first."
+        );
+        document.getElementById("bossQuiz")?.scrollIntoView({behavior:"smooth",block:"center"});
+        return;
+      }
+
+      // Existing beatBoss gives guidance for Read+Think / Time / AI / story question / 4 checkboxes.
+      return previousBeatBoss.apply(this,arguments);
+    };
+  }
+
+  // Return from ChatGPT Tutor to Today's Challenge / Unlock area.
+  window.scoreAReturnToTodayChallenge=function(){
+    const tabs=document.querySelectorAll(".tab");
+    try{show("challenge",tabs[1])}catch(e){
+      document.getElementById("challenge")?.classList.add("show");
+    }
+    setTimeout(()=>{
+      const target=document.getElementById("dailyGate")||document.getElementById("enemyCard");
+      target?.scrollIntoView({behavior:"smooth",block:"start"});
+    },80);
+  };
+
+  if(typeof chatHTML==="function"){
+    const previousChatHTML=chatHTML;
+    window.chatHTML=function(){
+      let html=previousChatHTML.apply(this,arguments);
+      const label=txt("← 返回今日挑战 · 解锁","← Kembali ke Cabaran Hari Ini · Buka Kunci","← Back to Today’s Challenge · Unlock");
+      const button=`<button type="button" class="btn scoreaChatBackBtn" onclick="scoreAReturnToTodayChallenge()">${label}</button>`;
+      // Wrap the first green ChatGPT link and the new return button in one action row.
+      return html.replace(/(<a class="btn green"[^>]*>[\s\S]*?<\/a>)/,
+        `<div class="scoreaChatActions">$1${button}</div>`);
+    };
+  }
+
+  // Ensure the current Day 30 screen is repaired immediately after page load/login renders.
+  if(typeof render==="function"){
+    const previousRender=render;
+    window.render=function(){
+      const r=previousRender.apply(this,arguments);
+      if(typeof scoreAIsBossDay==="function" && scoreAIsBossDay(scoreAGlobalDay())){
+        setTimeout(()=>bossRender(),0);
+      }
+      return r;
+    };
+  }
+
+  setTimeout(()=>{
+    try{
+      if(typeof scoreAIsBossDay==="function" && scoreAIsBossDay(scoreAGlobalDay()))bossRender();
+    }catch(e){}
+  },150);
+})();
+</script>
 
 </body></html>
