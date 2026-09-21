@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>HOW TO SCORE A | Admin Dashboard</title>
+<!-- FINAL MERGED ADMIN: admin(4) + scorea-admin rules | 365/730 + ACTIVATE/FREE/RENEW -->
 <style>
 *{box-sizing:border-box}
 body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Arial;background:#f5f7fb;color:#10213e}
@@ -224,10 +225,10 @@ input{width:100%;padding:12px 13px;border:1px solid #d8e1ed;border-radius:12px;o
       <div class="formField">
         <label>课程期限</label>
         <div class="planRow">
-          <label class="planChoice"><input type="radio" name="planDays" value="30">30 天</label>
-          <label class="planChoice"><input type="radio" name="planDays" value="180">180 天</label>
-          <label class="planChoice"><input type="radio" name="planDays" value="365" checked>365 天</label>
+          <label class="planChoice"><input type="radio" name="planDays" value="365" checked>普通 1 年｜365 天</label>
+          <label class="planChoice"><input type="radio" name="planDays" value="730">指定学生｜365 + 免费365 = 730 天</label>
         </div>
+        <div class="accountHint">一般学生使用 365 天；730 天只用于你指定的少数学生。免费额外一年不是永久权限。</div>
       </div>
 
       <div class="formFull">
@@ -364,13 +365,13 @@ input{width:100%;padding:12px 13px;border:1px solid #d8e1ed;border-radius:12px;o
         <button class="btn" id="resumeBtn" onclick="manageEnrollment('resume')">▶ 恢复课程</button>
       </div>
 
-      <h3>延长课程</h3>
+      <h3>课程权限</h3>
       <div class="actionRow">
-        <button class="btn light" onclick="manageEnrollment('extend',30)">＋30 天</button>
-        <button class="btn light" onclick="manageEnrollment('extend',180)">＋180 天</button>
-        <button class="btn light" onclick="manageEnrollment('extend',365)">＋365 天</button>
+        <button class="btn" id="activate365Btn" onclick="manageScoreAAccess('ACTIVATE_365')">开通1年</button>
+        <button class="btn light" id="free365Btn" onclick="manageScoreAAccess('FREE_365')">🎁 免费加1年</button>
+        <button class="btn warn" id="renew365Btn" onclick="manageScoreAAccess('RENEW_365')">💳 续费1年</button>
       </div>
-      <div class="muted">若课程仍有效，会从现有到期日继续往后加；若已到期，则从今天重新计算。PAUSED 状态延长后仍保持 PAUSED。</div>
+      <div class="muted">开通1年＝365 天；免费加1年＝只给指定学生 +365 天；续费1年＝学生付款后 +365 天。免费与付费续费会分别记录在后台 Audit Log。</div>
     </div>
 
     <div class="accountBox">
@@ -699,8 +700,8 @@ function renderAdminStudentTable(){
         <td>${expiry}</td>
         <td>${p?`Cycle ${p.current_cycle} · Day ${p.current_day}<br><span class="muted">${p.xp||0} XP</span>`:'尚未建立'}</td>
         <td>${activity}</td>
-        <td><button class="manageBtn" ${e?'':'disabled'} onclick='openEnrollmentManager(${JSON.stringify({
-          student_id:s.student_id,full_name:s.full_name,user_id:s.user_id,enrollment_id:e?.id||null,
+        <td><button class="manageBtn" onclick='openEnrollmentManager(${JSON.stringify({
+          student_uuid:s.id,student_id:s.student_id,full_name:s.full_name,user_id:s.user_id,enrollment_id:e?.id||null,
           status:e?effectiveEnrollmentStatus(e):'NONE',raw_status:e?.status||'',start_date:e?.start_date||'',expiry_date:e?.expiry_date||'',plan_days:e?.plan_days||''
         })})'>管理</button></td>
       </tr>`;
@@ -826,7 +827,7 @@ let CURRENT_ENROLLMENT=null;
 
 function openEnrollmentManager(info){
   CURRENT_ENROLLMENT=info||null;
-  if(!CURRENT_ENROLLMENT?.enrollment_id)return;
+  if(!CURRENT_ENROLLMENT?.student_uuid)return;
 
   $("manageStudentTitle").textContent=CURRENT_ENROLLMENT.full_name||"管理课程权限";
   $("manageStudentId").textContent=CURRENT_ENROLLMENT.student_id||"—";
@@ -834,8 +835,12 @@ function openEnrollmentManager(info){
   $("manageStart").textContent=CURRENT_ENROLLMENT.start_date||"—";
   $("manageExpiry").textContent=CURRENT_ENROLLMENT.expiry_date||"—";
 
-  $("pauseBtn").disabled=CURRENT_ENROLLMENT.status==="PAUSED";
-  $("resumeBtn").disabled=CURRENT_ENROLLMENT.status==="ACTIVE";
+  const hasEnrollment=!!CURRENT_ENROLLMENT.enrollment_id;
+  $("pauseBtn").disabled=!hasEnrollment||CURRENT_ENROLLMENT.status==="PAUSED";
+  $("resumeBtn").disabled=!hasEnrollment||CURRENT_ENROLLMENT.status==="ACTIVE";
+  $("activate365Btn").disabled=hasEnrollment;
+  $("free365Btn").disabled=!hasEnrollment;
+  $("renew365Btn").disabled=!hasEnrollment;
 
   $("currentStudentEmail").value="";
   $("currentStudentEmail").placeholder="正在读取…";
@@ -1054,13 +1059,88 @@ ${clearReflections?"同时会清除这个学生现有的「我的思考」历史
   }
 }
 
+async function manageScoreAAccess(action){
+  if(!CURRENT_ENROLLMENT?.student_uuid)return;
+
+  const labels={
+    ACTIVATE_365:'开通 1 年（365 天）',
+    FREE_365:'免费增加 1 年（+365 天）',
+    RENEW_365:'付费续费 1 年（+365 天）'
+  };
+  const hasEnrollment=!!CURRENT_ENROLLMENT.enrollment_id;
+  if(action==='ACTIVATE_365' && hasEnrollment){
+    alert('这个学生已经有课程权限。请使用「免费加1年」或「续费1年」，不要重新开通。');
+    return;
+  }
+  if((action==='FREE_365'||action==='RENEW_365') && !hasEnrollment){
+    alert('这个学生还没有课程权限，请先「开通1年」。');
+    return;
+  }
+
+  const code=CURRENT_ENROLLMENT.student_id||'';
+  const name=CURRENT_ENROLLMENT.full_name||code||'该学生';
+  const expiry=CURRENT_ENROLLMENT.expiry_date||'—';
+  const first=`请核对学生资料：\n\n学生：${name}\nStudent ID：${code||'—'}\n目前到期：${expiry}\n\n准备执行：${labels[action]}\n\n确定继续吗？`;
+  if(!confirm(first))return;
+
+  if(code){
+    const typed=prompt(`最后确认\n\n请完整输入 Student ID：\n${code}\n\n只有完全一致才会执行。`,'');
+    if(typed===null)return;
+    if(typed.trim()!==code){
+      alert('已取消：Student ID 输入不一致，没有修改任何权限。');
+      return;
+    }
+  }
+
+  const box=$("manageResult");
+  box.className="manageResult";
+  box.textContent="正在更新课程权限…";
+  [$("activate365Btn"),$("free365Btn"),$("renew365Btn")].forEach(b=>{if(b)b.disabled=true});
+
+  try{
+    const {data,error}=await db.rpc('scorea_admin_manage_access',{
+      p_student_id:CURRENT_ENROLLMENT.student_uuid,
+      p_action:action
+    });
+    if(error)throw error;
+    const r=Array.isArray(data)?data[0]:data;
+
+    CURRENT_ENROLLMENT.enrollment_id=r?.enrollment_id||CURRENT_ENROLLMENT.enrollment_id||'ACTIVE';
+    CURRENT_ENROLLMENT.start_date=r?.start_date||CURRENT_ENROLLMENT.start_date||new Date().toISOString().slice(0,10);
+    CURRENT_ENROLLMENT.expiry_date=r?.expiry_date||CURRENT_ENROLLMENT.expiry_date||'';
+    CURRENT_ENROLLMENT.plan_days=r?.plan_days||CURRENT_ENROLLMENT.plan_days||365;
+    CURRENT_ENROLLMENT.raw_status=r?.status||CURRENT_ENROLLMENT.raw_status||'ACTIVE';
+    CURRENT_ENROLLMENT.status=r?.effective_status||r?.status||'ACTIVE';
+
+    $("manageStatus").textContent=CURRENT_ENROLLMENT.status||'ACTIVE';
+    $("manageStart").textContent=CURRENT_ENROLLMENT.start_date||'—';
+    $("manageExpiry").textContent=CURRENT_ENROLLMENT.expiry_date||'—';
+
+    box.className="manageResult good";
+    box.textContent=`✓ ${name}｜${labels[action]}\n新到期日：${CURRENT_ENROLLMENT.expiry_date||'—'}`;
+
+    await loadDashboard();
+  }catch(err){
+    console.error('Manage SCORE-A access failed',err);
+    box.className="manageResult bad";
+    box.textContent="✗ 更新失败\n"+(err.message||"Unknown error");
+  }finally{
+    const has=!!CURRENT_ENROLLMENT?.enrollment_id;
+    if($("activate365Btn"))$("activate365Btn").disabled=has;
+    if($("free365Btn"))$("free365Btn").disabled=!has;
+    if($("renew365Btn"))$("renew365Btn").disabled=!has;
+    if($("pauseBtn"))$("pauseBtn").disabled=!has||CURRENT_ENROLLMENT?.status==="PAUSED";
+    if($("resumeBtn"))$("resumeBtn").disabled=!has||CURRENT_ENROLLMENT?.status==="ACTIVE";
+  }
+}
+
 async function manageEnrollment(action,days=null){
   if(!CURRENT_ENROLLMENT?.enrollment_id)return;
+  if(!['pause','resume'].includes(action))return;
 
   const labels={
     pause:"暂停课程",
-    resume:"恢复课程",
-    extend:`延长 ${days} 天`
+    resume:"恢复课程"
   };
   if(!confirm(`确认要为 ${CURRENT_ENROLLMENT.full_name} ${labels[action]}？`))return;
 
@@ -1378,8 +1458,14 @@ async function createStudent(){
     box.textContent="Password 至少需要 8 个字符。";
     return;
   }
+  if(![365,730].includes(planDays)){
+    box.className="resultBox bad";
+    box.textContent="课程期限只允许 365 天或 730 天。";
+    return;
+  }
 
-  if(!confirm(`确认建立学生：\n${fullName}\n${email}\n${planDays} 天课程？`)) return;
+  const planLabel=planDays===730?'指定学生：365 + 免费365（730 天）':'普通学生：365 天';
+  if(!confirm(`确认建立学生：\n${fullName}\n${email}\n${planLabel}？`)) return;
 
   btn.disabled=true;
   btn.textContent="正在建立…";
