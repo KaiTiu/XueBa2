@@ -89,6 +89,25 @@ input{width:100%;padding:12px 13px;border:1px solid #d8e1ed;border-radius:12px;o
 
 @media(max-width:900px){.grid4{grid-template-columns:repeat(2,1fr)}.two{grid-template-columns:1fr}}
 @media(max-width:560px){.grid4{grid-template-columns:1fr}.top{align-items:flex-start;flex-direction:column}}
+
+/* ===== ADMIN V2.0 OPERATIONS UPGRADE ===== */
+.grid8{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.stat.attention{border-color:#f0caca;background:#fff9f9}.stat.attention b{color:#b42318}
+.stat.goodStat{border-color:#cceada;background:#f7fffa}.stat.goodStat b{color:#147a55}
+.adminToolbar{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin:12px 0 14px}
+.adminToolbar input,.adminToolbar select{width:auto;min-width:180px;padding:10px 12px;border:1px solid #d8e1ed;border-radius:11px;background:#fff}
+.adminToolbar input{flex:1;min-width:230px}
+.opsGrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
+.opsList{display:grid;gap:8px}.opsItem{padding:11px 12px;border:1px solid #e2e8f1;border-radius:13px;background:#fafcff;line-height:1.45}
+.opsItem.warn{background:#fff8ed;border-color:#f2d49e}.opsItem.bad{background:#fff3f3;border-color:#efcaca}.opsItem.good{background:#f0fbf5;border-color:#cce8d8}
+.opsItem small{display:block;color:#718096;margin-top:3px}
+.quickLinks{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.quickLinks a{text-decoration:none;padding:9px 11px;border-radius:10px;background:#edf3ff;color:#274e88;font-weight:900;font-size:12px}
+.tableCount{font-size:12px;color:#718096;font-weight:800}
+.expirySoon{color:#9a5a00;font-weight:900}.stale{color:#a23a35;font-weight:850}.fresh{color:#177552;font-weight:850}
+#lastRefreshText{font-size:11px;color:#718096;margin-top:4px}
+@media(max-width:900px){.grid8{grid-template-columns:repeat(2,1fr)}.opsGrid{grid-template-columns:1fr}}
+@media(max-width:560px){.grid8{grid-template-columns:1fr}.adminToolbar input,.adminToolbar select{width:100%;min-width:0}.quickLinks a{flex:1;text-align:center}}
+
 </style>
 </head>
 <body>
@@ -120,26 +139,47 @@ input{width:100%;padding:12px 13px;border:1px solid #d8e1ed;border-radius:12px;o
     </div>
   </div>
 
-  <div class="grid4">
+  <div class="grid8">
     <div class="card stat"><small>学生总数</small><b id="statStudents">0</b></div>
-    <div class="card stat"><small>ACTIVE 课程</small><b id="statActive">0</b></div>
+    <div class="card stat goodStat"><small>ACTIVE 课程</small><b id="statActive">0</b></div>
+    <div class="card stat goodStat"><small>最近 7 天活跃学生</small><b id="statActive7">0</b></div>
+    <div class="card stat attention"><small>30 天内到期</small><b id="statExpiring30">0</b></div>
+    <div class="card stat"><small>Parent 总数</small><b id="statParents">0</b></div>
+    <div class="card stat"><small>ACTIVE 家长绑定</small><b id="statParentLinks">0</b></div>
     <div class="card stat"><small>已建立云端进度</small><b id="statProgress">0</b></div>
-    <div class="card stat"><small>每日思考记录</small><b id="statReflections">0</b></div>
+    <div class="card stat"><small>最近 7 天每日思考</small><b id="statReflections7">0</b></div>
   </div>
 
   <div class="two">
     <section class="card">
       <div class="sectionTitle">
-        <div><h2 style="margin:0">👨‍🎓 学生与课程权限</h2><div class="muted">这一版先做安全的 Read-Only Admin Dashboard。</div></div>
+        <div><h2 style="margin:0">👨‍🎓 学生与课程权限</h2><div class="muted">查看、搜索、筛选学生，并管理课程、账号与学习状态。</div><div id="lastRefreshText"></div></div>
         <span class="pill">STEP 2</span>
+      </div>
+      <div class="adminToolbar">
+        <input id="studentSearch" placeholder="搜索 Student ID / 姓名 / 年级" oninput="renderAdminStudentTable()">
+        <select id="studentStatusFilter" onchange="renderAdminStudentTable()">
+          <option value="ALL">全部状态</option>
+          <option value="ACTIVE">ACTIVE</option>
+          <option value="PAUSED">PAUSED</option>
+          <option value="EXPIRED">EXPIRED</option>
+          <option value="NONE">无课程</option>
+          <option value="ATTENTION">需要跟进</option>
+        </select>
+        <button class="btn light" onclick="exportStudentCSV()">⬇ 导出 CSV</button>
+        <span id="studentTableCount" class="tableCount"></span>
       </div>
       <div id="studentTableWrap"></div>
     </section>
 
     <aside class="card">
-      <h2 style="margin-top:0">📌 下一步</h2>
-      <p><b>Step 3：</b>新增学生 / 开通 30、180、365 天 / 暂停权限。</p>
-      <p class="muted">这类动作不能把 Supabase service role key 放进浏览器，所以会用安全的 Edge Function / server action 来做。</p>
+      <h2 style="margin-top:0">⚠️ 运营提醒</h2>
+      <div id="opsAttention"><div class="empty">正在分析…</div></div>
+      <div class="quickLinks">
+        <a href="index.html" target="_blank">🎓 Student OS</a>
+        <a href="parent.html" target="_blank">👨‍👩‍👧 Parent</a>
+        <a href="free.html" target="_blank">🧭 Free Center</a>
+      </div>
       <hr style="border:0;border-top:1px solid #edf1f6;margin:18px 0">
       <h3>最近云端学习进度</h3>
       <div id="progressList"><div class="empty">等待读取…</div></div>
@@ -581,130 +621,190 @@ function effectiveEnrollmentStatus(e){
   return raw||"—";
 }
 
+
+const ADMIN_STATE={students:[],enroll:[],progress:[],reflections:[],parentProfiles:[],parentLinks:[]};
+
+function adminDaysUntil(dateStr){
+  if(!dateStr)return null;
+  const end=new Date(dateStr+'T23:59:59');
+  const now=new Date();
+  return Math.ceil((end-now)/86400000);
+}
+function adminProgressAgeDays(p){
+  if(!p?.updated_at)return null;
+  return Math.floor((Date.now()-new Date(p.updated_at).getTime())/86400000);
+}
+function adminAttentionReasons(s,e,p){
+  const reasons=[];
+  const status=e?effectiveEnrollmentStatus(e):'NONE';
+  const left=e?adminDaysUntil(e.expiry_date):null;
+  const age=adminProgressAgeDays(p);
+  if(status==='NONE')reasons.push('没有课程权限');
+  if(status==='PAUSED')reasons.push('课程已暂停');
+  if(status==='EXPIRED')reasons.push('课程已到期');
+  if(status==='ACTIVE' && left!==null && left>=0 && left<=30)reasons.push(`${left} 天后到期`);
+  if(!p)reasons.push('尚未建立学习进度');
+  else if(age!==null && age>=7)reasons.push(`${age} 天没有更新进度`);
+  return reasons;
+}
+function renderAdminStudentTable(){
+  const students=ADMIN_STATE.students||[], enroll=ADMIN_STATE.enroll||[], progress=ADMIN_STATE.progress||[];
+  const enrollMap=new Map(enroll.map(e=>[e.student_id,e]));
+  const progressMap=new Map(progress.map(p=>[p.student_id,p]));
+  const q=($('studentSearch')?.value||'').trim().toLowerCase();
+  const filter=$('studentStatusFilter')?.value||'ALL';
+
+  const rows=students.filter(s=>{
+    const e=enrollMap.get(s.id),p=progressMap.get(s.id);
+    const status=e?effectiveEnrollmentStatus(e):'NONE';
+    const reasons=adminAttentionReasons(s,e,p);
+    const hay=`${s.student_id||''} ${s.full_name||''} ${s.grade||''}`.toLowerCase();
+    const matchQ=!q||hay.includes(q);
+    const matchStatus=filter==='ALL'||status===filter||(filter==='ATTENTION'&&reasons.length>0);
+    return matchQ&&matchStatus;
+  });
+
+  if($('studentTableCount'))$('studentTableCount').textContent=`显示 ${rows.length} / ${students.length} 位学生`;
+  $('studentTableWrap').innerHTML=rows.length?`
+    <div style="overflow:auto"><table>
+    <thead><tr><th>Student ID</th><th>姓名</th><th>年级</th><th>课程</th><th>到期</th><th>学习进度</th><th>最近活动</th><th>管理</th></tr></thead>
+    <tbody>${rows.map(s=>{
+      const e=enrollMap.get(s.id),p=progressMap.get(s.id);
+      const status=e?effectiveEnrollmentStatus(e):String(s.status||'').toUpperCase()||'NONE';
+      const statusClass=status==='ACTIVE'?'active':status==='EXPIRED'?'expired':'';
+      const left=e?adminDaysUntil(e.expiry_date):null;
+      const age=adminProgressAgeDays(p);
+      const activity=!p?'尚无进度':age===0?'<span class="fresh">今天</span>':age===1?'<span class="fresh">昨天</span>':age!==null&&age<7?`<span class="fresh">${age} 天前</span>`:age!==null?`<span class="stale">${age} 天前</span>`:'—';
+      const expiry=e?.expiry_date?`${esc(e.expiry_date)}${status==='ACTIVE'&&left!==null&&left<=30&&left>=0?`<br><span class="expirySoon">剩 ${left} 天</span>`:''}`:'—';
+      return `<tr>
+        <td><b>${esc(s.student_id)}</b></td>
+        <td>${esc(s.full_name)}</td>
+        <td>${esc(s.grade)}</td>
+        <td><span class="tag ${statusClass}">${esc(status)}</span></td>
+        <td>${expiry}</td>
+        <td>${p?`Cycle ${p.current_cycle} · Day ${p.current_day}<br><span class="muted">${p.xp||0} XP</span>`:'尚未建立'}</td>
+        <td>${activity}</td>
+        <td><button class="manageBtn" ${e?'':'disabled'} onclick='openEnrollmentManager(${JSON.stringify({
+          student_id:s.student_id,full_name:s.full_name,user_id:s.user_id,enrollment_id:e?.id||null,
+          status:e?effectiveEnrollmentStatus(e):'NONE',raw_status:e?.status||'',start_date:e?.start_date||'',expiry_date:e?.expiry_date||'',plan_days:e?.plan_days||''
+        })})'>管理</button></td>
+      </tr>`;
+    }).join('')}</tbody></table></div>`
+    :'<div class="empty">没有符合筛选条件的学生。</div>';
+}
+function renderAdminAttention(){
+  const students=ADMIN_STATE.students||[], enroll=ADMIN_STATE.enroll||[], progress=ADMIN_STATE.progress||[];
+  const enrollMap=new Map(enroll.map(e=>[e.student_id,e]));
+  const progressMap=new Map(progress.map(p=>[p.student_id,p]));
+  const items=[];
+  for(const s of students){
+    const e=enrollMap.get(s.id),p=progressMap.get(s.id),reasons=adminAttentionReasons(s,e,p);
+    if(reasons.length)items.push({s,reasons});
+  }
+  const box=$('opsAttention');if(!box)return;
+  if(!items.length){box.innerHTML='<div class="opsItem good"><b>目前没有明显需要跟进的学生。</b></div>';return;}
+  box.innerHTML=`<div class="opsList">${items.slice(0,8).map(x=>`<div class="opsItem warn"><b>${esc(x.s.student_id)} · ${esc(x.s.full_name)}</b><small>${esc(x.reasons.join(' · '))}</small></div>`).join('')}</div>${items.length>8?`<div class="muted" style="margin-top:8px">另外还有 ${items.length-8} 位；可在学生列表选择「需要跟进」。</div>`:''}`;
+}
+function exportStudentCSV(){
+  const students=ADMIN_STATE.students||[], enroll=ADMIN_STATE.enroll||[], progress=ADMIN_STATE.progress||[];
+  const enrollMap=new Map(enroll.map(e=>[e.student_id,e]));
+  const progressMap=new Map(progress.map(p=>[p.student_id,p]));
+  const quote=v=>'"'+String(v??'').replace(/"/g,'""')+'"';
+  const rows=[['Student ID','Name','Grade','Course Status','Expiry','Cycle','Day','XP','Last Updated','Attention']];
+  students.forEach(s=>{
+    const e=enrollMap.get(s.id),p=progressMap.get(s.id),status=e?effectiveEnrollmentStatus(e):'NONE';
+    rows.push([s.student_id,s.full_name,s.grade,status,e?.expiry_date||'',p?.current_cycle||'',p?.current_day||'',p?.xp||'',p?.updated_at||'',adminAttentionReasons(s,e,p).join('; ')]);
+  });
+  const csv='\ufeff'+rows.map(r=>r.map(quote).join(',')).join('\n');
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8'}),a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);a.download=`scorea-students-${new Date().toISOString().slice(0,10)}.csv`;a.click();URL.revokeObjectURL(a.href);
+}
+
 async function loadDashboard(){
-  $("refreshStatus").textContent="LOADING";
+  $('refreshStatus').textContent='LOADING';
   try{
-    const [
-      studentsRes,
-      enrollRes,
-      progressRes,
-      reflectRes,
-      parentProfilesRes,
-      parentLinksRes
-    ]=await Promise.all([
-      db.from("students").select("id,student_id,full_name,grade,status,user_id").order("student_id"),
-      db.from("enrollments").select("id,student_id,course_id,status,start_date,expiry_date,plan_days"),
-      db.from("scorea_student_progress").select("student_id,current_cycle,current_day,xp,focus,time_management,self_learning,updated_at").order("updated_at",{ascending:false}),
-      db.from("scorea_daily_reflections").select("student_id,student_name,cycle_number,day_number,lesson_title,reflection_text,completed_at,lesson_type").neq("cycle_number",999).neq("lesson_type","SYSTEM TEST").order("completed_at",{ascending:false}).limit(20),
-      db.from("scorea_parent_profiles").select("user_id,full_name,phone,status,created_at").order("created_at",{ascending:false}),
-      db.from("scorea_parent_student_links").select("id,parent_user_id,student_id,relationship,status,created_at").order("created_at",{ascending:false})
+    const weekAgo=new Date(Date.now()-7*86400000).toISOString();
+    const [studentsRes,enrollRes,progressRes,reflectRes,parentProfilesRes,parentLinksRes,reflectCount7Res]=await Promise.all([
+      db.from('students').select('id,student_id,full_name,grade,status,user_id').order('student_id'),
+      db.from('enrollments').select('id,student_id,course_id,status,start_date,expiry_date,plan_days'),
+      db.from('scorea_student_progress').select('student_id,current_cycle,current_day,xp,focus,time_management,self_learning,updated_at').order('updated_at',{ascending:false}),
+      db.from('scorea_daily_reflections').select('student_id,student_name,cycle_number,day_number,lesson_title,reflection_text,completed_at,lesson_type').neq('cycle_number',999).neq('lesson_type','SYSTEM TEST').order('completed_at',{ascending:false}).limit(50),
+      db.from('scorea_parent_profiles').select('user_id,full_name,phone,status,created_at').order('created_at',{ascending:false}),
+      db.from('scorea_parent_student_links').select('id,parent_user_id,student_id,relationship,status,created_at').order('created_at',{ascending:false}),
+      db.from('scorea_daily_reflections').select('*',{count:'exact',head:true}).neq('cycle_number',999).neq('lesson_type','SYSTEM TEST').gte('completed_at',weekAgo)
     ]);
-    for(const r of [studentsRes,enrollRes,progressRes,reflectRes,parentProfilesRes,parentLinksRes]) if(r.error) throw r.error;
+    for(const r of [studentsRes,enrollRes,progressRes,reflectRes,parentProfilesRes,parentLinksRes,reflectCount7Res])if(r.error)throw r.error;
 
-    const students=studentsRes.data||[], enroll=enrollRes.data||[], progress=progressRes.data||[], reflections=reflectRes.data||[],
-      parentProfiles=parentProfilesRes.data||[], parentLinks=parentLinksRes.data||[];
+    const students=studentsRes.data||[],enroll=enrollRes.data||[],progress=progressRes.data||[],reflections=reflectRes.data||[],parentProfiles=parentProfilesRes.data||[],parentLinks=parentLinksRes.data||[];
+    ADMIN_STATE.students=students;ADMIN_STATE.enroll=enroll;ADMIN_STATE.progress=progress;ADMIN_STATE.reflections=reflections;ADMIN_STATE.parentProfiles=parentProfiles;ADMIN_STATE.parentLinks=parentLinks;
 
-    $("statStudents").textContent=students.length;
-    $("statActive").textContent=enroll.filter(e=>effectiveEnrollmentStatus(e)==="ACTIVE").length;
-    $("statProgress").textContent=progress.length;
-    $("statReflections").textContent=reflections.length;
+    const now=Date.now();
+    const active7=progress.filter(p=>p.updated_at && now-new Date(p.updated_at).getTime()<=7*86400000).length;
+    const expiring30=enroll.filter(e=>{
+      if(effectiveEnrollmentStatus(e)!=='ACTIVE')return false;
+      const d=adminDaysUntil(e.expiry_date);return d!==null&&d>=0&&d<=30;
+    }).length;
 
-    const enrollMap=new Map(enroll.map(e=>[e.student_id,e]));
-    const progressMap=new Map(progress.map(p=>[p.student_id,p]));
+    $('statStudents').textContent=students.length;
+    $('statActive').textContent=enroll.filter(e=>effectiveEnrollmentStatus(e)==='ACTIVE').length;
+    $('statActive7').textContent=active7;
+    $('statExpiring30').textContent=expiring30;
+    $('statParents').textContent=parentProfiles.length;
+    $('statParentLinks').textContent=parentLinks.filter(x=>String(x.status||'').toUpperCase()==='ACTIVE').length;
+    $('statProgress').textContent=progress.length;
+    $('statReflections7').textContent=reflectCount7Res.count??0;
 
-    $("studentTableWrap").innerHTML=students.length?`
-      <div style="overflow:auto"><table>
-      <thead><tr><th>Student ID</th><th>姓名</th><th>年级</th><th>课程</th><th>到期</th><th>进度</th><th>管理</th></tr></thead>
-      <tbody>${students.map(s=>{
-        const e=enrollMap.get(s.id), p=progressMap.get(s.id);
-        const status=e?effectiveEnrollmentStatus(e):String(s.status||"").toUpperCase();
-        const statusClass=status==="ACTIVE"?"active":status==="EXPIRED"?"expired":"";
-        return `<tr>
-          <td><b>${esc(s.student_id)}</b></td>
-          <td>${esc(s.full_name)}</td>
-          <td>${esc(s.grade)}</td>
-          <td><span class="tag ${statusClass}">${esc(status||"—")}</span></td>
-          <td>${esc(e?.expiry_date||"—")}</td>
-          <td>${p?`Cycle ${p.current_cycle} · Day ${p.current_day} · ${p.xp} XP`:"尚未建立"}</td>
-          <td><button class="manageBtn" ${e?"":"disabled"} onclick='openEnrollmentManager(${JSON.stringify({
-            student_id:s.student_id,
-            full_name:s.full_name,
-            user_id:s.user_id,
-            enrollment_id:e?.id||null,
-            status:e?effectiveEnrollmentStatus(e):"NONE",
-            raw_status:e?.status||"",
-            start_date:e?.start_date||"",
-            expiry_date:e?.expiry_date||"",
-            plan_days:e?.plan_days||""
-          })})'>管理</button></td>
-        </tr>`;
-      }).join("")}</tbody></table></div>`
-      :'<div class="empty">还没有学生资料。</div>';
+    renderAdminStudentTable();
+    renderAdminAttention();
 
-    $("progressList").innerHTML=progress.length
-      ?progress.slice(0,8).map(p=>`<div style="padding:9px 0;border-bottom:1px solid #edf1f6"><b>Day ${p.current_day}</b> · ${p.xp} XP<br><span class="muted">专注 ${p.focus}% · 时间 ${p.time_management}% · 自主 ${p.self_learning}%</span></div>`).join("")
+    const studentMap=new Map(students.map(s=>[s.id,s]));
+    $('progressList').innerHTML=progress.length
+      ?progress.slice(0,8).map(p=>{
+        const s=studentMap.get(p.student_id),age=adminProgressAgeDays(p);
+        return `<div style="padding:9px 0;border-bottom:1px solid #edf1f6"><b>${esc(s?.full_name||s?.student_id||'Student')} · Day ${p.current_day}</b><br><span class="muted">${p.xp||0} XP · 专注 ${p.focus||0}% · 时间 ${p.time_management||0}% · 自主 ${p.self_learning||0}%${age!==null?` · ${age===0?'今天更新':age+' 天前更新'}`:''}</span></div>`;
+      }).join('')
       :'<div class="empty">尚无云端课程进度。</div>';
 
-    $("reflectionTableWrap").innerHTML=reflections.length?`
+    $('reflectionTableWrap').innerHTML=reflections.length?`
       <div style="overflow:auto"><table>
       <thead><tr><th>学生</th><th>Day</th><th>主题</th><th>思考</th><th>时间</th></tr></thead>
-      <tbody>${reflections.slice(0,12).map(r=>`<tr>
-        <td>${esc(r.student_name||"—")}</td>
+      <tbody>${reflections.slice(0,15).map(r=>`<tr>
+        <td>${esc(r.student_name||'—')}</td>
         <td>R${esc(r.cycle_number)} · D${esc(r.day_number)}</td>
-        <td>${esc(r.lesson_title||"")}</td>
-        <td>${esc(r.reflection_text||"")}</td>
-        <td>${r.completed_at?new Date(r.completed_at).toLocaleDateString("zh-MY"):"—"}</td>
-      </tr>`).join("")}</tbody></table></div>`
+        <td>${esc(r.lesson_title||'')}</td>
+        <td>${esc(r.reflection_text||'')}</td>
+        <td>${r.completed_at?new Date(r.completed_at).toLocaleString('zh-MY',{dateStyle:'short',timeStyle:'short'}):'—'}</td>
+      </tr>`).join('')}</tbody></table></div>`
       :'<div class="empty">尚无真实每日思考记录。</div>';
 
-
-    const parentStudentSelect=$("newParentStudent");
+    const parentStudentSelect=$('newParentStudent');
     if(parentStudentSelect){
-      parentStudentSelect.innerHTML='<option value="">请选择学生</option>'+
-        students.map(s=>`<option value="${esc(s.id)}">${esc(s.student_id)} · ${esc(s.full_name)} · ${esc(s.grade||"")}</option>`).join("");
+      parentStudentSelect.innerHTML='<option value="">请选择学生</option>'+students.map(s=>`<option value="${esc(s.id)}">${esc(s.student_id)} · ${esc(s.full_name)} · ${esc(s.grade||'')}</option>`).join('');
     }
 
     const profileMap=new Map(parentProfiles.map(p=>[p.user_id,p]));
-    const studentMap=new Map(students.map(s=>[s.id,s]));
-    const existingParentSelect=$("existingParentSelect");
-    if(existingParentSelect){
-      existingParentSelect.innerHTML='<option value="">请选择 Parent</option>'+
-        parentProfiles.map(p=>`<option value="${esc(p.user_id)}">${esc(p.full_name)}${p.phone?` · ${esc(p.phone)}`:""}</option>`).join("");
-    }
+    const existingParentSelect=$('existingParentSelect');
+    if(existingParentSelect){existingParentSelect.innerHTML='<option value="">请选择 Parent</option>'+parentProfiles.map(p=>`<option value="${esc(p.user_id)}">${esc(p.full_name)}${p.phone?` · ${esc(p.phone)}`:''}</option>`).join('');}
+    const existingParentStudent=$('existingParentStudent');
+    if(existingParentStudent){existingParentStudent.innerHTML='<option value="">请选择 Student</option>'+students.map(s=>`<option value="${esc(s.id)}">${esc(s.student_id)} · ${esc(s.full_name)} · ${esc(s.grade||'')}</option>`).join('');}
 
-    const existingParentStudent=$("existingParentStudent");
-    if(existingParentStudent){
-      existingParentStudent.innerHTML='<option value="">请选择 Student</option>'+
-        students.map(s=>`<option value="${esc(s.id)}">${esc(s.student_id)} · ${esc(s.full_name)} · ${esc(s.grade||"")}</option>`).join("");
-    }
-
-    const parentLinkBox=$("parentLinkTable");
-
+    const parentLinkBox=$('parentLinkTable');
     if(parentLinkBox){
       parentLinkBox.innerHTML=parentLinks.length?`
-        <div style="overflow:auto"><table>
-        <thead><tr><th>Parent</th><th>Relationship</th><th>Student</th><th>Status</th><th>Account</th></tr></thead>
+        <div style="overflow:auto"><table><thead><tr><th>Parent</th><th>Relationship</th><th>Student</th><th>Status</th><th>Account</th></tr></thead>
         <tbody>${parentLinks.map(l=>{
-          const p=profileMap.get(l.parent_user_id), s=studentMap.get(l.student_id);
-          return `<tr>
-            <td><b>${esc(p?.full_name||"Parent")}</b></td>
-            <td>${esc(l.relationship||"parent")}</td>
-            <td>${s?`${esc(s.student_id)} · ${esc(s.full_name)}`:"—"}</td>
-            <td><span class="tag ${String(l.status||"").toUpperCase()==="ACTIVE"?"active":""}">${esc(l.status||"—")}</span></td>
-            <td><button class="btn light" onclick='openParentResetPassword(${JSON.stringify(l.parent_user_id)}, ${JSON.stringify(p?.full_name||"Parent")})'>🔑 Reset Temp Password</button></td>
-          </tr>`;
-        }).join("")}</tbody></table></div>`
+          const p=profileMap.get(l.parent_user_id),s=studentMap.get(l.student_id);
+          return `<tr><td><b>${esc(p?.full_name||'Parent')}</b></td><td>${esc(l.relationship||'parent')}</td><td>${s?`${esc(s.student_id)} · ${esc(s.full_name)}`:'—'}</td><td><span class="tag ${String(l.status||'').toUpperCase()==='ACTIVE'?'active':''}">${esc(l.status||'—')}</span></td><td><button class="btn light" onclick='openParentResetPassword(${JSON.stringify(l.parent_user_id)}, ${JSON.stringify(p?.full_name||'Parent')})'>🔑 Reset Temp Password</button></td></tr>`;
+        }).join('')}</tbody></table></div>`
         :'<div class="empty">还没有 Parent ↔ Student 绑定。</div>';
     }
 
-    $("refreshStatus").textContent="READY";
+    $('refreshStatus').textContent='READY';
+    if($('lastRefreshText'))$('lastRefreshText').textContent='最后更新：'+new Date().toLocaleString('zh-MY',{dateStyle:'short',timeStyle:'short'});
   }catch(err){
-    console.error(err);
-    $("refreshStatus").textContent="ERROR";
-    alert("Admin Dashboard 读取失败："+(err.message||"Unknown error"));
+    console.error(err);$('refreshStatus').textContent='ERROR';alert('Admin Dashboard 读取失败：'+(err.message||'Unknown error'));
   }
 }
-
 
 
 let CURRENT_ENROLLMENT=null;

@@ -5333,5 +5333,201 @@ setTimeout(()=>scoreAForceBlankThought(true),520);
   window.addEventListener("load",()=>setTimeout(()=>v812Apply({preserveLive:false}),220));
 })();
 
+
+
+/* ===== V8.13 MOBILE A-BOT VOICE — DIRECT TAP + FALLBACK =====
+   Goal: make A-BOT much more reliable on iPhone / Android.
+   - The FIRST utterance is started synchronously inside the user's tap.
+   - No delayed first speak after cancel (important for mobile autoplay rules).
+   - Keeps strong utterance references.
+   - Uses language voice when available, with Malay -> Indonesian -> English fallback.
+   - If a selected voice fails, retries that chunk with the device default voice.
+   - Periodically resumes Chrome/Android speech during longer speech.
+*/
+(function(){
+  let V813_TOKEN=0;
+  let V813_QUEUE=[];
+  let V813_INDEX=0;
+  let V813_KEEPALIVE=null;
+  let V813_UTTERANCES=[];
+
+  function v813Lang(){
+    try{return getScoreALanguage()}catch(e){return 'zh'}
+  }
+  function v813Mode(){
+    try{return scoreAABotMode()}catch(e){return 'junior'}
+  }
+  function v813Message(kind){
+    const lang=v813Lang();
+    const m={
+      zh:{playing:'A-BOT 正在说话…',ready:'点击 A-BOT 或「听 A-BOT」播放语音。',failed:'手机没有成功播放语音。请先确认媒体音量已开启；如果你是在 Facebook / WhatsApp 内置浏览器，请改用 Safari 或 Chrome 打开。',unsupported:'这个手机浏览器不支持 A-BOT 语音，请改用 Safari 或 Chrome。'},
+      ms:{playing:'A-BOT sedang bercakap…',ready:'Tekan A-BOT atau “Dengar A-BOT” untuk memainkan suara.',failed:'Suara tidak berjaya dimainkan. Pastikan kelantangan media dibuka. Jika anda menggunakan pelayar dalam Facebook / WhatsApp, buka laman ini dalam Safari atau Chrome.',unsupported:'Pelayar telefon ini tidak menyokong suara A-BOT. Sila gunakan Safari atau Chrome.'},
+      en:{playing:'A-BOT is speaking…',ready:'Tap A-BOT or “Hear A-BOT” to play the voice.',failed:'Voice did not start. Make sure media volume is on. If you are using the Facebook / WhatsApp in-app browser, open this page in Safari or Chrome.',unsupported:'This mobile browser does not support A-BOT voice. Please use Safari or Chrome.'}
+    };
+    return (m[lang]||m.zh)[kind];
+  }
+  function v813Note(msg){
+    const el=document.getElementById('aBotVoiceNote');
+    if(el)el.textContent=msg;
+  }
+  function v813Visual(on){
+    try{scoreAABotSpeaking(!!on)}catch(e){}
+    document.getElementById('scoreANPCMiniBot')?.classList.toggle('speaking',!!on);
+  }
+  function v813StopKeepAlive(){
+    if(V813_KEEPALIVE){clearInterval(V813_KEEPALIVE);V813_KEEPALIVE=null;}
+  }
+  function v813Voices(){
+    try{return window.speechSynthesis?.getVoices?.()||[]}catch(e){return []}
+  }
+  function v813PickVoice(lang){
+    const voices=v813Voices();
+    const L=v=>String(v.lang||'').toLowerCase();
+    if(lang==='zh'){
+      return voices.find(v=>/^zh-(cn|sg)/.test(L(v)))
+        ||voices.find(v=>/^zh-(tw|hk)/.test(L(v)))
+        ||voices.find(v=>L(v).startsWith('zh'))
+        ||voices.find(v=>L(v).startsWith('en-sg'))
+        ||voices.find(v=>L(v).startsWith('en'))
+        ||null;
+    }
+    if(lang==='ms'){
+      return voices.find(v=>/^ms(-|$)/.test(L(v)))
+        ||voices.find(v=>/^id(-|$)/.test(L(v)))
+        ||voices.find(v=>/^en-(my|sg)/.test(L(v)))
+        ||voices.find(v=>L(v).startsWith('en'))
+        ||null;
+    }
+    return voices.find(v=>/^en-(my|sg)/.test(L(v)))
+      ||voices.find(v=>/^en-(us|gb|au)/.test(L(v)))
+      ||voices.find(v=>L(v).startsWith('en'))
+      ||null;
+  }
+  function v813Chunks(txt){
+    txt=String(txt||'').replace(/\s+/g,' ').trim();
+    if(!txt)return [];
+    const pieces=txt.match(/[^。！？!?；;,.，]{1,62}[。！？!?；;,.，]?/g)||[txt];
+    const out=[];let buf='';
+    for(const p0 of pieces){
+      const p=p0.trim();if(!p)continue;
+      if((buf+' '+p).trim().length<=88)buf=(buf+' '+p).trim();
+      else{if(buf)out.push(buf);buf=p;}
+    }
+    if(buf)out.push(buf);
+    return out;
+  }
+  function v813VoiceLang(lang,voice){
+    if(voice?.lang)return voice.lang;
+    return lang==='ms'?'ms-MY':lang==='en'?'en-US':'zh-CN';
+  }
+
+  function v813SpeakChunk(index,token,useDefault=false){
+    if(token!==V813_TOKEN)return;
+    if(index>=V813_QUEUE.length){
+      v813StopKeepAlive();v813Visual(false);v813Note(v813Message('ready'));return;
+    }
+    const synth=window.speechSynthesis;
+    const lang=v813Lang();
+    const mode=v813Mode();
+    const preferred=useDefault?null:v813PickVoice(lang);
+    const u=new SpeechSynthesisUtterance(V813_QUEUE[index]);
+    u.lang=v813VoiceLang(lang,preferred);
+    u.rate=mode==='junior'?0.92:0.99;
+    u.pitch=mode==='junior'?1.08:0.98;
+    u.volume=1;
+    if(preferred)u.voice=preferred;
+
+    let actuallyStarted=false;
+    u.onstart=()=>{
+      actuallyStarted=true;
+      v813Visual(true);
+      v813Note(v813Message('playing'));
+    };
+    u.onend=()=>{
+      if(token!==V813_TOKEN)return;
+      V813_INDEX=index+1;
+      v813SpeakChunk(V813_INDEX,token,false);
+    };
+    u.onerror=(ev)=>{
+      if(token!==V813_TOKEN)return;
+      console.warn('A-BOT speech error',ev?.error||ev);
+      /* Some phones expose a language voice that cannot actually play.
+         Retry the same chunk once using device default speech. */
+      if(!useDefault){
+        try{synth.resume()}catch(e){}
+        v813SpeakChunk(index,token,true);
+      }else{
+        v813StopKeepAlive();
+        v813Visual(false);
+        v813Note(v813Message('failed'));
+      }
+    };
+
+    V813_UTTERANCES.push(u);
+    if(V813_UTTERANCES.length>12)V813_UTTERANCES=V813_UTTERANCES.slice(-12);
+    try{synth.resume()}catch(e){}
+    synth.speak(u);
+
+    /* Watchdog: if mobile exposes Web Speech but never begins, surface a clear message. */
+    setTimeout(()=>{
+      if(token!==V813_TOKEN||actuallyStarted)return;
+      if(!synth.speaking && !synth.pending){
+        v813Visual(false);
+        v813Note(v813Message('failed'));
+      }
+    },1300);
+  }
+
+  scoreASpeakABot=function(){
+    const synth=window.speechSynthesis;
+    if(!synth || typeof SpeechSynthesisUtterance==='undefined'){
+      alert(v813Message('unsupported'));
+      return;
+    }
+
+    const text=typeof scoreAABotCopy==='function'?scoreAABotCopy():'';
+    V813_QUEUE=v813Chunks(text);
+    if(!V813_QUEUE.length)return;
+
+    const token=++V813_TOKEN;
+    V813_INDEX=0;
+    V813_UTTERANCES=[];
+    v813StopKeepAlive();
+
+    /* IMPORTANT FOR MOBILE:
+       Start speech directly inside the tap handler. Do not delay the first speak. */
+    try{
+      if(synth.speaking||synth.pending)synth.cancel();
+      synth.resume();
+    }catch(e){}
+
+    v813SpeakChunk(0,token,false);
+
+    /* Android/Chrome can pause long speech while the screen is active. */
+    V813_KEEPALIVE=setInterval(()=>{
+      if(token!==V813_TOKEN){v813StopKeepAlive();return;}
+      try{if(synth.paused)synth.resume()}catch(e){}
+    },3500);
+  };
+
+  scoreAStopABot=function(){
+    ++V813_TOKEN;
+    v813StopKeepAlive();
+    V813_QUEUE=[];V813_INDEX=0;V813_UTTERANCES=[];
+    try{window.speechSynthesis?.cancel?.()}catch(e){}
+    v813Visual(false);
+    v813Note(v813Message('ready'));
+  };
+
+  /* Preload voice list without trying to autoplay speech. */
+  if('speechSynthesis' in window){
+    try{window.speechSynthesis.getVoices()}catch(e){}
+    const refresh=()=>{try{window.speechSynthesis.getVoices()}catch(e){}};
+    window.speechSynthesis.addEventListener?.('voiceschanged',refresh);
+    document.addEventListener('touchstart',refresh,{once:true,passive:true});
+    document.addEventListener('pointerdown',refresh,{once:true,passive:true});
+  }
+})();
+
 </script>
 </body></html>
