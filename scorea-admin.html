@@ -314,7 +314,7 @@ async function createStudent(){
     if(sessionError)throw sessionError;
     if(!session?.access_token)throw new Error('管理员登录已过期，请重新登录。');
 
-    const response=await fetch('/api/create-student',{
+    const response=await fetch('/api/admin-create-student',{
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':`Bearer ${session.access_token}`},
       body:JSON.stringify({full_name:fullName,email,password,grade,plan_days:planDays})
