@@ -151,6 +151,20 @@ input{width:100%;padding:12px 13px;border:1px solid #d8e1ed;border-radius:12px;o
     <div class="card stat"><small>最近 7 天每日思考</small><b id="statReflections7">0</b></div>
   </div>
 
+  <section class="card" style="margin-top:14px">
+    <div class="sectionTitle">
+      <div>
+        <h2 style="margin:0">📊 Weekly Growth Reports</h2>
+        <div class="muted">一次为全部 ACTIVE 学生建立或更新本周周报。系统会逐批处理；同一学生同一星期不会重复新增。</div>
+      </div>
+      <span class="pill">STAGE 5A</span>
+    </div>
+    <div class="actionRow">
+      <button class="btn" id="generateAllWeeklyBtn" onclick="generateAllWeeklyReports()">📊 生成全部 ACTIVE 学生周报</button>
+    </div>
+    <div id="generateAllWeeklyResult" class="manageResult hidden" style="margin-top:12px"></div>
+  </section>
+
   <div class="two">
     <section class="card">
       <div class="sectionTitle">
@@ -1000,6 +1014,98 @@ async function resetStudentTemporaryPassword(){
   }
 }
 
+
+async function generateAllWeeklyReports(){
+  const students=ADMIN_STATE.students||[];
+  const enroll=ADMIN_STATE.enroll||[];
+  const enrollMap=new Map(enroll.map(e=>[e.student_id,e]));
+  const activeStudents=students.filter(s=>{
+    const e=enrollMap.get(s.id);
+    return !!e && effectiveEnrollmentStatus(e)==='ACTIVE';
+  });
+
+  const box=$("generateAllWeeklyResult");
+  const btn=$("generateAllWeeklyBtn");
+
+  if(!activeStudents.length){
+    box.className="manageResult bad";
+    box.textContent="目前没有 ACTIVE 学生可以生成周报。";
+    return;
+  }
+
+  if(!confirm(`准备为 ${activeStudents.length} 位 ACTIVE 学生生成本周 Weekly Growth Report。\n\n同一学生同一星期如果已有报告，会更新原报告，不会重复新增。\n\n这个动作不会改变学生的 Day、XP 或课程权限。\n\n确定继续吗？`))return;
+
+  box.className="manageResult";
+  box.textContent=`正在准备生成 ${activeStudents.length} 份周报…`;
+  if(btn){btn.disabled=true;btn.textContent="正在批量生成…";}
+
+  try{
+    const {data:sessionData,error:sessionError}=await db.auth.getSession();
+    if(sessionError)throw sessionError;
+    const token=sessionData?.session?.access_token;
+    if(!token)throw new Error("Admin session 已过期，请重新登录。");
+
+    let success=0,failed=0;
+    const failures=[];
+    let weekStart='',weekEnd='';
+    const batchSize=4;
+
+    const generateOne=async(student)=>{
+      const r=await fetch("/api/generate-weekly-report",{
+        method:"POST",
+        headers:{
+          "Content-Type":"application/json",
+          "Authorization":"Bearer "+token
+        },
+        body:JSON.stringify({student_id:student.id})
+      });
+      const raw=await r.text();
+      let result;
+      try{result=JSON.parse(raw)}catch{result={error:raw}}
+      if(!r.ok || !result?.ok){
+        throw new Error(result?.error||`HTTP ${r.status}`);
+      }
+      return result;
+    };
+
+    for(let i=0;i<activeStudents.length;i+=batchSize){
+      const batch=activeStudents.slice(i,i+batchSize);
+      const results=await Promise.all(batch.map(async student=>{
+        try{
+          const result=await generateOne(student);
+          return {ok:true,student,result};
+        }catch(err){
+          return {ok:false,student,error:err.message||'Unknown error'};
+        }
+      }));
+
+      results.forEach(x=>{
+        if(x.ok){
+          success++;
+          weekStart=weekStart||x.result?.report?.week_start||'';
+          weekEnd=weekEnd||x.result?.report?.week_end||'';
+        }else{
+          failed++;
+          failures.push(`${x.student.student_id||'—'} · ${x.student.full_name||'Student'}：${x.error}`);
+        }
+      });
+
+      box.className="manageResult";
+      box.textContent=`正在生成 Weekly Growth Reports…\n\n已处理：${Math.min(i+batch.length,activeStudents.length)} / ${activeStudents.length}\n成功：${success}\n失败：${failed}`;
+    }
+
+    box.className=failed?"manageResult bad":"manageResult good";
+    box.textContent=
+`✓ 批量周报处理完成\n\n报告周期：${weekStart||'本周'}${weekEnd?` ～ ${weekEnd}`:''}\nACTIVE 学生：${activeStudents.length}\n成功：${success}\n失败：${failed}`+
+(failures.length?`\n\n需要检查：\n${failures.slice(0,12).join('\n')}${failures.length>12?`\n另外还有 ${failures.length-12} 位失败。`:''}`:"\n\n全部周报已成功建立/更新。") ;
+  }catch(err){
+    console.error("Generate all weekly reports failed",err);
+    box.className="manageResult bad";
+    box.textContent="✗ 批量生成失败\n"+(err.message||"Unknown error");
+  }finally{
+    if(btn){btn.disabled=false;btn.textContent="📊 生成全部 ACTIVE 学生周报";}
+  }
+}
 
 async function generateWeeklyReport(){
   if(!CURRENT_ENROLLMENT?.student_uuid)return;
