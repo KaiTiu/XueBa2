@@ -6575,5 +6575,146 @@ setTimeout(()=>scoreAForceBlankThought(true),520);
   };
 })();
 
+
+
+/* ===== V8.21 TOOLBOX STATE REPAIR =====
+   Root cause fixed:
+   Cloud Progress V2 can restore user_state as an older/partial object.
+   The toolbox expects nested fields such as U.dailyDates, U.terms,
+   U.fixed, U.schedule, etc. If one is missing, Time Management can throw
+   "Cannot read properties of undefined" and Exam Goal can stop before
+   rendering its first term.
+*/
+(function(){
+  function scoreAEnsureToolState(){
+    U = (U && typeof U==='object') ? U : {};
+    U.basic = (U.basic && typeof U.basic==='object') ? U.basic : {};
+    U.fixed = Array.isArray(U.fixed) ? U.fixed : [];
+    U.week = (U.week && typeof U.week==='object') ? U.week : {};
+    U.schedule = (U.schedule && typeof U.schedule==='object') ? U.schedule : Object.assign({},U.week||{});
+    U.habits = (U.habits && typeof U.habits==='object') ? U.habits : {};
+    U.review = Array.isArray(U.review) ? U.review : [];
+    U.timeWeek = Math.max(1,Math.min(365,Number(U.timeWeek)||1));
+    U.timeWeeks = (U.timeWeeks && typeof U.timeWeeks==='object') ? U.timeWeeks : {};
+    U.dailyDates = (U.dailyDates && typeof U.dailyDates==='object') ? U.dailyDates : {};
+    U.terms = (U.terms && typeof U.terms==='object') ? U.terms : {};
+    U.mistakes = Array.isArray(U.mistakes) ? U.mistakes : [];
+    U.mistakeWeek = Math.max(1,Number(U.mistakeWeek)||1);
+    U.mistakeWeeks = (U.mistakeWeeks && typeof U.mistakeWeeks==='object') ? U.mistakeWeeks : {};
+
+    // Repair any partially-saved term objects.
+    for(let n=1;n<=4;n++){
+      const t=U.terms[n];
+      if(t && typeof t==='object'){
+        t.rows=Array.isArray(t.rows)?t.rows:[];
+        t.review=(t.review && typeof t.review==='object')?t.review:{};
+      }
+    }
+    return U;
+  }
+  window.scoreAEnsureToolState=scoreAEnsureToolState;
+
+  // Make the storage helper safe even after Cloud V2 restored an older user_state.
+  if(typeof usave==='function'){
+    const __v821Usave=usave;
+    usave=function(){
+      scoreAEnsureToolState();
+      return __v821Usave.apply(this,arguments);
+    };
+  }
+
+  // Time Management should never assume missing nested data exists.
+  if(typeof timeHTML==='function'){
+    const __v821TimeHTML=timeHTML;
+    timeHTML=function(){
+      scoreAEnsureToolState();
+      return __v821TimeHTML.apply(this,arguments);
+    };
+  }
+
+  // Exam Goal should also repair its data before building the page.
+  if(typeof examGoalHTML==='function'){
+    const __v821ExamGoalHTML=examGoalHTML;
+    examGoalHTML=function(){
+      scoreAEnsureToolState();
+      return __v821ExamGoalHTML.apply(this,arguments);
+    };
+  }
+
+  // Render a term safely even when this student's older cloud data has no term object yet.
+  if(typeof renderTerm==='function'){
+    const __v821RenderTerm=renderTerm;
+    renderTerm=function(n,b){
+      scoreAEnsureToolState();
+      return __v821RenderTerm.apply(this,arguments);
+    };
+  }
+
+  // Final toolbox opener: do NOT run every loader for every tool.
+  // This prevents a Time Management loader error from blocking Exam Goal, and vice versa.
+  openToolbox=function(id){
+    scoreAEnsureToolState();
+    SCOREA_OPEN_TOOLBOX=id;
+
+    const panel=document.getElementById('training');
+    if(panel){panel.classList.add('active');panel.style.display='';}
+
+    let area=document.getElementById('toolboxArea');
+    if(!area){
+      area=document.createElement('div');
+      area.id='toolboxArea';
+      panel?.appendChild(area);
+    }
+
+    try{
+      if(id==='timebox'){
+        area.innerHTML=timeHTML();
+        area.style.display='block';
+        // Load ONLY Time Management pieces.
+        renderFixed();
+        renderHabits();
+        renderReview();
+        loadScheduleValues();
+      }else if(id==='examgoal'){
+        area.innerHTML=examGoalHTML();
+        area.style.display='block';
+        // Immediately display Term 1 content.
+        renderTerm(1,document.querySelector('#toolboxArea .termBtn'));
+      }else if(id==='chatgpt'){
+        area.innerHTML=chatHTML();
+        area.style.display='block';
+      }else if(id==='mistakebox'){
+        area.innerHTML=mistakeHTML();
+        area.style.display='block';
+        try{renderMistakeStats()}catch(e){console.warn('Mistake stats warning',e)}
+      }
+
+      // Persist repaired structure so Cloud Progress V2 will also keep it.
+      try{usave()}catch(e){console.warn('Toolbox state save warning',e)}
+      setTimeout(()=>{try{area.scrollIntoView({behavior:'smooth',block:'start'})}catch(e){}},30);
+
+    }catch(err){
+      console.error('Toolbox open failed',id,err);
+      const lang=typeof getScoreALanguage==='function'?getScoreALanguage():'zh';
+      const title=lang==='ms'?'Alat tidak dapat dibuka':lang==='en'?'Tool could not open':'工具暂时无法打开';
+      area.innerHTML=`<div class="card"><h3>${title}</h3><p class="muted">${esc(String(err?.message||err))}</p></div>`;
+      area.style.display='block';
+    }
+  };
+
+  // If Cloud Progress V2 restores an older user_state, repair it immediately after restore too.
+  if(typeof restoreCloudProgressV2==='function'){
+    const __v821Restore=restoreCloudProgressV2;
+    restoreCloudProgressV2=async function(){
+      const r=await __v821Restore.apply(this,arguments);
+      scoreAEnsureToolState();
+      try{usave()}catch(e){}
+      return r;
+    };
+  }
+
+  scoreAEnsureToolState();
+})();
+
 </script>
 </body></html>
