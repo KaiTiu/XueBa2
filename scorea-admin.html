@@ -71,7 +71,7 @@ label{font-size:12px;font-weight:850;color:#53627a;display:block;margin:12px 0 6
           <tbody id="tbody"></tbody>
         </table>
       </div>
-      <div class="note"><b>按钮规则：</b>「开通1年」会从今天重新计算 365 天；「免费加1年」只给你指定的少数学生，现有到期日 +365 天；「续费1年」用于学生付款后，到期日 +365 天。免费与付费续费会分别记录在后台 Audit Log。</div>
+      <div class="note"><b>按钮规则：</b>「开通1年」会从今天重新计算 365 天；「免费加1年」只给你指定的少数学生，现有到期日 +365 天；「续费1年」用于学生付款后，到期日 +365 天。免费与付费续费会分别记录在后台 Audit Log。为避免误点，执行前会先核对资料，并要求输入该学生的 Student ID 二次确认。</div>
     </div>
   </div>
 </div>
@@ -141,7 +141,7 @@ function renderRows(){
       <td>${e(r.email||'—')}</td><td>${e(r.grade||'—')}</td><td>${r.plan_days??'—'}</td>
       <td>${fmtDate(r.start_date)}</td><td><b>${fmtDate(r.expiry_date)}</b></td><td>${statusBadge(r)}</td><td>${dayText(r)}</td>
       <td><div class="actions">
-        <button class="btn primary" onclick="manage('${e(r.student_uuid)}','ACTIVATE_365','${e(r.full_name||r.student_code||'该学生')}')">开通1年</button>
+        <button class="btn primary" ${enrolled?'disabled title="已有权限，请使用免费加1年或续费1年"':''} onclick="manage('${e(r.student_uuid)}','ACTIVATE_365','${e(r.full_name||r.student_code||'该学生')}')">开通1年</button>
         <button class="btn green" ${enrolled?'':'disabled'} onclick="manage('${e(r.student_uuid)}','FREE_365','${e(r.full_name||r.student_code||'该学生')}')">免费加1年</button>
         <button class="btn amber" ${enrolled?'':'disabled'} onclick="manage('${e(r.student_uuid)}','RENEW_365','${e(r.full_name||r.student_code||'该学生')}')">续费1年</button>
       </div></td>
@@ -150,15 +150,44 @@ function renderRows(){
 }
 
 async function manage(studentId,action,name){
-  const labels={ACTIVATE_365:'从今天重新开通 365 天',FREE_365:'免费增加 365 天',RENEW_365:'付费续费增加 365 天'};
-  if(!confirm(`确认要为「${name}」${labels[action]}吗？`))return;
+  const labels={ACTIVATE_365:'开通 1 年（365 天）',FREE_365:'免费增加 1 年（+365 天）',RENEW_365:'付费续费 1 年（+365 天）'};
+  const row=ROWS.find(r=>r.student_uuid===studentId);
+  const code=row?.student_code||'';
+  const email=row?.email||'—';
+  const currentExpiry=fmtDate(row?.expiry_date);
+
+  // 安全保护：已有 Enrollment 的学生不允许用「开通1年」重置日期。
+  if(action==='ACTIVATE_365' && row?.enrollment_id){
+    return msg(document.getElementById('globalMsg'),'这个学生已经有课程权限。请使用「免费加1年」或「续费1年」，不要重新开通。');
+  }
+
+  const first=`请核对学生资料：\n\n学生：${name}\nStudent ID：${code||'—'}\nEmail：${email}\n目前到期：${currentExpiry}\n\n准备执行：${labels[action]}\n\n确定继续吗？`;
+  if(!confirm(first))return;
+
+  // 第二层防误点：必须输入该学生的 Student ID。
+  if(code){
+    const typed=prompt(`最后确认\n\n请完整输入 Student ID：\n${code}\n\n只有完全一致才会执行。`,'');
+    if(typed===null)return;
+    if(typed.trim()!==code){
+      return msg(document.getElementById('globalMsg'),'已取消：Student ID 输入不一致，没有修改任何权限。');
+    }
+  }else{
+    const typed=prompt('最后确认：请输入“确认”后才会执行。','');
+    if(typed===null||typed.trim()!=='确认')return msg(document.getElementById('globalMsg'),'已取消，没有修改任何权限。');
+  }
+
   const gm=document.getElementById('globalMsg');msg(gm,'');
+  const buttons=[...document.querySelectorAll('.actions .btn')];
+  buttons.forEach(b=>b.disabled=true);
   try{
     const {data,error}=await db.rpc('scorea_admin_manage_access',{p_student_id:studentId,p_action:action});if(error)throw error;
     const r=Array.isArray(data)?data[0]:data;
-    msg(gm,`完成：${labels[action]}。新到期日 ${fmtDate(r?.expiry_date)}。`,'ok');
+    msg(gm,`完成：${name}｜${labels[action]}｜新到期日 ${fmtDate(r?.expiry_date)}。`,'ok');
     await refreshRows();
-  }catch(err){msg(gm,'操作失败：'+(err.message||err));}
+  }catch(err){
+    msg(gm,'操作失败：'+(err.message||err));
+    renderRows();
+  }
 }
 
 document.getElementById('password').addEventListener('keydown',ev=>{if(ev.key==='Enter')loginAdmin()});
