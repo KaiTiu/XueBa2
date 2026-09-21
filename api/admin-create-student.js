@@ -1,341 +1,330 @@
-// HOW TO SCORE A | Stage 3 - Step 3A
-// Vercel Serverless Function: /api/admin-create-student
-// IMPORTANT: Never put SUPABASE_SERVICE_ROLE_KEY in admin.html or GitHub.
-// Add it only in Vercel -> Project Settings -> Environment Variables.
-
-const SUPABASE_URL =
-  process.env.SUPABASE_URL ||
-  "https://htzkjfztqqsbzxahxfnt.supabase.co";
-
-const SUPABASE_PUBLISHABLE_KEY =
-  process.env.SUPABASE_PUBLISHABLE_KEY ||
-  "sb_publishable_-2O1fEqOGCQPSiMGQVSFrQ_bC3hf4WM";
-
-const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-function send(res, status, body) {
-  res.status(status).json(body);
-}
-
-async function fetchJson(url, options = {}) {
-  const r = await fetch(url, options);
-  let data = null;
-  const raw = await r.text();
-  try {
-    data = raw ? JSON.parse(raw) : null;
-  } catch {
-    data = raw;
-  }
-  if (!r.ok) {
-    const message =
-      data?.msg ||
-      data?.message ||
-      data?.error_description ||
-      data?.error ||
-      raw ||
-      `HTTP ${r.status}`;
-    const err = new Error(message);
-    err.status = r.status;
-    err.data = data;
-    throw err;
-  }
-  return data;
-}
-
-async function getCallerUser(accessToken) {
-  return fetchJson(`${SUPABASE_URL}/auth/v1/user`, {
-    headers: {
-      apikey: SUPABASE_PUBLISHABLE_KEY,
-      Authorization: `Bearer ${accessToken}`,
-    },
-  });
-}
-
-async function callerIsAdmin(userId) {
-  const url =
-    `${SUPABASE_URL}/rest/v1/user_roles` +
-    `?user_id=eq.${encodeURIComponent(userId)}` +
-    `&role=eq.admin&select=role&limit=1`;
-
-  const rows = await fetchJson(url, {
-    headers: {
-      apikey: SERVICE_ROLE_KEY,
-      Authorization: `Bearer ${SERVICE_ROLE_KEY}`,
-    },
-  });
-  return Array.isArray(rows) && rows.length > 0;
-}
-
-async function serviceRest(path, options = {}) {
-  const headers = {
-    apikey: SERVICE_ROLE_KEY,
-    Authorization: `Bearer ${SERVICE_ROLE_KEY}`,
-    "Content-Type": "application/json",
-    Prefer: options.prefer || "return=representation",
-    ...(options.headers || {}),
-  };
-  return fetchJson(`${SUPABASE_URL}/rest/v1/${path}`, {
-    ...options,
-    headers,
-  });
-}
-
-async function createAuthUser(email, password, fullName, grade) {
-  return fetchJson(`${SUPABASE_URL}/auth/v1/admin/users`, {
-    method: "POST",
-    headers: {
-      apikey: SERVICE_ROLE_KEY,
-      Authorization: `Bearer ${SERVICE_ROLE_KEY}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      email,
-      password,
-      email_confirm: true,
-      user_metadata: {
-        role: "student",
-        full_name: fullName,
-        grade,
-      },
-      app_metadata: {
-        role: "student",
-        must_change_password: true,
-        temporary_password_issued_at: new Date().toISOString(),
-      },
-    }),
-  });
-}
-
-async function deleteAuthUser(userId) {
-  try {
-    await fetchJson(`${SUPABASE_URL}/auth/v1/admin/users/${userId}`, {
-      method: "DELETE",
-      headers: {
-        apikey: SERVICE_ROLE_KEY,
-        Authorization: `Bearer ${SERVICE_ROLE_KEY}`,
-      },
-    });
-  } catch (e) {
-    console.error("Cleanup Auth user failed", e);
-  }
-}
-
-function validDateString(s) {
-  return /^\d{4}-\d{2}-\d{2}$/.test(String(s || ""));
-}
-
-function todayUtc() {
-  return new Date().toISOString().slice(0, 10);
-}
-
-function expiryFrom(startDate, planDays) {
-  const d = new Date(`${startDate}T00:00:00Z`);
-  d.setUTCDate(d.getUTCDate() + planDays - 1);
-  return d.toISOString().slice(0, 10);
-}
-
 module.exports = async function handler(req, res) {
-  if (req.method !== "POST") {
-    res.setHeader("Allow", "POST");
-    return send(res, 405, { ok: false, error: "Method not allowed" });
+  if (req.method !== 'POST') {
+    return res.status(405).json({ ok: false, error: 'Method not allowed' });
   }
 
-  if (!SERVICE_ROLE_KEY) {
-    return send(res, 500, {
+  const SUPABASE_URL = process.env.SUPABASE_URL;
+  const PUBLISHABLE_KEY = process.env.SUPABASE_PUBLISHABLE_KEY;
+  const SERVER_KEY = process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+  if (!SUPABASE_URL || !PUBLISHABLE_KEY || !SERVER_KEY) {
+    return res.status(500).json({
       ok: false,
-      error:
-        "Server is missing SUPABASE_SERVICE_ROLE_KEY in Vercel Environment Variables.",
+      error: 'Server configuration is missing.'
     });
   }
 
-  const authHeader = req.headers.authorization || "";
-  const accessToken = authHeader.startsWith("Bearer ")
-    ? authHeader.slice(7)
-    : "";
+  // Important:
+  // - User JWT goes in Authorization.
+  // - Supabase publishable/secret keys go in apikey.
+  // - Do NOT send sb_secret_* as Bearer JWT.
+  const serverHeaders = {
+    apikey: SERVER_KEY,
+    'Content-Type': 'application/json'
+  };
 
-  if (!accessToken) {
-    return send(res, 401, { ok: false, error: "Admin login token is missing." });
+  async function readJson(response) {
+    const text = await response.text();
+    if (!text) return {};
+    try {
+      return JSON.parse(text);
+    } catch {
+      return { message: text };
+    }
+  }
+
+  async function cleanupAuthUser(userId) {
+    if (!userId) return;
+    try {
+      await fetch(`${SUPABASE_URL}/auth/v1/admin/users/${encodeURIComponent(userId)}`, {
+        method: 'DELETE',
+        headers: serverHeaders
+      });
+    } catch (_) {}
+  }
+
+  async function cleanupStudent(studentUuid) {
+    if (!studentUuid) return;
+    try {
+      await fetch(`${SUPABASE_URL}/rest/v1/students?id=eq.${encodeURIComponent(studentUuid)}`, {
+        method: 'DELETE',
+        headers: serverHeaders
+      });
+    } catch (_) {}
+  }
+
+  function malaysiaToday() {
+    const parts = new Intl.DateTimeFormat('en-CA', {
+      timeZone: 'Asia/Kuala_Lumpur',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    }).formatToParts(new Date());
+
+    const values = {};
+    for (const part of parts) {
+      if (part.type !== 'literal') values[part.type] = part.value;
+    }
+    return `${values.year}-${values.month}-${values.day}`;
+  }
+
+  function addDays(dateString, days) {
+    const [year, month, day] = dateString.split('-').map(Number);
+    const date = new Date(Date.UTC(year, month - 1, day));
+    date.setUTCDate(date.getUTCDate() + days);
+    return date.toISOString().slice(0, 10);
+  }
+
+  async function getNextStudentCode() {
+    const response = await fetch(
+      `${SUPABASE_URL}/rest/v1/students?select=student_id&student_id=like.SCORE-A*&order=student_id.desc&limit=1`,
+      { headers: serverHeaders }
+    );
+
+    const result = await readJson(response);
+    if (!response.ok) {
+      throw new Error(result.message || 'Unable to generate Student ID.');
+    }
+
+    let nextNumber = 1;
+    if (Array.isArray(result) && result.length) {
+      const match = String(result[0].student_id || '').match(/^SCORE-A(\d+)$/i);
+      if (match) nextNumber = Number(match[1]) + 1;
+    }
+
+    return `SCORE-A${String(nextNumber).padStart(5, '0')}`;
   }
 
   let createdAuthUserId = null;
+  let createdStudentUuid = null;
 
   try {
-    // 1) Verify the signed-in caller.
-    const caller = await getCallerUser(accessToken);
-    if (!caller?.id) {
-      return send(res, 401, { ok: false, error: "Invalid Admin session." });
-    }
-
-    // 2) Verify ADMIN role on the server.
-    if (!(await callerIsAdmin(caller.id))) {
-      return send(res, 403, {
+    // 1) Verify signed-in administrator using the USER JWT.
+    const authorization = req.headers.authorization || req.headers.Authorization || '';
+    if (!authorization.startsWith('Bearer ')) {
+      return res.status(401).json({
         ok: false,
-        error: "This account does not have the admin role.",
+        error: 'Please login as administrator first.'
       });
     }
 
-    // 3) Read request body.
-    const body = req.body || {};
+    const adminAccessToken = authorization.substring(7).trim();
+    const userHeaders = {
+      apikey: PUBLISHABLE_KEY,
+      Authorization: `Bearer ${adminAccessToken}`,
+      'Content-Type': 'application/json'
+    };
 
-    // 4) Confirm SCORE-A course exists.
-    const courseRows = await serviceRest(
-      "courses?course_code=eq.SCORE-A&is_active=eq.true&select=id,course_code&limit=1",
-      { method: "GET" }
-    );
-    const course = courseRows?.[0];
-    if (!course) {
-      throw new Error("找不到 ACTIVE 的 SCORE-A course。");
+    const userResponse = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
+      headers: userHeaders
+    });
+    const adminUser = await readJson(userResponse);
+
+    if (!userResponse.ok || !adminUser.id) {
+      return res.status(401).json({
+        ok: false,
+        error: 'Administrator login has expired. Please login again.'
+      });
     }
 
-    // SAFE DRY RUN:
-    // Verify Admin session + server secret + SCORE-A course BEFORE validating
-    // student form fields. This creates nothing and consumes no Student ID.
-    if (body.dry_run === true) {
-      const existingStudents = await serviceRest(
-        "students?student_id=like.SCORE-A*&select=student_id&order=student_id.desc&limit=1",
-        { method: "GET" }
-      );
-      const highest = existingStudents?.[0]?.student_id || null;
-      let nextPreview = "SCORE-A00001";
-      if (highest) {
-        const m = String(highest).match(/(\d+)$/);
-        const n = m ? Number(m[1]) + 1 : 1;
-        nextPreview = "SCORE-A" + String(n).padStart(5, "0");
+    // Use the same database RPC that the working admin page already uses.
+    const adminCheckResponse = await fetch(
+      `${SUPABASE_URL}/rest/v1/rpc/scorea_is_admin`,
+      {
+        method: 'POST',
+        headers: userHeaders,
+        body: '{}'
       }
+    );
+    const adminAllowed = await readJson(adminCheckResponse);
 
-      return send(res, 200, {
-        ok: true,
-        mode: "dry_run",
-        message: "Admin API is ready. No student was created.",
-        admin_email: caller.email || null,
-        service_role_configured: true,
-        course_code: course.course_code,
-        current_highest_student_id: highest,
-        next_student_id_preview: nextPreview
+    if (!adminCheckResponse.ok) {
+      return res.status(500).json({
+        ok: false,
+        error: `Administrator verification failed: ${adminAllowed.message || adminAllowed.error || 'RPC error'}`
       });
     }
 
-    // 5) Validate real student creation input.
-    const email = String(body.email || "").trim().toLowerCase();
-    const password = String(body.password || "");
-    const fullName = String(body.full_name || "").trim();
-    const grade = String(body.grade || "").trim();
-    const planDays = Number(body.plan_days);
-    const startDate = validDateString(body.start_date)
-      ? body.start_date
-      : todayUtc();
+    if (adminAllowed !== true) {
+      return res.status(403).json({
+        ok: false,
+        error: 'This account does not have administrator permission.'
+      });
+    }
 
-    if (!email || !email.includes("@")) {
-      return send(res, 400, { ok: false, error: "请输入有效的学生 Email。" });
+    // 2) Validate student information.
+    const body = req.body || {};
+    const fullName = String(body.full_name || '').trim();
+    const email = String(body.email || '').trim().toLowerCase();
+    const password = String(body.password || '');
+    const grade = String(body.grade || '').trim();
+    const planDays = Number(body.plan_days);
+
+    if (!fullName) {
+      return res.status(400).json({ ok: false, error: 'Please enter student name.' });
+    }
+    if (!email || !email.includes('@')) {
+      return res.status(400).json({ ok: false, error: 'Please enter a valid Email.' });
     }
     if (password.length < 8) {
-      return send(res, 400, {
-        ok: false,
-        error: "学生 Password 至少需要 8 个字符。",
-      });
-    }
-    if (!fullName) {
-      return send(res, 400, { ok: false, error: "请输入学生姓名。" });
+      return res.status(400).json({ ok: false, error: 'Temporary password must contain at least 8 characters.' });
     }
     if (!grade) {
-      return send(res, 400, { ok: false, error: "请输入学生年级。" });
+      return res.status(400).json({ ok: false, error: 'Please enter student grade.' });
     }
-    if (![30, 180, 365].includes(planDays)) {
-      return send(res, 400, {
+    if (![365, 730].includes(planDays)) {
+      return res.status(400).json({ ok: false, error: 'Plan must be 365 or 730 days.' });
+    }
+
+    // 3) Find SCORE-A course.
+    const courseResponse = await fetch(
+      `${SUPABASE_URL}/rest/v1/courses?course_code=eq.SCORE-A&is_active=eq.true&select=id,course_code&limit=1`,
+      { headers: serverHeaders }
+    );
+    const courseRows = await readJson(courseResponse);
+
+    if (!courseResponse.ok) {
+      throw new Error(courseRows.message || 'Unable to find SCORE-A course.');
+    }
+    if (!Array.isArray(courseRows) || !courseRows.length) {
+      throw new Error('Active SCORE-A course was not found.');
+    }
+    const courseId = courseRows[0].id;
+
+    // 4) Create Supabase Auth login.
+    const authResponse = await fetch(`${SUPABASE_URL}/auth/v1/admin/users`, {
+      method: 'POST',
+      headers: serverHeaders,
+      body: JSON.stringify({
+        email,
+        password,
+        email_confirm: true,
+        user_metadata: {
+          full_name: fullName,
+          grade,
+          account_type: 'student'
+        }
+      })
+    });
+    const authResult = await readJson(authResponse);
+
+    if (!authResponse.ok) {
+      return res.status(400).json({
         ok: false,
-        error: "plan_days 只允许 30、180 或 365。",
+        error:
+          authResult.msg ||
+          authResult.message ||
+          authResult.error_description ||
+          'Unable to create student login account.'
       });
     }
 
-    // 6) Reserve the next Student ID from PostgreSQL sequence.
-    const studentId = await serviceRest("rpc/next_scorea_student_id", {
-      method: "POST",
-      body: JSON.stringify({}),
-    });
-    if (!studentId || typeof studentId !== "string") {
-      throw new Error("无法产生 Student ID。");
+    const authUser = authResult.user || authResult;
+    if (!authUser.id) {
+      throw new Error('Student login was created but User ID could not be obtained.');
+    }
+    createdAuthUserId = authUser.id;
+
+    // 5) Create student profile.
+    let studentRow = null;
+    for (let attempt = 0; attempt < 5; attempt++) {
+      const studentCode = await getNextStudentCode();
+      const studentResponse = await fetch(
+        `${SUPABASE_URL}/rest/v1/students?select=id,student_id,full_name,grade,status,user_id`,
+        {
+          method: 'POST',
+          headers: { ...serverHeaders, Prefer: 'return=representation' },
+          body: JSON.stringify({
+            student_id: studentCode,
+            user_id: createdAuthUserId,
+            full_name: fullName,
+            grade,
+            status: 'ACTIVE'
+          })
+        }
+      );
+
+      const studentResult = await readJson(studentResponse);
+      if (studentResponse.ok) {
+        studentRow = Array.isArray(studentResult) ? studentResult[0] : studentResult;
+        break;
+      }
+
+      if (studentResult.code !== '23505') {
+        throw new Error(studentResult.message || 'Unable to create student profile.');
+      }
     }
 
-    // 6) Create Supabase Authentication user.
-    const authUser = await createAuthUser(email, password, fullName, grade);
-    const authId = authUser?.id;
-    if (!authId) {
-      throw new Error("Authentication user creation did not return a user ID.");
+    if (!studentRow || !studentRow.id) {
+      throw new Error('Unable to generate a unique Student ID.');
     }
-    createdAuthUserId = authId;
+    createdStudentUuid = studentRow.id;
 
-    // 7) Create Student Profile.
-    const studentRows = await serviceRest("students", {
-      method: "POST",
-      body: JSON.stringify({
-        user_id: authId,
-        student_id: studentId,
-        full_name: fullName,
-        grade,
-        status: "ACTIVE",
-      }),
-    });
-    const student = studentRows?.[0];
-    if (!student?.id) {
-      throw new Error("Student Profile creation failed.");
+    // 6) Create enrollment.
+    const startDate = malaysiaToday();
+    const expiryDate = addDays(startDate, planDays);
+
+    const enrollmentResponse = await fetch(
+      `${SUPABASE_URL}/rest/v1/enrollments?select=id,student_id,course_id,plan_days,start_date,expiry_date,status`,
+      {
+        method: 'POST',
+        headers: { ...serverHeaders, Prefer: 'return=representation' },
+        body: JSON.stringify({
+          student_id: createdStudentUuid,
+          course_id: courseId,
+          plan_days: planDays,
+          start_date: startDate,
+          expiry_date: expiryDate,
+          status: 'ACTIVE'
+        })
+      }
+    );
+    const enrollmentResult = await readJson(enrollmentResponse);
+
+    if (!enrollmentResponse.ok) {
+      throw new Error(enrollmentResult.message || 'Unable to create course enrollment.');
     }
 
-    // 8) Mark role as student for the future Student / Parent / Admin split.
-    await serviceRest("user_roles", {
-      method: "POST",
-      prefer: "resolution=merge-duplicates,return=representation",
+    const enrollmentRow = Array.isArray(enrollmentResult)
+      ? enrollmentResult[0]
+      : enrollmentResult;
+
+    // 7) Audit log.
+    await fetch(`${SUPABASE_URL}/rest/v1/scorea_enrollment_access_log`, {
+      method: 'POST',
+      headers: serverHeaders,
       body: JSON.stringify({
-        user_id: authId,
-        role: "student",
-      }),
+        enrollment_id: enrollmentRow.id,
+        student_id: createdStudentUuid,
+        action: planDays === 730 ? 'ACTIVATE_730' : 'ACTIVATE_365',
+        days_added: planDays,
+        old_expiry_date: null,
+        new_expiry_date: expiryDate,
+        admin_user_id: adminUser.id
+      })
     });
 
-    // 9) Create course entitlement.
-    const expiryDate = expiryFrom(startDate, planDays);
-    await serviceRest("enrollments", {
-      method: "POST",
-      body: JSON.stringify({
-        student_id: student.id,
-        course_id: course.id,
-        plan_days: planDays,
-        start_date: startDate,
-        expiry_date: expiryDate,
-        status: "ACTIVE",
-      }),
-    });
-
-    createdAuthUserId = null; // Creation completed; do not cleanup.
-
-    return send(res, 201, {
+    return res.status(200).json({
       ok: true,
       student: {
-        student_id: studentId,
+        id: createdStudentUuid,
+        student_id: studentRow.student_id,
         full_name: fullName,
-        grade,
         email,
-        status: "ACTIVE",
-        password_type: "TEMPORARY",
-        must_change_password: true,
-      },
-      enrollment: {
-        course_code: "SCORE-A",
+        grade,
         plan_days: planDays,
         start_date: startDate,
         expiry_date: expiryDate,
-        status: "ACTIVE",
-      },
+        status: 'ACTIVE'
+      }
     });
-  } catch (err) {
-    // If a later DB step failed after Auth creation, remove the orphaned Auth user.
-    if (createdAuthUserId) {
-      await deleteAuthUser(createdAuthUserId);
-    }
+  } catch (error) {
+    if (createdStudentUuid) await cleanupStudent(createdStudentUuid);
+    if (createdAuthUserId) await cleanupAuthUser(createdAuthUserId);
 
-    console.error("admin-create-student failed", err);
-    return send(res, err.status || 500, {
+    return res.status(500).json({
       ok: false,
-      error: err.message || "Unable to create student.",
-      detail: err.data || null,
+      error: error && error.message ? error.message : 'Unable to create student.'
     });
   }
 };
