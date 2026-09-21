@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>HOW TO SCORE A | Admin Dashboard</title>
-<!-- FINAL MERGED ADMIN: admin(4) + scorea-admin rules | 365/730 + ACTIVATE/FREE/RENEW -->
+<!-- FINAL MERGED ADMIN + Stage 5A Weekly Report manual generator | 365/730 + ACTIVATE/FREE/RENEW -->
 <style>
 *{box-sizing:border-box}
 body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Arial;background:#f5f7fb;color:#10213e}
@@ -372,6 +372,17 @@ input{width:100%;padding:12px 13px;border:1px solid #d8e1ed;border-radius:12px;o
         <button class="btn warn" id="renew365Btn" onclick="manageScoreAAccess('RENEW_365')">💳 续费1年</button>
       </div>
       <div class="muted">开通1年＝365 天；免费加1年＝只给指定学生 +365 天；续费1年＝学生付款后 +365 天。免费与付费续费会分别记录在后台 Audit Log。</div>
+    </div>
+
+    <div class="accountBox">
+      <h3>📊 Weekly Growth Report</h3>
+      <div class="accountHint">
+        先由 Admin 手动生成并检查内容。系统会读取这个学生本周的学习进度与真实每日思考，并保存到 Weekly Report 历史。
+        同一学生同一星期再次生成会更新原报告，不会重复新增。
+      </div>
+      <div style="height:10px"></div>
+      <button class="btn" id="weeklyReportBtn" onclick="generateWeeklyReport()">📊 生成本周周报</button>
+      <div id="weeklyReportResult" class="manageResult hidden" style="margin-top:10px"></div>
     </div>
 
     <div class="accountBox">
@@ -855,6 +866,9 @@ function openEnrollmentManager(info){
   box.textContent="";
   const resetBox=$("resetProgressResult");
   if(resetBox){resetBox.className="manageResult hidden";resetBox.textContent="";}
+  const weeklyBox=$("weeklyReportResult");
+  if(weeklyBox){weeklyBox.className="manageResult hidden";weeklyBox.textContent="";}
+  if($("weeklyReportBtn"))$("weeklyReportBtn").disabled=false;
   if($("resetClearReflections"))$("resetClearReflections").checked=true;
   $("enrollmentModal").classList.remove("hidden");
 
@@ -986,6 +1000,84 @@ async function resetStudentTemporaryPassword(){
   }
 }
 
+
+async function generateWeeklyReport(){
+  if(!CURRENT_ENROLLMENT?.student_uuid)return;
+
+  const name=CURRENT_ENROLLMENT.full_name||CURRENT_ENROLLMENT.student_id||"该学生";
+  const code=CURRENT_ENROLLMENT.student_id||"";
+  if(!confirm(`为 ${name}${code?`（${code}）`:""} 生成本周 Weekly Growth Report？\n\n这只会建立/更新周报，不会改变学生的 Day、XP 或课程权限。`))return;
+
+  const box=$("weeklyReportResult");
+  const btn=$("weeklyReportBtn");
+  box.className="manageResult";
+  box.textContent="正在读取本周学习资料并生成周报…";
+  if(btn){btn.disabled=true;btn.textContent="正在生成…";}
+
+  try{
+    const {data:sessionData,error:sessionError}=await db.auth.getSession();
+    if(sessionError)throw sessionError;
+    const token=sessionData?.session?.access_token;
+    if(!token)throw new Error("Admin session 已过期，请重新登录。");
+
+    const r=await fetch("/api/generate-weekly-report",{
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json",
+        "Authorization":"Bearer "+token
+      },
+      body:JSON.stringify({student_id:CURRENT_ENROLLMENT.student_uuid})
+    });
+
+    const raw=await r.text();
+    let result;
+    try{result=JSON.parse(raw)}catch{result={error:raw}}
+    if(!r.ok || !result?.ok){
+      throw Object.assign(new Error(result?.error||`HTTP ${r.status}`),{result});
+    }
+
+    const w=result.report||{};
+    const strengths=Array.isArray(w.strengths)?w.strengths:[];
+    const actions=Array.isArray(w.next_actions)?w.next_actions:[];
+    const topics=Array.isArray(w.trend_topics)?w.trend_topics:[];
+    const topicText=topics.length?topics.map(x=>typeof x==='string'?x:(x?.name||'')).filter(Boolean).join('、'):'暂无明显重复主题';
+
+    box.className="manageResult good";
+    box.textContent=
+`✓ Weekly Growth Report 已生成并保存
+
+学生：${result.student?.student_id||code} · ${result.student?.full_name||name}
+报告周期：${w.week_start||'—'} ～ ${w.week_end||'—'}
+目前进度：Cycle ${w.current_cycle||1} · Day ${w.current_day||1}
+XP：${w.xp||0}
+本周真实思考：${w.reflection_count||0} 次
+本周活跃天数：${w.active_days||0} 天
+专注力：${w.focus||0}%
+时间管理：${w.time_management||0}%
+自主学习：${w.self_learning||0}%
+
+✅ 做得好的地方
+${strengths.length?strengths.map((x,i)=>`${i+1}. ${x}`).join('\n'):'尚无足够资料'}
+
+🎯 最值得改善
+${w.improvement_focus||'—'}
+
+🔎 本周学习主题
+${topicText}
+
+🚀 下周行动
+${actions.length?actions.map((x,i)=>`${i+1}. ${x}`).join('\n'):'尚无建议'}
+
+👨‍👩‍👧 给家长的一句话
+${w.parent_tip||'—'}`;
+  }catch(err){
+    console.error("Generate weekly report failed",err);
+    box.className="manageResult bad";
+    box.textContent="✗ 周报生成失败\n"+(err.result?.error||err.message||"Unknown error");
+  }finally{
+    if(btn){btn.disabled=false;btn.textContent="📊 生成本周周报";}
+  }
+}
 
 async function resetStudentLearningProgress(){
   if(!CURRENT_ENROLLMENT?.student_id)return;
