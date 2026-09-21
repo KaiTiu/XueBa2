@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Score A Admin｜学生权限管理</title>
+<title>Score A Admin｜学生权限管理 V3</title>
 <style>
 *{box-sizing:border-box}:root{--ink:#0b1930;--blue:#1769ff;--green:#138a5b;--red:#bd2f36;--amber:#a56600;--bg:#f4f7fb;--line:#dfe7f2;--muted:#6b7890}
 body{margin:0;font-family:Inter,"Microsoft YaHei",Arial,sans-serif;background:var(--bg);color:var(--ink)}
@@ -19,6 +19,17 @@ label{font-size:12px;font-weight:850;color:#53627a;display:block;margin:12px 0 6
 .badge{display:inline-block;padding:6px 9px;border-radius:999px;font-size:10px;font-weight:900}.active{background:#eaf8f1;color:#0e7048}.expired{background:#fff0f0;color:#a5232b}.none{background:#eef2f7;color:#5e6b80}.warn{background:#fff5df;color:#855a00}.days.good{color:#0e7048;font-weight:900}.days.soon{color:#a56600;font-weight:900}.days.over{color:#bd2f36;font-weight:900}
 .note{font-size:12px;color:#66758d;line-height:1.65;margin-top:12px}.topRight{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.adminEmail{font-size:12px;color:#60708a;font-weight:800}
 @media(max-width:760px){.shell{padding:15px}.brand{align-items:flex-start;flex-direction:column}.stats{grid-template-columns:repeat(2,1fr)}.topRight{width:100%}.topRight .btn{flex:1}}
+
+/* ===== 新增学生 ===== */
+.createBtn{background:linear-gradient(90deg,#1769ff,#7047eb);color:#fff}
+.modalBack{position:fixed;inset:0;background:rgba(7,20,38,.58);display:grid;place-items:center;padding:20px;z-index:1000}
+.modalCard{width:min(720px,100%);max-height:92vh;overflow:auto;background:#fff;border-radius:22px;border:1px solid #dfe7f2;box-shadow:0 28px 80px rgba(7,20,38,.3);padding:22px}
+.modalHead{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;margin-bottom:6px}.modalHead h2{margin:0;font-size:22px}.modalHead p{margin:6px 0 0;color:var(--muted);font-size:12px;line-height:1.6}.iconBtn{border:0;background:#eef2f8;color:#31415d;border-radius:10px;width:36px;height:36px;font-size:20px;cursor:pointer}
+.formGrid{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}.formGrid .full{grid-column:1/-1}.pwRow{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:end}.pwRow .btn{margin-bottom:12px;white-space:nowrap}
+.planGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:7px}.planChoice{display:block;border:1px solid #dce5f1;border-radius:15px;padding:13px;background:#f9fbff;cursor:pointer}.planChoice input{margin-right:7px}.planChoice b{display:block;margin-bottom:4px}.planChoice small{display:block;color:var(--muted);line-height:1.45;margin-left:22px}.planChoice:has(input:checked){border-color:#1769ff;background:#eef4ff;box-shadow:0 0 0 2px #1769ff12}
+.createActions{display:flex;gap:9px;justify-content:flex-end;margin-top:18px;flex-wrap:wrap}.createHelp{background:#f6f8fc;border:1px solid #e1e8f2;border-radius:13px;padding:11px 13px;color:#5f6f87;font-size:11px;line-height:1.65;margin-top:12px}.successBox{margin-top:14px;padding:14px;border-radius:14px;background:#eefaf4;border:1px solid #c7ecd8;color:#12633f;line-height:1.7}.successBox b{color:#0b5637}
+@media(max-width:680px){.formGrid,.planGrid{grid-template-columns:1fr}.pwRow{grid-template-columns:1fr}.pwRow .btn{margin:0 0 12px}.modalCard{padding:17px}.createActions .btn{flex:1}}
+
 </style>
 </head>
 <body>
@@ -43,7 +54,7 @@ label{font-size:12px;font-weight:850;color:#53627a;display:block;margin:12px 0 6
   <div class="shell">
     <div class="brand">
       <div><h1>🎓 Score A 学生权限管理</h1><small>365 天普通权限 · 指定学生免费 +365 天 · 付费续费 +365 天</small></div>
-      <div class="topRight"><span id="adminEmail" class="adminEmail"></span><button class="btn light" onclick="refreshRows()">↻ 刷新</button><button class="btn dark" onclick="logoutAdmin()">登出</button></div>
+      <div class="topRight"><span id="adminEmail" class="adminEmail"></span><button class="btn createBtn" onclick="openCreateStudent()">＋ 新增学生</button><button class="btn light" onclick="refreshRows()">↻ 刷新</button><button class="btn dark" onclick="logoutAdmin()">登出</button></div>
     </div>
 
     <div class="stats">
@@ -72,6 +83,64 @@ label{font-size:12px;font-weight:850;color:#53627a;display:block;margin:12px 0 6
         </table>
       </div>
       <div class="note"><b>按钮规则：</b>「开通1年」会从今天重新计算 365 天；「免费加1年」只给你指定的少数学生，现有到期日 +365 天；「续费1年」用于学生付款后，到期日 +365 天。免费与付费续费会分别记录在后台 Audit Log。为避免误点，执行前会先核对资料，并要求输入该学生的 Student ID 二次确认。</div>
+    </div>
+  </div>
+</div>
+
+
+<div id="createStudentModal" class="modalBack hide" role="dialog" aria-modal="true" aria-labelledby="createStudentTitle">
+  <div class="modalCard">
+    <div class="modalHead">
+      <div>
+        <h2 id="createStudentTitle">＋ 新增学生</h2>
+        <p>建立 Supabase 登录账号、Student ID、学生资料，并一次开通 SCORE-A 课程权限。</p>
+      </div>
+      <button class="iconBtn" type="button" onclick="closeCreateStudent()" aria-label="关闭">×</button>
+    </div>
+
+    <div class="formGrid">
+      <div>
+        <label>学生姓名 *</label>
+        <input id="newFullName" class="field" placeholder="例如：Lim Xiao Ming" autocomplete="off">
+      </div>
+      <div>
+        <label>年级 *</label>
+        <input id="newGrade" class="field" placeholder="例如：Year 5 / Form 2" autocomplete="off">
+      </div>
+      <div class="full">
+        <label>学生 Email *</label>
+        <input id="newEmail" class="field" type="email" placeholder="student@example.com" autocomplete="off">
+      </div>
+      <div class="full">
+        <label>临时密码 *（至少 8 个字符）</label>
+        <div class="pwRow">
+          <input id="newPassword" class="field" type="text" placeholder="请输入或自动产生临时密码" autocomplete="new-password">
+          <button class="btn light" type="button" onclick="generateTempPassword()">自动产生密码</button>
+        </div>
+      </div>
+      <div class="full">
+        <label>课程权限 *</label>
+        <div class="planGrid">
+          <label class="planChoice">
+            <span><input type="radio" name="newPlan" value="365" checked><b style="display:inline">普通 1 年｜365 天</b></span>
+            <small>一般学生使用；一年后需要付费续费。</small>
+          </label>
+          <label class="planChoice">
+            <span><input type="radio" name="newPlan" value="730"><b style="display:inline">1 年 + 免费 1 年｜730 天</b></span>
+            <small>只用于你指定的少数学生。</small>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="createHelp">
+      建立后系统会自动产生下一个 Student ID（例如 SCORE-A00004）、状态设为 ACTIVE，并根据 365 / 730 天自动计算到期日期。临时密码不会保存或显示在学生名单，请先确认你已经记录好密码再建立。
+    </div>
+
+    <div id="createStudentMsg"></div>
+    <div class="createActions">
+      <button class="btn light" type="button" onclick="closeCreateStudent()">取消</button>
+      <button id="createStudentBtn" class="btn primary" type="button" onclick="createStudent()">建立学生并开通课程</button>
     </div>
   </div>
 </div>
@@ -189,6 +258,94 @@ async function manage(studentId,action,name){
     renderRows();
   }
 }
+
+
+function openCreateStudent(){
+  document.getElementById('createStudentMsg').innerHTML='';
+  document.getElementById('createStudentModal').classList.remove('hide');
+  setTimeout(()=>document.getElementById('newFullName').focus(),50);
+}
+
+function closeCreateStudent(){
+  const b=document.getElementById('createStudentBtn');
+  if(b?.disabled)return;
+  document.getElementById('createStudentModal').classList.add('hide');
+}
+
+function generateTempPassword(){
+  const chars='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%';
+  const a=new Uint32Array(14);crypto.getRandomValues(a);
+  let pw='';for(let i=0;i<a.length;i++)pw+=chars[a[i]%chars.length];
+  document.getElementById('newPassword').value=pw;
+  document.getElementById('newPassword').focus();
+  document.getElementById('newPassword').select();
+}
+
+function resetCreateStudentForm(){
+  document.getElementById('newFullName').value='';
+  document.getElementById('newGrade').value='';
+  document.getElementById('newEmail').value='';
+  document.getElementById('newPassword').value='';
+  const normal=document.querySelector('input[name="newPlan"][value="365"]');if(normal)normal.checked=true;
+}
+
+async function createStudent(){
+  const box=document.getElementById('createStudentMsg');
+  const fullName=document.getElementById('newFullName').value.trim();
+  const grade=document.getElementById('newGrade').value.trim();
+  const email=document.getElementById('newEmail').value.trim().toLowerCase();
+  const password=document.getElementById('newPassword').value;
+  const planDays=Number(document.querySelector('input[name="newPlan"]:checked')?.value||365);
+  msg(box,'');
+
+  if(!fullName)return msg(box,'请输入学生姓名。');
+  if(!grade)return msg(box,'请输入学生年级。');
+  if(!email||!email.includes('@'))return msg(box,'请输入正确的学生 Email。');
+  if(password.length<8)return msg(box,'临时密码至少需要 8 个字符。');
+  if(![365,730].includes(planDays))return msg(box,'请选择正确的课程权限。');
+
+  const planLabel=planDays===730?'1 年 + 免费 1 年（730 天）':'普通 1 年（365 天）';
+  const ok=confirm(`请核对新学生资料：\n\n姓名：${fullName}\nEmail：${email}\n年级：${grade}\n权限：${planLabel}\n\n确定建立账号并开通课程吗？`);
+  if(!ok)return;
+
+  const b=document.getElementById('createStudentBtn');b.disabled=true;b.textContent='正在建立学生…';
+  try{
+    const {data:{session},error:sessionError}=await db.auth.getSession();
+    if(sessionError)throw sessionError;
+    if(!session?.access_token)throw new Error('管理员登录已过期，请重新登录。');
+
+    const response=await fetch('/api/create-student',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':`Bearer ${session.access_token}`},
+      body:JSON.stringify({full_name:fullName,email,password,grade,plan_days:planDays})
+    });
+
+    let result={};
+    try{result=await response.json()}catch(_){throw new Error('服务器没有返回有效结果。')}
+    if(!response.ok||!result.ok)throw new Error(result.error||'建立学生失败。');
+
+    const s=result.student||{};
+    box.innerHTML=`<div class="successBox"><b>✅ 学生建立成功</b><br>姓名：${e(s.full_name||fullName)}<br>Student ID：<b>${e(s.student_id||'—')}</b><br>Email：${e(s.email||email)}<br>权限：${e(String(s.plan_days||planDays))} 天<br>开始日期：${fmtDate(s.start_date)}<br>到期日期：<b>${fmtDate(s.expiry_date)}</b><br><br><b>请把 Email 与你刚才设定的临时密码交给学生登录。</b></div>`;
+    await refreshRows();
+
+    document.getElementById('newFullName').value='';
+    document.getElementById('newGrade').value='';
+    document.getElementById('newEmail').value='';
+    document.getElementById('newPassword').value='';
+    const normal=document.querySelector('input[name="newPlan"][value="365"]');if(normal)normal.checked=true;
+  }catch(err){
+    msg(box,'建立失败：'+(err.message||err));
+  }finally{
+    b.disabled=false;b.textContent='建立学生并开通课程';
+  }
+}
+
+document.getElementById('createStudentModal').addEventListener('click',ev=>{
+  if(ev.target.id==='createStudentModal')closeCreateStudent();
+});
+document.addEventListener('keydown',ev=>{
+  if(ev.key==='Escape'&&!document.getElementById('createStudentModal').classList.contains('hide'))closeCreateStudent();
+});
 
 document.getElementById('password').addEventListener('keydown',ev=>{if(ev.key==='Enter')loginAdmin()});
 (async()=>{

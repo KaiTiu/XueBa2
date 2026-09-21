@@ -6717,4 +6717,379 @@ setTimeout(()=>scoreAForceBlankThought(true),520);
 })();
 
 </script>
+
+
+<!-- ===== V8.22 MOBILE INPUT + NEXT-DAY ACTION FIX ===== -->
+<style>
+/* Keep My Thought as a real native mobile textarea. */
+#dailyThink{
+  -webkit-appearance:none!important;
+  appearance:none!important;
+  touch-action:auto!important;
+  -webkit-user-select:text!important;
+  user-select:text!important;
+  cursor:text!important;
+  font-size:16px!important;
+}
+@media(max-width:700px){
+  #dailyThink{min-height:118px!important;font-size:16px!important;line-height:1.55!important}
+}
+
+/* A dedicated, always-visible next-step action after a correct answer. */
+#scoreaNextDayAction{display:none;margin-top:12px}
+#scoreaNextDayAction.show{display:block}
+#scoreaNextDayAction .scoreaNextInner{
+  background:#eefaf4;
+  border:1px solid #bde7d2;
+  border-radius:15px;
+  padding:12px;
+  box-shadow:0 8px 20px rgba(19,138,91,.10);
+}
+#scoreaNextDayAction .scoreaNextMsg{font-size:13px;font-weight:850;color:#12633f;margin-bottom:9px;line-height:1.5}
+#scoreaNextDayAction .scoreaNextBtn{width:100%;min-height:50px;font-size:15px}
+@media(max-width:700px){
+  #scoreaNextDayAction.show{
+    position:sticky;
+    bottom:8px;
+    z-index:16;
+  }
+  #scoreaNextDayAction .scoreaNextInner{box-shadow:0 12px 30px rgba(12,43,82,.20)}
+}
+</style>
+<script>
+(function(){
+  'use strict';
+
+  /* ------------------------------------------------------
+     1) MOBILE KEYBOARD FIX
+     Earlier patches attached programmatic focus handlers on
+     pointer/touch events. On some mobile browsers this can
+     leave the textarea focused but prevent the native keyboard
+     from opening. Replace the node once to remove those old
+     handlers and let a normal user tap trigger the keyboard.
+  ------------------------------------------------------ */
+  const V822_DRAFTS={};
+
+  function v822Key(){
+    try{
+      if(typeof scoreAThoughtKey==='function') return String(scoreAThoughtKey());
+      if(typeof ck==='function') return String(ck());
+      return `${CYCLE?.cycle||1}-${CYCLE?.day||1}`;
+    }catch(e){ return ''; }
+  }
+
+  function v822Saved(k){
+    try{
+      if(CYCLE?.readThought && Object.prototype.hasOwnProperty.call(CYCLE.readThought,k)){
+        return String(CYCLE.readThought[k]??'');
+      }
+    }catch(e){}
+    return '';
+  }
+
+  function v822MakeNativeTextarea(){
+    let ta=document.getElementById('dailyThink');
+    if(!ta) return null;
+
+    if(ta.dataset.v822Native!=='1'){
+      const currentValue=ta.value||'';
+      const clone=ta.cloneNode(true);
+      clone.value=currentValue;
+      clone.dataset.v822Native='1';
+
+      /* Prevent earlier helper layers from re-attaching their
+         pointerdown/touchend/click focus listeners to the clone. */
+      clone.dataset.v815Bound='1';
+      clone.dataset.v812Bound='1';
+      clone.dataset.scoreaThoughtBound='1';
+
+      ta.replaceWith(clone);
+      ta=clone;
+    }
+
+    ta.disabled=false;
+    ta.readOnly=false;
+    ta.removeAttribute('disabled');
+    ta.removeAttribute('readonly');
+    ta.removeAttribute('aria-disabled');
+    ta.setAttribute('inputmode','text');
+    ta.setAttribute('autocomplete','off');
+    ta.setAttribute('autocorrect','on');
+    ta.setAttribute('spellcheck','true');
+    ta.style.pointerEvents='auto';
+    ta.style.touchAction='auto';
+    ta.style.userSelect='text';
+    ta.style.webkitUserSelect='text';
+
+    if(ta.dataset.v822InputBound!=='1'){
+      ta.dataset.v822InputBound='1';
+      ta.addEventListener('input',function(){
+        V822_DRAFTS[v822Key()]=ta.value||'';
+      });
+    }
+    return ta;
+  }
+
+  function v822SyncTextarea(forceDay=false,preferredValue){
+    const ta=v822MakeNativeTextarea();
+    if(!ta) return;
+    const k=v822Key();
+    const oldKey=ta.dataset.v822DayKey||'';
+    const changed=oldKey!==k;
+
+    if(forceDay || changed){
+      if(preferredValue!==undefined){
+        ta.value=String(preferredValue??'');
+      }else if(Object.prototype.hasOwnProperty.call(V822_DRAFTS,k)){
+        ta.value=V822_DRAFTS[k]||'';
+      }else{
+        ta.value=v822Saved(k)||'';
+      }
+    }else if(preferredValue!==undefined){
+      ta.value=String(preferredValue??'');
+    }
+
+    ta.dataset.v822DayKey=k;
+    ta.dataset.dayKey=k;
+    ta.dataset.thoughtDay=k;
+    V822_DRAFTS[k]=ta.value||'';
+  }
+
+  /* Run immediately because DOM is already present at the end of the file. */
+  v822SyncTextarea(true);
+
+  if(typeof renderDailyGate==='function'){
+    const oldRenderDailyGate=renderDailyGate;
+    renderDailyGate=function(){
+      const beforeKey=v822Key();
+      const beforeTa=document.getElementById('dailyThink');
+      const beforeValue=beforeTa ? (beforeTa.value||'') : '';
+      if(beforeTa) V822_DRAFTS[beforeKey]=beforeValue;
+
+      const result=oldRenderDailyGate.apply(this,arguments);
+      const afterKey=v822Key();
+
+      if(beforeKey===afterKey){
+        v822SyncTextarea(false,beforeValue);
+      }else{
+        v822SyncTextarea(true);
+      }
+      return result;
+    };
+  }
+
+  if(typeof markDailyRead==='function'){
+    const oldMarkDailyRead=markDailyRead;
+    markDailyRead=function(){
+      const k=v822Key();
+      const ta=v822MakeNativeTextarea();
+      const typed=String(ta?.value||'');
+      V822_DRAFTS[k]=typed;
+
+      const result=oldMarkDailyRead.apply(this,arguments);
+
+      /* Keep the submitted text visible and editable. */
+      setTimeout(function(){
+        const now=v822Key();
+        if(now===k){
+          const saved=v822Saved(k);
+          const value=saved!=='' ? saved : typed;
+          V822_DRAFTS[k]=value;
+          v822SyncTextarea(false,value);
+        }else{
+          v822SyncTextarea(true);
+        }
+      },80);
+      return result;
+    };
+  }
+
+  window.addEventListener('pageshow',function(){
+    setTimeout(function(){v822SyncTextarea(true)},80);
+  });
+
+  /* ------------------------------------------------------
+     2) CORRECT ANSWER -> CLEAR NEXT-DAY BUTTON
+     The old feedback button can be lost/hidden by later
+     renders. Create a separate action area after feedback and
+     rebuild it from the saved challengeCorrect state.
+  ------------------------------------------------------ */
+  function v822Lang(){
+    try{return typeof getScoreALanguage==='function'?getScoreALanguage():'zh'}catch(e){return 'zh'}
+  }
+
+  function v822AbsDay(){
+    try{return typeof scoreAGlobalDay==='function'?Number(scoreAGlobalDay()):Math.min(365,((CYCLE?.cycle||1)-1)*30+(CYCLE?.day||1))}catch(e){return 1}
+  }
+
+  function v822IsBoss(abs=v822AbsDay()){
+    try{return typeof scoreAIsBossDay==='function'?!!scoreAIsBossDay(abs):(abs<=360 && abs%30===0)}catch(e){return false}
+  }
+
+  function v822Correct(){
+    try{return !!(CYCLE?.challengeCorrect && CYCLE.challengeCorrect[v822Key()])}catch(e){return false}
+  }
+
+  function v822GateOK(){
+    try{return typeof gateOK==='function'?!!gateOK():true}catch(e){return true}
+  }
+
+  function v822NextHost(){
+    const feedback=document.getElementById('feedback');
+    if(!feedback) return null;
+    let host=document.getElementById('scoreaNextDayAction');
+    if(!host){
+      host=document.createElement('div');
+      host.id='scoreaNextDayAction';
+      feedback.insertAdjacentElement('afterend',host);
+    }
+    return host;
+  }
+
+  function v822NextCopy(){
+    const l=v822Lang(),abs=v822AbsDay();
+    if(v822IsBoss(abs)){
+      if(l==='ms') return {msg:'Jawapan betul. Lengkapkan Boss untuk membuka hari seterusnya.',btn:'Pergi ke Boss ↓'};
+      if(l==='en') return {msg:'Correct. Complete the Boss to unlock the next day.',btn:'Go to Boss ↓'};
+      return {msg:'回答正确。完成 Boss 后即可解锁下一天。',btn:'去完成 Boss ↓'};
+    }
+    if(l==='ms') return {msg:'Jawapan betul. Anda boleh melengkapkan hari ini sekarang.',btn:`✓ Lengkapkan Day ${abs} · Buka hari seterusnya →`};
+    if(l==='en') return {msg:'Correct. You can complete today now.',btn:`✓ Complete Day ${abs} · Unlock next day →`};
+    return {msg:'回答正确！现在可以完成今天并解锁下一天。',btn:`✓ 完成 Day ${abs} · 解锁下一天 →`};
+  }
+
+  function v822RenderNextAction(scroll=false){
+    const host=v822NextHost();
+    if(!host) return;
+
+    if(!v822Correct() || !v822GateOK()){
+      host.classList.remove('show');
+      host.innerHTML='';
+      return;
+    }
+
+    const copy=v822NextCopy();
+    const boss=v822IsBoss();
+    host.innerHTML=`<div class="scoreaNextInner"><div class="scoreaNextMsg">${copy.msg}</div><button type="button" class="btn green scoreaNextBtn" onclick="${boss?'scoreAV822GoBoss()':'scoreAV822CompleteNext()'}">${copy.btn}</button></div>`;
+    host.classList.add('show');
+
+    if(scroll){
+      setTimeout(function(){
+        try{host.scrollIntoView({behavior:'smooth',block:'center'})}catch(e){}
+      },60);
+    }
+  }
+
+  window.scoreAV822GoBoss=function(){
+    const boss=document.getElementById('boss');
+    if(boss){try{boss.scrollIntoView({behavior:'smooth',block:'start'})}catch(e){}}
+  };
+
+  function v822CanAdvanceAlreadyRewarded(){
+    if(!v822GateOK() || !v822Correct()) return false;
+    const abs=v822AbsDay();
+    if(v822IsBoss(abs)){
+      try{
+        const bossKey=typeof scoreABossKey==='function'?scoreABossKey(abs):String(abs);
+        if(!CYCLE?.bossCleared?.[bossKey]) return false;
+      }catch(e){return false}
+    }
+    return true;
+  }
+
+  /* Recovery for an old state where the reward flag was saved but
+     CYCLE.day did not advance. No XP is awarded a second time. */
+  function v822AdvanceAlreadyRewarded(){
+    if(!v822CanAdvanceAlreadyRewarded()) return false;
+    const d=Number(CYCLE.day||1),abs=v822AbsDay();
+    const rewardKey=`challenge-${CYCLE.cycle}-${d}`;
+    if(!S?.rewarded?.[rewardKey]) return false;
+
+    if(abs===365){
+      CYCLE.graduated=true;
+      CYCLE.day=5;
+    }else{
+      const maxLocal=CYCLE.cycle<=12?30:5;
+      if(d<maxLocal){
+        CYCLE.day=d+1;
+      }else{
+        S.totalCompleted=Math.max(Number(S.totalCompleted||0),abs);
+        S.done=[];
+        CYCLE.day=1;
+        CYCLE.cycle=Number(CYCLE.cycle||1)+1;
+      }
+    }
+
+    try{csave()}catch(e){}
+    try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}
+    try{if(typeof render==='function')render()}catch(e){}
+    try{if(typeof show==='function')show('challenge')}catch(e){}
+    setTimeout(function(){
+      v822SyncTextarea(true);
+      v822RenderNextAction(false);
+      try{document.getElementById('dailyGate')?.scrollIntoView({behavior:'smooth',block:'start'})}catch(e){}
+    },140);
+    return true;
+  }
+
+  window.scoreAV822CompleteNext=function(){
+    const host=v822NextHost();
+    const btn=host?.querySelector('.scoreaNextBtn');
+    if(btn){btn.disabled=true;}
+
+    const before=v822AbsDay();
+    const d=Number(CYCLE?.day||1);
+    const rewardKey=`challenge-${CYCLE?.cycle||1}-${d}`;
+
+    /* If this Day was already rewarded in an older session but got stuck,
+       advance it without awarding XP again. */
+    if(S?.rewarded?.[rewardKey] && v822AdvanceAlreadyRewarded()) return;
+
+    try{
+      if(typeof finishTodayChallenge==='function') finishTodayChallenge();
+    }catch(err){
+      console.error('Next-day action failed',err);
+    }
+
+    setTimeout(function(){
+      const after=v822AbsDay();
+      if(after===before){
+        if(btn) btn.disabled=false;
+        v822RenderNextAction(false);
+      }else{
+        v822SyncTextarea(true);
+        v822RenderNextAction(false);
+      }
+    },260);
+  };
+
+  if(typeof choose==='function'){
+    const oldChoose=choose;
+    choose=function(i,b){
+      const result=oldChoose.apply(this,arguments);
+      setTimeout(function(){v822RenderNextAction(v822Correct())},40);
+      return result;
+    };
+  }
+
+  if(typeof render==='function'){
+    const oldRender=render;
+    render=function(){
+      const result=oldRender.apply(this,arguments);
+      setTimeout(function(){
+        v822SyncTextarea(false);
+        v822RenderNextAction(false);
+      },0);
+      return result;
+    };
+  }
+
+  /* Build the action area for restored sessions too. */
+  setTimeout(function(){
+    v822SyncTextarea(false);
+    v822RenderNextAction(false);
+  },180);
+})();
+</script>
+
 </body></html>
