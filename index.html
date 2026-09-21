@@ -7092,4 +7092,211 @@ setTimeout(()=>scoreAForceBlankThought(true),520);
 })();
 </script>
 
+
+
+<!-- ===== V823 FINAL DAILY QUIZ / NEXT-DAY FIX ===== -->
+<style>
+#feedback.scoreaFinalFeedback{
+  display:block!important;
+  min-height:0!important;
+  color:#243652!important;
+  line-height:1.6!important;
+}
+#feedback.scoreaFinalFeedback.correct{
+  background:#eefaf4!important;
+  border-color:#bde7d2!important;
+  color:#12633f!important;
+}
+#feedback.scoreaFinalFeedback.wrong{
+  background:#fff8d9!important;
+  border-color:#ffe28b!important;
+  color:#76540d!important;
+}
+#scoreaFinalNextBtn{
+  display:block!important;
+  width:100%!important;
+  min-height:52px!important;
+  margin-top:12px!important;
+  font-size:15px!important;
+  background:#16a66f!important;
+  color:#fff!important;
+  border:0!important;
+  border-radius:13px!important;
+  font-weight:900!important;
+  cursor:pointer!important;
+}
+@media(max-width:700px){
+  #scoreaFinalNextBtn{font-size:16px!important;min-height:56px!important}
+}
+</style>
+<script>
+(function(){
+  'use strict';
+
+  function finalLang(){
+    try{return typeof getScoreALanguage==='function'?getScoreALanguage():'zh'}catch(e){return 'zh'}
+  }
+  function finalAbs(){
+    try{return typeof scoreAGlobalDay==='function'?Number(scoreAGlobalDay()):Math.min(365,((CYCLE?.cycle||1)-1)*30+(CYCLE?.day||1))}catch(e){return 1}
+  }
+  function finalKey(){
+    try{return typeof ck==='function'?ck():`${CYCLE?.cycle||1}-${CYCLE?.day||1}`}catch(e){return '1-1'}
+  }
+  function finalGate(){
+    try{return typeof gateOK==='function'?!!gateOK():true}catch(e){return true}
+  }
+  function finalBoss(abs=finalAbs()){
+    try{return typeof scoreAIsBossDay==='function'?!!scoreAIsBossDay(abs):(abs<=360 && abs%30===0)}catch(e){return false}
+  }
+  function finalSaveCycle(){
+    try{if(typeof csave==='function')csave();else localStorage.setItem('scoreA30Cycle',JSON.stringify(CYCLE))}catch(e){console.warn('cycle save',e)}
+  }
+  function finalSaveState(){
+    try{localStorage.setItem(K,JSON.stringify(S))}catch(e){console.warn('state save',e)}
+  }
+  function finalSetNPC(correct){
+    try{
+      if(typeof scoreANPCSet==='function'){
+        if(correct) scoreANPCSet('correct',{});
+        else {
+          CYCLE.npcWrong=CYCLE.npcWrong||{};
+          const k=finalKey();CYCLE.npcWrong[k]=(CYCLE.npcWrong[k]||0)+1;
+          finalSaveCycle();
+          scoreANPCSet('wrong',{level:CYCLE.npcWrong[k]});
+        }
+      }
+    }catch(e){}
+  }
+
+  /* Final override: do not call the older choose wrappers. They could
+     clear the feedback area after a tap on some mobile sessions. */
+  window.choose=function(i,b){
+    const lang=finalLang();
+    if(!finalGate()){
+      alert(lang==='ms'?'🔒 Selesaikan Bacaan + Fikir, Pengurusan Masa dan latihan AI dahulu.':lang==='en'?'🔒 Complete Read + Think, Time Management and AI practice first.':'🔒 请先完成上面的必读+思考、时间管理和 AI 练习，才可以回答今日挑战。');
+      return;
+    }
+
+    try{pick=i}catch(e){}
+    document.querySelectorAll('.choice').forEach(x=>x.classList.remove('sel'));
+    if(b)b.classList.add('sel');
+
+    const e=typeof getLocalizedEpisode==='function'?getLocalizedEpisode(CYCLE.day):null;
+    const correct=!!e && Number(i)===Number(e[5]);
+    const f=document.getElementById('feedback');
+    if(!f)return;
+
+    CYCLE.challengeCorrect=CYCLE.challengeCorrect||{};
+    CYCLE.challengeCorrect[finalKey()]=correct;
+
+    /* IMPORTANT: paint the result BEFORE saving anything, so even if a
+       browser/storage issue occurs the student still gets visible feedback. */
+    f.classList.add('scoreaFinalFeedback');
+    f.classList.toggle('correct',correct);
+    f.classList.toggle('wrong',!correct);
+    f.style.display='block';
+
+    if(correct){
+      const abs=finalAbs();
+      const boss=finalBoss(abs);
+      const message=lang==='ms'?'💡 <b>Betul!</b> Jawapan anda betul.':lang==='en'?'💡 <b>Correct!</b> Your answer is correct.':'💡 <b>回答正确！</b> 你已经答对这一题。';
+      const label=boss
+        ?(lang==='ms'?'✓ Jawapan betul · Pergi ke Boss ↓':lang==='en'?'✓ Correct · Go to Boss ↓':'✓ 回答正确 · 去完成 Boss ↓')
+        :(lang==='ms'?`✓ Lengkapkan Day ${abs} · Buka hari seterusnya →`:lang==='en'?`✓ Complete Day ${abs} · Unlock next day →`:`✓ 完成 Day ${abs} · 解锁下一天 →`);
+      f.innerHTML=`${message}<button id="scoreaFinalNextBtn" type="button">${label}</button>`;
+      const btn=document.getElementById('scoreaFinalNextBtn');
+      if(btn)btn.onclick=boss?window.scoreAFinalGoBoss:window.scoreAFinalUnlockNextDay;
+      finalSaveCycle();
+      finalSetNPC(true);
+      setTimeout(()=>{try{f.scrollIntoView({behavior:'smooth',block:'center'})}catch(e){}},80);
+    }else{
+      const correctLetter=e?String.fromCharCode(65+Number(e[5])):'';
+      f.innerHTML=lang==='ms'
+        ?`💡 <b>Cuba sekali lagi.</b> Pilihan ini belum tepat. Sila pilih jawapan lain.`
+        :lang==='en'
+          ?`💡 <b>Try again.</b> This option is not correct. Please choose another answer.`
+          :`💡 <b>再想一想。</b> 这个答案还不正确，请重新选择。`;
+      finalSaveCycle();
+      finalSetNPC(false);
+    }
+  };
+
+  window.scoreAFinalGoBoss=function(){
+    const boss=document.getElementById('boss');
+    if(boss){try{boss.scrollIntoView({behavior:'smooth',block:'start'})}catch(e){}}
+  };
+
+  function finalAdvanceWithoutReward(){
+    const d=Number(CYCLE.day||1),abs=finalAbs();
+    if(abs===365){
+      CYCLE.graduated=true;CYCLE.day=5;
+    }else{
+      const maxLocal=Number(CYCLE.cycle||1)<=12?30:5;
+      if(d<maxLocal)CYCLE.day=d+1;
+      else{
+        S.totalCompleted=Math.max(Number(S.totalCompleted||0),abs);
+        S.done=[];CYCLE.day=1;CYCLE.cycle=Number(CYCLE.cycle||1)+1;
+      }
+    }
+    finalSaveCycle();finalSaveState();
+    try{if(typeof render==='function')render()}catch(e){}
+    try{if(typeof show==='function')show('challenge')}catch(e){}
+    setTimeout(()=>{try{document.getElementById('dailyGate')?.scrollIntoView({behavior:'smooth',block:'start'})}catch(e){}},120);
+  }
+
+  window.scoreAFinalUnlockNextDay=function(){
+    const lang=finalLang(),k=finalKey(),abs=finalAbs(),d=Number(CYCLE.day||1);
+    if(!finalGate()){
+      alert(lang==='ms'?'Selesaikan tiga tugasan harian dahulu.':lang==='en'?'Complete the three daily tasks first.':'请先完成今天的三个任务。');
+      return;
+    }
+    if(!CYCLE?.challengeCorrect?.[k]){
+      alert(lang==='ms'?'Sila jawab soalan dengan betul dahulu.':lang==='en'?'Please answer the question correctly first.':'请先答对今天的挑战题。');
+      return;
+    }
+    if(finalBoss(abs)){
+      window.scoreAFinalGoBoss();return;
+    }
+
+    const btn=document.getElementById('scoreaFinalNextBtn');
+    if(btn){btn.disabled=true;btn.textContent=lang==='ms'?'Membuka hari seterusnya…':lang==='en'?'Unlocking next day…':'正在解锁下一天…'}
+
+    const rewardKey=`challenge-${CYCLE.cycle}-${d}`;
+
+    /* Normal path: use the system's existing completion routine so XP,
+       rewards, world transitions and cloud-sync hooks stay intact. */
+    if(!S?.rewarded?.[rewardKey]){
+      try{if(typeof finishTodayChallenge==='function')finishTodayChallenge()}catch(err){console.error(err)}
+      setTimeout(function(){
+        if(finalAbs()===abs){
+          /* If the old routine awarded the day but failed to advance,
+             recover without adding XP a second time. */
+          if(S?.rewarded?.[rewardKey]) finalAdvanceWithoutReward();
+          else if(btn){btn.disabled=false;btn.textContent=lang==='ms'?`✓ Lengkapkan Day ${abs} · Buka hari seterusnya →`:lang==='en'?`✓ Complete Day ${abs} · Unlock next day →`:`✓ 完成 Day ${abs} · 解锁下一天 →`;}
+        }
+      },260);
+      return;
+    }
+
+    /* Recovery path for students whose older version already saved the
+       Day-1 reward but never moved them to Day 2. */
+    finalAdvanceWithoutReward();
+  };
+
+  /* If a correct answer was already saved before reload, rebuild the
+     visible green button instead of leaving an empty yellow feedback box. */
+  function finalRestore(){
+    try{
+      if(!CYCLE?.challengeCorrect?.[finalKey()] || !finalGate())return;
+      const e=typeof getLocalizedEpisode==='function'?getLocalizedEpisode(CYCLE.day):null;
+      if(!e)return;
+      const fake=document.querySelectorAll('.choice')[Number(e[5])];
+      if(fake)window.choose(Number(e[5]),fake);
+    }catch(e){}
+  }
+  setTimeout(finalRestore,300);
+})();
+</script>
+<!-- ===== END V823 FIX ===== -->
+
 </body></html>
