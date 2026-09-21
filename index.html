@@ -528,6 +528,14 @@ body.premiumTeen .scoreANPCMiniBot{animation:scoreANPCTeenIdle 5s ease-in-out in
 @media(max-width:800px){.wardrobeGrid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:480px){.wardrobeGrid{grid-template-columns:1fr 1fr}.wardrobeHead{flex-direction:column}}
 
+
+/* ===== V8.18 A-BOT VOICE UX ===== */
+.abotVoiceTools{display:flex;gap:8px;flex-wrap:wrap;margin-top:9px}
+.abotVoiceBtn{border:1px solid #dbe5ef;background:#fff;color:#173257;border-radius:11px;padding:8px 10px;font-size:11px;font-weight:900;cursor:pointer}
+.abotVoiceBtn.primary{background:#1769ff;color:#fff;border-color:#1769ff}
+.abotVoiceHint{margin-top:8px;padding:9px 11px;border-radius:11px;background:#fff8e8;border:1px solid #f2d89a;color:#795100;font-size:11px;line-height:1.5}
+.abotVoiceHint.good{background:#edf9f3;border-color:#caead8;color:#17694b}
+
 </style></head><body>
 <div id="authGate" class="authGate">
   <div class="authShell">
@@ -6426,6 +6434,90 @@ setTimeout(()=>scoreAForceBlankThought(true),520);
   }
 
   setTimeout(()=>{scoreAWardrobeEnsure();scoreAWardrobeInject();renderScoreAWardrobe()},300);
+})();
+
+
+
+/* ===== V8.18 A-BOT BROWSER COMPATIBILITY + REPLAY ===== */
+(function(){
+  function abotLang(){
+    try{return getScoreALanguage()}catch(e){return 'zh'}
+  }
+  function abotIsChrome(){
+    const ua=navigator.userAgent||'';
+    return /Chrome\//.test(ua) && !/VivoBrowser|SamsungBrowser|FBAN|FBAV|Instagram|Line\//i.test(ua);
+  }
+  function abotVoiceCopy(){
+    const l=abotLang();
+    return l==='ms'
+      ?{play:'🔊 Main suara',replay:'🔁 Main semula',stop:'⏹ Berhenti',
+        chrome:'Jika A-BOT tiada suara, sila buka sistem ini dengan Google Chrome.',
+        ok:'Google Chrome dikesan. Suara A-BOT sepatutnya boleh dimainkan selepas anda menekan butang suara.'}
+      :l==='en'
+      ?{play:'🔊 Play voice',replay:'🔁 Replay',stop:'⏹ Stop',
+        chrome:'If A-BOT has no sound, please open this system in Google Chrome.',
+        ok:'Google Chrome detected. A-BOT voice should play after you tap the voice button.'}
+      :{play:'🔊 播放 A-BOT',replay:'🔁 重新播放',stop:'⏹ 停止声音',
+        chrome:'如果 A-BOT 没有声音，请使用 Google Chrome 打开本系统。',
+        ok:'已检测到 Google Chrome。点击语音按钮后，A-BOT 应该可以播放声音。'};
+  }
+
+  function injectABotVoiceTools(){
+    const candidates=[
+      document.getElementById('aBotVoiceNote'),
+      document.getElementById('scoreANPCMiniBot'),
+      document.querySelector('.abot-card'),
+      document.querySelector('.aBotCard'),
+      document.querySelector('[id*="ABot"]')
+    ].filter(Boolean);
+
+    const anchor=candidates[0];
+    if(!anchor || document.getElementById('abotVoiceToolsV18'))return;
+
+    const c=abotVoiceCopy();
+    const box=document.createElement('div');
+    box.id='abotVoiceToolsV18';
+    box.innerHTML=`
+      <div class="abotVoiceTools">
+        <button type="button" class="abotVoiceBtn primary" onclick="scoreASpeakABot()">${c.play}</button>
+        <button type="button" class="abotVoiceBtn" onclick="scoreASpeakABot()">${c.replay}</button>
+        <button type="button" class="abotVoiceBtn" onclick="scoreAStopABot()">${c.stop}</button>
+      </div>
+      <div id="abotBrowserHintV18" class="abotVoiceHint ${abotIsChrome()?'good':''}">${abotIsChrome()?c.ok:c.chrome}</div>
+    `;
+    if(anchor.id==='aBotVoiceNote'){
+      anchor.insertAdjacentElement('afterend',box);
+    }else{
+      anchor.parentElement?.appendChild(box);
+    }
+  }
+
+  function refreshABotVoiceTools(){
+    const c=abotVoiceCopy();
+    const box=document.getElementById('abotVoiceToolsV18');
+    if(!box){injectABotVoiceTools();return}
+    const buttons=box.querySelectorAll('button');
+    if(buttons[0])buttons[0].textContent=c.play;
+    if(buttons[1])buttons[1].textContent=c.replay;
+    if(buttons[2])buttons[2].textContent=c.stop;
+    const hint=document.getElementById('abotBrowserHintV18');
+    if(hint){
+      hint.textContent=abotIsChrome()?c.ok:c.chrome;
+      hint.classList.toggle('good',abotIsChrome());
+    }
+  }
+
+  if(typeof setScoreALanguage==='function'){
+    const oldLang=setScoreALanguage;
+    setScoreALanguage=function(){
+      const r=oldLang.apply(this,arguments);
+      setTimeout(refreshABotVoiceTools,0);
+      return r;
+    };
+  }
+
+  setTimeout(injectABotVoiceTools,350);
+  setTimeout(injectABotVoiceTools,1000);
 })();
 
 </script>
