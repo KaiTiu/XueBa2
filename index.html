@@ -495,6 +495,39 @@ body.premiumTeen .scoreANPCMiniBot{animation:scoreANPCTeenIdle 5s ease-in-out in
 .cloudProgressPill.error{background:#fff0f0;color:#a83a3a;border:1px solid #efcccc}
 @media(max-width:700px){.cloudProgressPill{order:10;width:auto}}
 
+
+/* ===== V8.17 AVATAR WARDROBE V1 ===== */
+.wardrobeWrap{margin-top:18px;padding-top:16px;border-top:1px solid #dfe7f2}
+.wardrobeHead{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:10px}
+.wardrobeHead h3{margin:0 0 4px}.wardrobeCount{font-size:11px;font-weight:900;padding:7px 10px;border-radius:999px;background:#eef4ff;color:#31548a}
+.wardrobeGrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:10px 0 15px}
+.outfitCard{position:relative;border:1px solid #dfe7f2;background:#fff;border-radius:16px;padding:11px;cursor:pointer;text-align:left;min-height:126px;overflow:hidden}
+.outfitCard:hover{border-color:#9bc0ff}.outfitCard.active{border:2px solid #1769ff;background:#eef5ff}.outfitCard.locked{opacity:.62;filter:grayscale(.2);cursor:not-allowed}
+.outfitPreview{height:62px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:34px;margin-bottom:8px;border:1px solid #e4eaf2;position:relative;overflow:hidden}
+.outfitPreview:before{content:"";position:absolute;inset:auto -12px -20px;height:52px;border-radius:50% 50% 0 0;background:var(--outfit-color,#dbe7f5)}
+.outfitPreview span{position:relative;z-index:2}
+.outfitCard b{display:block;color:#10213e;font-size:13px}.outfitCard small{display:block;color:#718096;line-height:1.35;margin-top:3px}
+.outfitLock{position:absolute;right:8px;top:8px;background:#10213edd;color:#fff;border-radius:999px;padding:4px 7px;font-size:10px;font-weight:900}
+.accessoryRow{display:flex;gap:8px;flex-wrap:wrap;margin-top:9px}
+.accessoryBtn{border:1px solid #dce5ef;background:#fff;border-radius:12px;padding:9px 11px;font-weight:850;cursor:pointer}
+.accessoryBtn.active{background:#10213e;color:#fff}.accessoryBtn.locked{opacity:.5;cursor:not-allowed}
+.wardrobeHint{font-size:12px;color:#718096;line-height:1.55}
+.avatarOutfitLine{margin-top:7px;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.avatarOutfitTag{display:inline-flex;align-items:center;gap:5px;padding:5px 8px;border-radius:999px;background:#ffffff12;border:1px solid #ffffff20;color:#dcecff;font-size:10px;font-weight:900}
+.avatarWardrobeBtn{border:0;border-radius:9px;padding:6px 9px;background:#ffffff16;color:#fff;font-weight:900;cursor:pointer;font-size:10px}
+.wardrobeCollectionLine{margin-top:8px;padding:9px 11px;border-radius:11px;background:#102945;color:#dcecff;font-size:11px;font-weight:850}
+.premiumAvatarCard,.premiumInlineAvatar,.premiumGrowthHero{position:relative;overflow:hidden;transition:.25s}
+.premiumAvatarCard[data-outfit="academy"]{box-shadow:inset 0 0 0 1px #4d7fff22}
+.premiumAvatarCard[data-outfit="challenge"]{background:linear-gradient(135deg,#321d16,#0b1f35);border-color:#ff9f43}
+.premiumAvatarCard[data-outfit="world"]{background:linear-gradient(135deg,#0b2b2a,#0b1f35);border-color:#47d7b0}
+.premiumAvatarCard[data-outfit="mastery"]{background:linear-gradient(135deg,#2a1745,#0b1f35);border-color:#d5a9ff}
+.premiumInlineAvatar[data-outfit="challenge"],.premiumGrowthHero[data-outfit="challenge"]{border-color:#ffb067}
+.premiumInlineAvatar[data-outfit="world"],.premiumGrowthHero[data-outfit="world"]{border-color:#52d6b1}
+.premiumInlineAvatar[data-outfit="mastery"],.premiumGrowthHero[data-outfit="mastery"]{border-color:#c29cff}
+.premiumAvatarCard[data-accessory-icon]:after{content:attr(data-accessory-icon);position:absolute;right:10px;top:9px;font-size:24px;filter:drop-shadow(0 4px 5px #0005)}
+@media(max-width:800px){.wardrobeGrid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:480px){.wardrobeGrid{grid-template-columns:1fr 1fr}.wardrobeHead{flex-direction:column}}
+
 </style></head><body>
 <div id="authGate" class="authGate">
   <div class="authShell">
@@ -6182,6 +6215,217 @@ setTimeout(()=>scoreAForceBlankThought(true),520);
       return r;
     };
   }
+})();
+
+
+
+/* ===== V8.17 AVATAR WARDROBE V1 =====
+   Cloud-ready because outfit/accessory selections are stored inside S,
+   which Cloud Progress V2 already syncs as app_state.
+*/
+(function(){
+  const WARDROBE_OUTFITS=[
+    {id:'academy',icon:'🎓',color:'#8fb7ff',
+      unlock:()=>true, req:{zh:'默认解锁',ms:'Dibuka secara lalai',en:'Unlocked by default'},
+      name:{zh:'学霸启航装',ms:'Pakaian Permulaan Cemerlang',en:'Top-Student Starter'},
+      desc:{zh:'适合每天学习的基础造型。',ms:'Gaya asas untuk pembelajaran harian.',en:'A clean everyday learning look.'}},
+    {id:'challenge',icon:'⚡',color:'#ff9f43',
+      unlock:()=>scoreAWardrobeDay()>=7, req:{zh:'Day 7 解锁',ms:'Buka pada Day 7',en:'Unlock at Day 7'},
+      name:{zh:'挑战训练装',ms:'Pakaian Cabaran',en:'Challenge Gear'},
+      desc:{zh:'完成一周学习后获得。',ms:'Diperoleh selepas satu minggu pembelajaran.',en:'Earned after one week of learning.'}},
+    {id:'world',icon:'🧭',color:'#50d3ae',
+      unlock:()=>scoreAWardrobeDay()>=30 || (S.badges||[]).includes('scorea-world-01'),
+      req:{zh:'Day 30 / World 01 Boss',ms:'Day 30 / Boss World 01',en:'Day 30 / World 01 Boss'},
+      name:{zh:'世界冒险装',ms:'Pakaian Pengembara World',en:'World Adventurer'},
+      desc:{zh:'完成第一个成长世界后解锁。',ms:'Dibuka selepas World pertama diselesaikan.',en:'Unlocked after completing the first World.'}},
+    {id:'mastery',icon:'👑',color:'#b68cff',
+      unlock:()=>scoreAWardrobeDay()>=90 || scoreAWardrobeWorldBadges()>=3,
+      req:{zh:'Day 90 / 3 World Badges',ms:'Day 90 / 3 Lencana World',en:'Day 90 / 3 World Badges'},
+      name:{zh:'学霸大师装',ms:'Pakaian Masteri',en:'Mastery Outfit'},
+      desc:{zh:'长期坚持与稳定成长的高级造型。',ms:'Gaya lanjutan untuk perkembangan yang konsisten.',en:'An advanced look for consistent long-term growth.'}}
+  ];
+
+  const WARDROBE_ACCESSORIES=[
+    {id:'none',icon:'',unlock:()=>true,req:{zh:'默认',ms:'Asas',en:'Default'},name:{zh:'无配件',ms:'Tiada aksesori',en:'No accessory'}},
+    {id:'glasses',icon:'👓',unlock:()=>scoreAWardrobeDay()>=7,req:{zh:'Day 7',ms:'Day 7',en:'Day 7'},name:{zh:'学霸眼镜',ms:'Cermin Mata Cemerlang',en:'Study Glasses'}},
+    {id:'backpack',icon:'🎒',unlock:()=>scoreAWardrobeDay()>=14,req:{zh:'Day 14',ms:'Day 14',en:'Day 14'},name:{zh:'冒险背包',ms:'Beg Pengembaraan',en:'Adventure Backpack'}},
+    {id:'crown',icon:'👑',unlock:()=>scoreAWardrobeDay()>=30 || (S.badges||[]).includes('scorea-world-01'),req:{zh:'Day 30',ms:'Day 30',en:'Day 30'},name:{zh:'成长皇冠',ms:'Mahkota Pertumbuhan',en:'Growth Crown'}}
+  ];
+
+  function scoreAWardrobeLang(){
+    try{return getScoreALanguage()}catch(e){return 'zh'}
+  }
+  function scoreAWardrobeDay(){
+    try{
+      if(typeof scoreAGlobalDay==='function')return scoreAGlobalDay();
+      return Math.min(365,Math.max(1,((CYCLE?.cycle||1)-1)*30+(CYCLE?.day||1)));
+    }catch(e){return 1}
+  }
+  function scoreAWardrobeWorldBadges(){
+    return (S.badges||[]).filter(x=>/^scorea-world-\d{2}$/.test(x)).length;
+  }
+  function scoreAWardrobeEnsure(){
+    S=S||{};
+    if(!['academy','challenge','world','mastery'].includes(S.avatarOutfit))S.avatarOutfit='academy';
+    if(!['none','glasses','backpack','crown'].includes(S.avatarAccessory))S.avatarAccessory='none';
+
+    const outfit=WARDROBE_OUTFITS.find(x=>x.id===S.avatarOutfit);
+    if(outfit && !outfit.unlock())S.avatarOutfit='academy';
+    const accessory=WARDROBE_ACCESSORIES.find(x=>x.id===S.avatarAccessory);
+    if(accessory && !accessory.unlock())S.avatarAccessory='none';
+  }
+  function scoreAWardrobeSave(){
+    localStorage.setItem(K,JSON.stringify(S));
+    try{renderPremiumAvatar()}catch(e){}
+    renderScoreAWardrobe();
+  }
+  function scoreAWardrobeAlert(req){
+    const l=scoreAWardrobeLang();
+    alert(l==='ms'?'🔒 Belum dibuka. Syarat: '+req[l]:l==='en'?'🔒 Not unlocked yet. Requirement: '+req[l]:'🔒 还没有解锁。条件：'+req[l]);
+  }
+  function setScoreAOutfit(id){
+    const o=WARDROBE_OUTFITS.find(x=>x.id===id);if(!o)return;
+    if(!o.unlock()){scoreAWardrobeAlert(o.req);return}
+    S.avatarOutfit=id;scoreAWardrobeSave();
+  }
+  function setScoreAAccessory(id){
+    const a=WARDROBE_ACCESSORIES.find(x=>x.id===id);if(!a)return;
+    if(!a.unlock()){scoreAWardrobeAlert(a.req);return}
+    S.avatarAccessory=id;scoreAWardrobeSave();
+  }
+  window.setScoreAOutfit=setScoreAOutfit;
+  window.setScoreAAccessory=setScoreAAccessory;
+
+  function scoreAWardrobeInject(){
+    if(document.getElementById('scoreAWardrobe'))return;
+    const strip=document.querySelector('#profilePop .premiumAvatarStrip');
+    if(!strip)return;
+    const wrap=document.createElement('div');
+    wrap.id='scoreAWardrobe';
+    wrap.className='wardrobeWrap';
+    strip.insertAdjacentElement('afterend',wrap);
+
+    const homeCard=document.querySelector('.premiumAvatarCard');
+    if(homeCard && !document.getElementById('avatarOutfitLine')){
+      const mode=homeCard.querySelector('#premiumModeLabel');
+      if(mode){
+        mode.insertAdjacentHTML('afterend','<div class="avatarOutfitLine" id="avatarOutfitLine"><span class="avatarOutfitTag" id="avatarOutfitTag">🎓</span><button class="avatarWardrobeBtn" onclick="openScoreAWardrobe()">🎭 Wardrobe</button></div>');
+      }
+    }
+
+    const collection=document.getElementById('collectionRuleText');
+    if(collection && !document.getElementById('wardrobeCollectionLine')){
+      collection.insertAdjacentHTML('beforebegin','<div class="wardrobeCollectionLine" id="wardrobeCollectionLine"></div>');
+    }
+  }
+  window.openScoreAWardrobe=function(){
+    try{openProfile()}catch(e){}
+    setTimeout(()=>{
+      scoreAWardrobeInject();renderScoreAWardrobe();
+      document.getElementById('scoreAWardrobe')?.scrollIntoView({behavior:'smooth',block:'center'});
+    },100);
+  };
+
+  function scoreAWardrobeOutfitName(id,lang){
+    return WARDROBE_OUTFITS.find(x=>x.id===id)?.name?.[lang]||id;
+  }
+  function scoreAWardrobeAccessoryName(id,lang){
+    return WARDROBE_ACCESSORIES.find(x=>x.id===id)?.name?.[lang]||id;
+  }
+  function renderScoreAWardrobe(){
+    scoreAWardrobeEnsure();
+    scoreAWardrobeInject();
+    const l=scoreAWardrobeLang(),wrap=document.getElementById('scoreAWardrobe');
+    const unlocked=WARDROBE_OUTFITS.filter(x=>x.unlock()).length;
+    const accUnlocked=WARDROBE_ACCESSORIES.filter(x=>x.unlock()).length;
+
+    if(wrap){
+      const title=l==='ms'?'👕 Wardrobe Avatar':l==='en'?'👕 Avatar Wardrobe':'👕 Avatar 换装衣柜';
+      const sub=l==='ms'?'Pakaian dan aksesori dibuka melalui pembelajaran sebenar.':l==='en'?'Outfits and accessories unlock through real learning.':'造型不是直接赠送，而是通过真实学习进度解锁。';
+      const outfitTitle=l==='ms'?'Pakaian':l==='en'?'Outfits':'服装造型';
+      const accTitle=l==='ms'?'Aksesori':l==='en'?'Accessories':'配件';
+      wrap.innerHTML=`
+        <div class="wardrobeHead"><div><h3>${title}</h3><div class="wardrobeHint">${sub}</div></div><span class="wardrobeCount">${unlocked}/${WARDROBE_OUTFITS.length} · ${accUnlocked}/${WARDROBE_ACCESSORIES.length}</span></div>
+        <div class="formLabel">${outfitTitle}</div>
+        <div class="wardrobeGrid">${WARDROBE_OUTFITS.map(o=>{
+          const ok=o.unlock(),active=S.avatarOutfit===o.id;
+          return `<button type="button" class="outfitCard ${active?'active':''} ${ok?'':'locked'}" onclick="setScoreAOutfit('${o.id}')">
+            ${ok?'':`<span class="outfitLock">🔒 ${o.req[l]}</span>`}
+            <div class="outfitPreview" style="--outfit-color:${o.color}"><span>${o.icon}</span></div>
+            <b>${o.name[l]}</b><small>${o.desc[l]}</small>
+          </button>`;
+        }).join('')}</div>
+        <div class="formLabel">${accTitle}</div>
+        <div class="accessoryRow">${WARDROBE_ACCESSORIES.map(a=>{
+          const ok=a.unlock(),active=S.avatarAccessory===a.id;
+          return `<button type="button" class="accessoryBtn ${active?'active':''} ${ok?'':'locked'}" onclick="setScoreAAccessory('${a.id}')">${ok?'':'🔒 '}${a.icon||'➖'} ${a.name[l]}${ok?'':` · ${a.req[l]}`}</button>`;
+        }).join('')}</div>
+      `;
+    }
+
+    const outfit=WARDROBE_OUTFITS.find(x=>x.id===S.avatarOutfit)||WARDROBE_OUTFITS[0];
+    const accessory=WARDROBE_ACCESSORIES.find(x=>x.id===S.avatarAccessory)||WARDROBE_ACCESSORIES[0];
+
+    const tag=document.getElementById('avatarOutfitTag');
+    if(tag)tag.textContent=`${outfit.icon} ${outfit.name[l]}${accessory.id!=='none'?' · '+accessory.icon:''}`;
+
+    const icon=accessory.icon||'';
+    document.querySelectorAll('.premiumAvatarCard,.premiumInlineAvatar,.premiumGrowthHero').forEach(el=>{
+      el.dataset.outfit=outfit.id;
+      el.setAttribute('data-accessory-icon',icon);
+    });
+
+    const line=document.getElementById('wardrobeCollectionLine');
+    if(line){
+      line.textContent=l==='ms'
+        ?`👕 Wardrobe: ${unlocked}/${WARDROBE_OUTFITS.length} pakaian · ${accUnlocked}/${WARDROBE_ACCESSORIES.length} aksesori dibuka`
+        :l==='en'
+        ?`👕 Wardrobe: ${unlocked}/${WARDROBE_OUTFITS.length} outfits · ${accUnlocked}/${WARDROBE_ACCESSORIES.length} accessories unlocked`
+        :`👕 Wardrobe：已解锁 ${unlocked}/${WARDROBE_OUTFITS.length} 套造型 · ${accUnlocked}/${WARDROBE_ACCESSORIES.length} 个配件`;
+    }
+  }
+  window.renderScoreAWardrobe=renderScoreAWardrobe;
+
+  /* Existing avatar identity changes should refresh the wardrobe preview/state. */
+  if(typeof setAvatar==='function'){
+    const oldSetAvatar=setAvatar;
+    setAvatar=function(){
+      const r=oldSetAvatar.apply(this,arguments);
+      setTimeout(renderScoreAWardrobe,0);
+      return r;
+    };
+  }
+
+  if(typeof renderPremiumAvatar==='function'){
+    const oldRenderAvatar=renderPremiumAvatar;
+    renderPremiumAvatar=function(){
+      const r=oldRenderAvatar.apply(this,arguments);
+      renderScoreAWardrobe();
+      return r;
+    };
+  }
+
+  /* Re-render labels when language changes. */
+  if(typeof setScoreALanguage==='function'){
+    const oldSetLangWardrobe=setScoreALanguage;
+    setScoreALanguage=function(){
+      const r=oldSetLangWardrobe.apply(this,arguments);
+      setTimeout(renderScoreAWardrobe,0);
+      return r;
+    };
+  }
+
+  /* Re-evaluate unlocks whenever Student OS renders/advances. */
+  if(typeof render==='function'){
+    const oldRenderWardrobe=render;
+    render=function(){
+      const r=oldRenderWardrobe.apply(this,arguments);
+      setTimeout(renderScoreAWardrobe,0);
+      return r;
+    };
+  }
+
+  setTimeout(()=>{scoreAWardrobeEnsure();scoreAWardrobeInject();renderScoreAWardrobe()},300);
 })();
 
 </script>

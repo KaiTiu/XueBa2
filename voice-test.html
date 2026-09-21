@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>A-BOT Mobile Voice Test</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,system-ui,-apple-system,"Segoe UI",Arial;background:#f5f7fb;color:#10213e}
+.wrap{max-width:760px;margin:auto;padding:20px}
+.card{background:#fff;border:1px solid #dfe7f2;border-radius:20px;padding:18px;box-shadow:0 8px 26px rgba(20,45,85,.06);margin-bottom:14px}
+h1{font-size:24px;margin:0 0 8px}
+h2{font-size:18px;margin:0 0 10px}
+p{line-height:1.65;color:#65758e}
+.btns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+button{border:0;border-radius:13px;padding:14px 12px;font-weight:900;background:#245eea;color:#fff;font-size:15px}
+button.light{background:#edf3ff;color:#274e88}
+button.green{background:#139c6b}
+button.warn{background:#a86711}
+.status{padding:12px;border-radius:12px;background:#f8fafc;border:1px solid #e2e8f1;white-space:pre-wrap;line-height:1.55;font-size:13px}
+.good{background:#eefaf4;border-color:#cce8d8;color:#145c44}
+.bad{background:#fff1f1;border-color:#efcaca;color:#962d2d}
+.warnbox{background:#fff8ea;border-color:#f0d59f;color:#805100}
+.small{font-size:12px;color:#718096;line-height:1.55}
+.voiceList{max-height:260px;overflow:auto;font-size:12px;line-height:1.55;background:#f8fafc;border-radius:12px;padding:10px;border:1px solid #e4eaf2}
+code{background:#eef2f7;padding:2px 5px;border-radius:6px}
+@media(max-width:600px){.btns{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card">
+    <h1>🤖 A-BOT 手机版声音诊断</h1>
+    <p>这不是课程页面，只用来检查手机为什么没有声音。请直接用你平时测试 Student OS 的同一部手机、同一个 Chrome 打开。</p>
+  </div>
+
+  <div class="card">
+    <h2>① 先测试手机有没有网页声音</h2>
+    <div class="btns">
+      <button onclick="testBeep()">🔔 测试 Beep 声音</button>
+      <button class="light" onclick="refreshVoices()">↻ 重新读取手机 Voice</button>
+    </div>
+    <div id="audioResult" class="status" style="margin-top:12px">等待测试…</div>
+  </div>
+
+  <div class="card">
+    <h2>② 测试 A-BOT TTS</h2>
+    <div class="btns">
+      <button onclick="testTTS('zh')">中文：你好，我是 A-BOT</button>
+      <button onclick="testTTS('ms')">BM：Hai, saya A-BOT</button>
+      <button onclick="testTTS('en')">EN：Hi, I am A-BOT</button>
+      <button class="warn" onclick="stopAll()">■ 停止声音</button>
+    </div>
+    <div id="ttsResult" class="status" style="margin-top:12px">等待测试…</div>
+  </div>
+
+  <div class="card">
+    <h2>③ 手机检测结果</h2>
+    <div id="deviceResult" class="status">正在检测…</div>
+    <div class="small" style="margin-top:10px">
+      如果 <b>Beep 有声音，但中文/BM/EN 都没有声音</b>，通常代表手机网页声音正常，但系统 Text-to-Speech 引擎/Voice 没有正常提供给 Chrome。<br>
+      如果 <b>Voice Count = 0</b>，请检查 Android 的 Text-to-Speech / Speech Services 设置。
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>④ 手机可用 Voice</h2>
+    <div id="voiceList" class="voiceList">正在读取…</div>
+  </div>
+
+  <div class="card">
+    <button class="green" onclick="copyResult()">📋 复制完整检测结果</button>
+    <p class="small">测试完后，把检测结果复制给我，或者直接截图给我。我就能判断是 Chrome、手机 TTS Engine、语言 Voice，还是 Student OS 代码的问题。</p>
+  </div>
+</div>
+
+<script>
+let voices=[];
+let lastTtsResult='尚未测试';
+let lastAudioResult='尚未测试';
+
+function status(id,msg,cls=''){
+  const el=document.getElementById(id);
+  el.className='status '+cls;
+  el.textContent=msg;
+}
+function ua(){
+  return navigator.userAgent||'';
+}
+function counts(){
+  const c={zh:0,ms:0,id:0,en:0};
+  voices.forEach(v=>{
+    const l=String(v.lang||'').toLowerCase();
+    if(l.startsWith('zh'))c.zh++;
+    if(l.startsWith('ms'))c.ms++;
+    if(l.startsWith('id'))c.id++;
+    if(l.startsWith('en'))c.en++;
+  });
+  return c;
+}
+function refreshVoices(){
+  if(!('speechSynthesis' in window)){
+    voices=[];
+    renderDevice();
+    return;
+  }
+  voices=window.speechSynthesis.getVoices()||[];
+  renderDevice();
+}
+function renderDevice(){
+  const supported=('speechSynthesis' in window)&&typeof SpeechSynthesisUtterance!=='undefined';
+  const c=counts();
+  const msg=[
+    'Browser: '+ua(),
+    'speechSynthesis supported: '+(supported?'YES':'NO'),
+    'Voice Count: '+voices.length,
+    'Chinese voices: '+c.zh,
+    'Malay voices: '+c.ms,
+    'Indonesian voices: '+c.id,
+    'English voices: '+c.en,
+    'Online: '+navigator.onLine
+  ].join('\n');
+  status('deviceResult',msg,supported?'good':'bad');
+
+  const list=document.getElementById('voiceList');
+  list.textContent=voices.length
+    ?voices.map((v,i)=>`${i+1}. ${v.name} | ${v.lang} | ${v.default?'DEFAULT':''} ${v.localService?'LOCAL':'REMOTE'}`).join('\n')
+    :'没有读取到任何 Voice。';
+}
+async function testBeep(){
+  try{
+    const AC=window.AudioContext||window.webkitAudioContext;
+    if(!AC)throw new Error('AudioContext not supported');
+    const ctx=new AC();
+    await ctx.resume();
+    const osc=ctx.createOscillator();
+    const gain=ctx.createGain();
+    osc.frequency.value=660;
+    gain.gain.value=.08;
+    osc.connect(gain);gain.connect(ctx.destination);
+    osc.start();
+    setTimeout(()=>{osc.stop();ctx.close()},350);
+    lastAudioResult='Beep started successfully';
+    status('audioResult','✅ 已启动 Beep。你应该听到短短的提示声。','good');
+  }catch(e){
+    lastAudioResult='Beep failed: '+e.message;
+    status('audioResult','✗ Beep 失败：'+e.message,'bad');
+  }
+}
+function pickVoice(lang){
+  const L=v=>String(v.lang||'').toLowerCase();
+  if(lang==='zh')return voices.find(v=>L(v).startsWith('zh'))||null;
+  if(lang==='ms')return voices.find(v=>L(v).startsWith('ms'))||voices.find(v=>L(v).startsWith('id'))||null;
+  return voices.find(v=>L(v).startsWith('en'))||null;
+}
+function testTTS(lang){
+  if(!('speechSynthesis' in window)||typeof SpeechSynthesisUtterance==='undefined'){
+    lastTtsResult='speechSynthesis unavailable';
+    status('ttsResult','✗ 浏览器没有 speechSynthesis。','bad');
+    return;
+  }
+  refreshVoices();
+
+  const texts={
+    zh:'你好，我是 A-BOT。手机语音测试成功。',
+    ms:'Hai, saya A-BOT. Ujian suara telefon berjaya.',
+    en:'Hi, I am A-BOT. The mobile voice test is working.'
+  };
+  const defaultLang={zh:'zh-CN',ms:'ms-MY',en:'en-US'};
+  const synth=window.speechSynthesis;
+  const voice=pickVoice(lang);
+
+  try{
+    synth.cancel();
+    synth.resume();
+  }catch(e){}
+
+  const u=new SpeechSynthesisUtterance(texts[lang]);
+  u.lang=voice?.lang||defaultLang[lang];
+  u.rate=.95;
+  u.pitch=1;
+  u.volume=1;
+  if(voice)u.voice=voice;
+
+  let started=false;
+  const voiceInfo=voice?`${voice.name} (${voice.lang})`:'DEVICE DEFAULT';
+
+  status('ttsResult',`准备播放 ${lang.toUpperCase()}…\nVoice: ${voiceInfo}`,'warnbox');
+
+  u.onstart=()=>{
+    started=true;
+    lastTtsResult=`STARTED | ${lang} | ${voiceInfo}`;
+    status('ttsResult',`✅ TTS 已开始播放\nLanguage: ${lang}\nVoice: ${voiceInfo}`,'good');
+  };
+  u.onend=()=>{
+    lastTtsResult=`ENDED | ${lang} | ${voiceInfo}`;
+    status('ttsResult',`✅ TTS 播放完成\nLanguage: ${lang}\nVoice: ${voiceInfo}`,'good');
+  };
+  u.onerror=(e)=>{
+    lastTtsResult=`ERROR | ${lang} | ${voiceInfo} | ${e.error||'unknown'}`;
+    status('ttsResult',`✗ TTS Error: ${e.error||'unknown'}\nLanguage: ${lang}\nVoice: ${voiceInfo}`,'bad');
+  };
+
+  synth.speak(u);
+
+  setTimeout(()=>{
+    if(!started && !synth.speaking){
+      lastTtsResult=`NO START | ${lang} | ${voiceInfo}`;
+      status('ttsResult',`✗ 2 秒后仍没有开始播放。\nLanguage: ${lang}\nVoice: ${voiceInfo}\n请把这一页的完整结果发给我。`,'bad');
+    }
+  },2000);
+}
+function stopAll(){
+  try{speechSynthesis.cancel()}catch(e){}
+  status('ttsResult','已停止声音。');
+}
+async function copyResult(){
+  refreshVoices();
+  const c=counts();
+  const txt=[
+    'A-BOT MOBILE VOICE TEST',
+    'Browser: '+ua(),
+    'speechSynthesis: '+(('speechSynthesis'in window)?'YES':'NO'),
+    'Voice Count: '+voices.length,
+    `ZH=${c.zh} MS=${c.ms} ID=${c.id} EN=${c.en}`,
+    'Beep Result: '+lastAudioResult,
+    'TTS Result: '+lastTtsResult,
+    '',
+    'Voices:',
+    ...voices.map(v=>`${v.name} | ${v.lang} | ${v.default?'DEFAULT':''} ${v.localService?'LOCAL':'REMOTE'}`)
+  ].join('\n');
+  try{
+    await navigator.clipboard.writeText(txt);
+    alert('检测结果已复制。');
+  }catch(e){
+    prompt('请复制以下结果：',txt);
+  }
+}
+
+refreshVoices();
+if('speechSynthesis' in window){
+  window.speechSynthesis.addEventListener?.('voiceschanged',refreshVoices);
+  setTimeout(refreshVoices,500);
+  setTimeout(refreshVoices,1500);
+}
+</script>
+</body>
+</html>
