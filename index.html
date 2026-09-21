@@ -732,6 +732,8 @@ body.premiumTeen .scoreANPCMiniBot{animation:scoreANPCTeenIdle 5s ease-in-out in
  <div class="tools">
   
   
+  <button class="tool" onclick="openToolbox('timebox')" data-i18n="toolTime">⏰ 时间管理</button>
+  <button class="tool" onclick="openToolbox('examgoal')" data-i18n="toolExam">🎯 学期考试目标与复盘</button>
   <button class="tool" onclick="openToolbox('chatgpt')" data-i18n="toolAI">🤖 ChatGPT AI 辅导老师</button>
   <button class="tool" onclick="openToolbox('mistakebox')" data-i18n="toolMistake">⚔️ 错题与粗心分析表</button>
  </div></div><div id="toolboxArea"></div>
@@ -6518,6 +6520,59 @@ setTimeout(()=>scoreAForceBlankThought(true),520);
 
   setTimeout(injectABotVoiceTools,350);
   setTimeout(injectABotVoiceTools,1000);
+})();
+
+
+
+/* ===== V8.20 RESTORE TOOLBOX ACCESS =====
+   Correction:
+   - Time Management and Semester Exam Goal & Review are restored.
+   - Clicking them always renders the tool, loads saved values, and scrolls to it.
+*/
+(function(){
+  const __v820OriginalOpenToolbox = typeof openToolbox === 'function' ? openToolbox : null;
+
+  openToolbox = function(id){
+    SCOREA_OPEN_TOOLBOX=id;
+
+    const panel=document.getElementById('training');
+    if(panel){
+      panel.classList.add('active');
+      panel.style.display='';
+    }
+
+    let area=document.getElementById('toolboxArea');
+    if(!area){
+      area=document.createElement('div');
+      area.id='toolboxArea';
+      panel?.appendChild(area);
+    }
+
+    try{
+      if(id==='timebox'){
+        area.innerHTML=timeHTML();
+      }else if(id==='examgoal'){
+        area.innerHTML=examGoalHTML();
+      }else if(id==='chatgpt'){
+        area.innerHTML=chatHTML();
+      }else if(id==='mistakebox'){
+        area.innerHTML=mistakeHTML();
+      }else if(__v820OriginalOpenToolbox){
+        return __v820OriginalOpenToolbox(id);
+      }
+
+      area.style.display='block';
+
+      setTimeout(()=>{
+        try{loadToolValues()}catch(e){console.warn('Tool values load warning',e)}
+        try{area.scrollIntoView({behavior:'smooth',block:'start'})}catch(e){}
+      },30);
+    }catch(err){
+      console.error('Toolbox open failed',id,err);
+      area.innerHTML=`<div class="card"><h3>工具暂时无法打开</h3><p class="muted">${String(err?.message||err)}</p></div>`;
+      try{area.scrollIntoView({behavior:'smooth',block:'start'})}catch(e){}
+    }
+  };
 })();
 
 </script>
