@@ -2214,7 +2214,14 @@ setTimeout(()=>{setScoreAMode(getScoreAMode());applyScoreAI18n();renderPremiumUI
 /* V21: Supabase Auth + SCORE-A entitlement gate. Publishable key is browser-safe; RLS remains the data security boundary. */
 const SCOREA_SUPABASE_URL='https://htzkjfztqqsbzxahxfnt.supabase.co';
 const SCOREA_SUPABASE_PUBLISHABLE_KEY='sb_publishable_-2O1fEqOGCQPSiMGQVSFrQ_bC3hf4WM';
-const scoreASupabase=window.supabase.createClient(SCOREA_SUPABASE_URL,SCOREA_SUPABASE_PUBLISHABLE_KEY);
+const scoreASupabase=window.supabase.createClient(SCOREA_SUPABASE_URL,SCOREA_SUPABASE_PUBLISHABLE_KEY,{
+  auth:{
+    storageKey:'scorea_student_auth',
+    persistSession:true,
+    autoRefreshToken:true,
+    detectSessionInUrl:true
+  }
+});
 
 let SCOREA_AUTH_USER=null;
 let SCOREA_STUDENT_PROFILE=null;

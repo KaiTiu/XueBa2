@@ -525,7 +525,14 @@ input{width:100%;padding:12px 13px;border:1px solid #d8e1ed;border-radius:12px;o
 <script>
 const SUPABASE_URL='https://htzkjfztqqsbzxahxfnt.supabase.co';
 const SUPABASE_KEY='sb_publishable_-2O1fEqOGCQPSiMGQVSFrQ_bC3hf4WM';
-const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{
+  auth:{
+    storageKey:'scorea_admin_auth',
+    persistSession:true,
+    autoRefreshToken:true,
+    detectSessionInUrl:true
+  }
+});
 
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));

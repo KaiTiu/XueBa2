@@ -736,7 +736,14 @@ button,input{font:inherit}
 <script>
 const SUPABASE_URL="https://htzkjfztqqsbzxahxfnt.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY="sb_publishable_-2O1fEqOGCQPSiMGQVSFrQ_bC3hf4WM";
-const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
+const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{
+  auth:{
+    storageKey:'scorea_parent_auth',
+    persistSession:true,
+    autoRefreshToken:true,
+    detectSessionInUrl:true
+  }
+});
 
 let CURRENT_USER=null;
 let DASH=null;
@@ -870,7 +877,7 @@ async function loadDashboard(){
       `<option value="${i}">${esc(c.student?.student_id||"")} · ${esc(c.student?.full_name||"Student")}</option>`
     ).join("");
 
-    document.getElementById("childSelectWrap").classList.toggle("hidden",data.children.length<=1);
+    document.getElementById("childSelectWrap").classList.remove("hidden");
 
     if(CURRENT_CHILD>=data.children.length)CURRENT_CHILD=0;
     sel.value=String(CURRENT_CHILD);
@@ -886,6 +893,7 @@ function switchChild(index){
 }
 
 function renderNoChildren(){
+  document.getElementById("childSelectWrap")?.classList.add("hidden");
   setText("studentName","尚未绑定学生");
   document.getElementById("studentInfo").innerHTML='<span class="chip">请联系 Admin 建立 Parent ↔ Student 绑定</span>';
   setText("sumDay","—");setText("sumXP","—");setText("sumStreak","—");setText("sumWeek","—");
@@ -1227,7 +1235,7 @@ apiPost=async function(path,body={}){const session=await getSession();if(!sessio
 parentLogin=async function(){clearMsg("loginMsg");const x=pt(),email=document.getElementById("loginEmail").value.trim().toLowerCase(),password=document.getElementById("loginPassword").value,btn=document.getElementById("loginBtn");if(!email||!password){showMsg("loginMsg",x.errors.needLogin);return}btn.disabled=true;btn.textContent=x.errors.checking;try{const {data,error}=await sb.auth.signInWithPassword({email,password});if(error)throw error;CURRENT_USER=data.user;const role=String(CURRENT_USER?.app_metadata?.role||"").toLowerCase();if(role!=="parent"){await sb.auth.signOut();throw new Error(x.errors.notParent)}if(CURRENT_USER?.app_metadata?.must_change_password===true){document.getElementById("loginBox").classList.add("hidden");document.getElementById("firstPasswordBox").classList.remove("hidden");return}await openDashboard()}catch(err){showMsg("loginMsg",x.errors.loginFail+(err.message||"Unknown error"))}finally{btn.disabled=false;btn.textContent=x.loginBtn}};
 changeFirstPassword=async function(){clearMsg("firstPasswordMsg");const x=pt(),a=document.getElementById("firstNewPassword").value,b=document.getElementById("firstConfirmPassword").value;try{if(a.length<8)throw new Error(x.errors.pass8);if(a!==b)throw new Error(x.errors.passMismatch);await apiPost("/api/parent-change-temporary-password",{new_password:a,confirm_password:b});showMsg("firstPasswordMsg",x.errors.passCreated,"ok");await sb.auth.signOut();setTimeout(()=>{document.getElementById("firstPasswordBox").classList.add("hidden");document.getElementById("loginBox").classList.remove("hidden");document.getElementById("loginPassword").value="";document.getElementById("firstNewPassword").value="";document.getElementById("firstConfirmPassword").value="";showMsg("loginMsg",x.errors.passUpdatedLogin,"ok")},600)}catch(err){showMsg("firstPasswordMsg",x.errors.updateFail+(err.result?.error||err.message||"Unknown error"))}};
 changePasswordFromDashboard=async function(){clearMsg("passwordMsg");const x=pt(),current=document.getElementById("currentPassword").value,next=document.getElementById("newPassword").value,confirm=document.getElementById("confirmPassword").value;try{const session=await getSession(),email=session?.user?.email;if(!email)throw new Error(x.errors.noEmail);if(!current)throw new Error(x.errors.needCurrent);if(next.length<8)throw new Error(x.errors.pass8);if(next!==confirm)throw new Error(x.errors.passMismatch);const {error}=await sb.auth.signInWithPassword({email,password:current});if(error)throw new Error(x.errors.wrongCurrent);await apiPost("/api/parent-change-temporary-password",{new_password:next,confirm_password:confirm});showMsg("passwordMsg",x.errors.passUpdated,"ok");setTimeout(async()=>{await sb.auth.signOut();location.reload()},900)}catch(err){showMsg("passwordMsg",x.errors.updateFail+(err.result?.error||err.message||"Unknown error"))}};
-const __parentLoadDashboard=loadDashboard;loadDashboard=async function(){try{const data=await apiPost("/api/parent-dashboard-data");DASH=data;setText("parentTopName",(data.parent?.full_name||data.parent?.email||"Parent"));if(!data.children?.length){renderNoChildren();return}const sel=document.getElementById("childSelect");sel.innerHTML=data.children.map((c,i)=>`<option value="${i}">${esc(c.student?.student_id||"")} · ${esc(c.student?.full_name||"Student")}</option>`).join("");document.getElementById("childSelectWrap").classList.toggle("hidden",data.children.length<=1);if(CURRENT_CHILD>=data.children.length)CURRENT_CHILD=0;sel.value=String(CURRENT_CHILD);renderChild(data.children[CURRENT_CHILD])}catch(err){alert(pt().errors.dashFail+(err.result?.error||err.message||"Unknown error"))}};
+const __parentLoadDashboard=loadDashboard;loadDashboard=async function(){try{const data=await apiPost("/api/parent-dashboard-data");DASH=data;setText("parentTopName",(data.parent?.full_name||data.parent?.email||"Parent"));if(!data.children?.length){renderNoChildren();return}const sel=document.getElementById("childSelect");sel.innerHTML=data.children.map((c,i)=>`<option value="${i}">${esc(c.student?.student_id||"")} · ${esc(c.student?.full_name||"Student")}</option>`).join("");document.getElementById("childSelectWrap").classList.remove("hidden");if(CURRENT_CHILD>=data.children.length)CURRENT_CHILD=0;sel.value=String(CURRENT_CHILD);renderChild(data.children[CURRENT_CHILD])}catch(err){alert(pt().errors.dashFail+(err.result?.error||err.message||"Unknown error"))}};
 
 const __parentOpenDashboard=openDashboard;openDashboard=async function(){document.getElementById("authGate").classList.add("hidden");document.getElementById("app").classList.remove("hidden");document.getElementById("authLangSwitch")?.classList.add("hidden");applyParentLanguage();await loadDashboard()};
 
@@ -1317,6 +1325,7 @@ applyParentLanguage=function(){
    Chinese initial placeholders behind. */
 const __parentRenderNoChildrenV21=renderNoChildren;
 renderNoChildren=function(){
+  document.getElementById("childSelectWrap")?.classList.add("hidden");
   const x=pt(),d=parentDynamicDefaults();
   __parentRenderNoChildrenV21();
 
