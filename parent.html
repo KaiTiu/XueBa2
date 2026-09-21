@@ -71,6 +71,18 @@ button,input{font:inherit}
 .adviceFresh{display:inline-block;margin-top:7px;font-size:9px;font-weight:900;letter-spacing:.04em;opacity:.68}
 @media(max-width:680px){.authLangFloat{top:8px;right:8px}.topActions .parentLangSwitch{order:-1;width:100%;justify-content:flex-end}}
 
+/* ===== Parent Dashboard V3: Weekly Growth Report History ===== */
+.weeklyHistory{margin-top:14px}
+.weeklyHistoryHead{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap}
+.weeklyHistoryHead h3{margin:0 0 6px}.weeklyReportList{display:grid;gap:10px;margin-top:14px}
+.weeklyReportItem{border:1px solid #dfe7f2;border-radius:16px;background:#fff;overflow:hidden}.weeklyReportItem[open]{box-shadow:0 8px 24px #17315d0b}
+.weeklyReportItem summary{cursor:pointer;list-style:none;padding:14px 16px;display:flex;justify-content:space-between;gap:12px;align-items:center;background:#f8faff}.weeklyReportItem summary::-webkit-details-marker{display:none}
+.weeklyReportPeriod{font-weight:950;color:#203a61}.weeklyReportMeta{font-size:11px;color:#75839a;margin-top:4px}.weeklyReportArrow{font-size:18px;color:#557197;transition:.2s}.weeklyReportItem[open] .weeklyReportArrow{transform:rotate(90deg)}
+.weeklyReportBody{padding:16px}.weeklyMetrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:12px}.weeklyMetric{background:#f6f9fd;border:1px solid #e2e9f3;border-radius:12px;padding:10px}.weeklyMetric small{display:block;color:#7b899e;font-size:10px;font-weight:850;margin-bottom:4px}.weeklyMetric b{font-size:16px;color:#203657}
+.weeklySkillGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0}.weeklySkill{border:1px solid #e2e8f1;border-radius:12px;padding:10px;background:#fff}.weeklySkillTop{display:flex;justify-content:space-between;font-size:11px;font-weight:900}
+.weeklySection{margin-top:12px;padding:12px 13px;border-radius:13px;background:#fafcff;border:1px solid #e5ebf3;line-height:1.65}.weeklySection.good{background:#eefaf4;border-color:#cde9d9}.weeklySection.next{background:#fff8e8;border-color:#efdda9}.weeklySection.parent{background:#eef4ff;border-color:#d6e2fb}.weeklySection b{display:block;margin-bottom:5px}.weeklyActions{margin:5px 0 0;padding-left:20px}.weeklyThoughts{white-space:pre-line;color:#51627a}
+@media(max-width:760px){.weeklyMetrics{grid-template-columns:repeat(2,1fr)}.weeklySkillGrid{grid-template-columns:1fr}}
+
 </style>
 </head>
 <body>
@@ -195,6 +207,16 @@ button,input{font:inherit}
       <div class="sub">重点不是写很多，而是孩子是否越来越会发现问题 → 说明原因 → 想下一步。</div>
       <div id="reflectionList"><div class="empty">等待真实学习记录。</div></div>
       <div class="note">SYSTEM TEST / Cycle 999 会自动隐藏，不会显示给家长。</div>
+    </section>
+
+    <section id="weeklyReportSection" class="card weeklyHistory">
+      <div class="weeklyHistoryHead">
+        <div>
+          <h3 id="weeklyReportTitle">📊 Weekly Growth Report</h3>
+          <div id="weeklyReportSub" class="sub">每周自动整理孩子的学习成长，并保留历史周报。</div>
+        </div>
+      </div>
+      <div id="weeklyReportList" class="weeklyReportList"><div class="empty">正在读取历史周报…</div></div>
     </section>
 
     <section id="parentGuideSection" class="guideShell">
@@ -1331,6 +1353,125 @@ setParentLanguage=function(lang){
     renderNoChildren();
   }
 };
+
+/* ===== Parent Dashboard V3: Weekly Growth Report History ===== */
+const WEEKLY_REPORT_CACHE=new Map();
+const WEEKLY_REPORT_T={
+  zh:{title:'📊 Weekly Growth Report｜每周成长报告',sub:'系统每周自动整理孩子的学习进度、能力信号、真实思考与下一步建议，并保留历史记录。',loading:'正在读取历史周报…',empty:'目前还没有 Weekly Growth Report。系统会在每周日自动建立第一份报告。',error:'周报读取失败：',progress:'学习进度',xp:'成长 XP',reflections:'真实思考',active:'活跃天数',focus:'专注力',time:'时间管理',self:'自主学习',strengths:'✅ 本周做得好的地方',improve:'🎯 下一步最值得改善',actions:'🚀 下周行动',parent:'👨‍👩‍👧 给家长的建议',thoughts:'📝 最近思考摘要',generated:'生成于',times:'次',days:'天'},
+  ms:{title:'📊 Weekly Growth Report｜Laporan Pertumbuhan Mingguan',sub:'Sistem menyusun kemajuan, isyarat keupayaan, refleksi sebenar dan langkah seterusnya setiap minggu serta menyimpan sejarah laporan.',loading:'Sedang memuat sejarah laporan mingguan…',empty:'Belum ada Weekly Growth Report. Sistem akan menghasilkan laporan pertama secara automatik pada hari Ahad.',error:'Gagal membaca laporan mingguan: ',progress:'Kemajuan',xp:'XP Pertumbuhan',reflections:'Refleksi sebenar',active:'Hari aktif',focus:'Fokus',time:'Pengurusan Masa',self:'Pembelajaran Kendiri',strengths:'✅ Perkara yang baik minggu ini',improve:'🎯 Keutamaan penambahbaikan',actions:'🚀 Tindakan minggu depan',parent:'👨‍👩‍👧 Cadangan untuk ibu bapa',thoughts:'📝 Ringkasan refleksi terkini',generated:'Dijana',times:'kali',days:'hari'},
+  en:{title:'📊 Weekly Growth Report',sub:'The system automatically organises learning progress, ability signals, real reflections and next steps each week, while keeping report history.',loading:'Loading weekly report history…',empty:'No Weekly Growth Report yet. The system will automatically create the first report on Sunday.',error:'Unable to load weekly reports: ',progress:'Learning Progress',xp:'Growth XP',reflections:'Real Reflections',active:'Active Days',focus:'Focus',time:'Time Management',self:'Independent Learning',strengths:'✅ What went well this week',improve:'🎯 Highest-value improvement',actions:'🚀 Actions for next week',parent:'👨‍👩‍👧 Parent suggestion',thoughts:'📝 Recent reflection summary',generated:'Generated',times:'times',days:'days'}
+};
+function weeklyT(){return WEEKLY_REPORT_T[PARENT_LANG]||WEEKLY_REPORT_T.zh}
+function weeklyFmtDate(v){
+  if(!v)return '—';
+  const d=new Date(String(v).length===10?v+'T00:00:00':v);
+  if(Number.isNaN(d.getTime()))return String(v);
+  return d.toLocaleDateString(parentLocale(),{day:'2-digit',month:'short',year:'numeric'});
+}
+function weeklySkillInfo(r){
+  const t=weeklyT();
+  const vals=[{key:'focus',label:t.focus,v:Number(r.focus)||0},{key:'time',label:t.time,v:Number(r.time_management)||0},{key:'self',label:t.self,v:Number(r.self_learning)||0}];
+  const desc=[...vals].sort((a,b)=>b.v-a.v);
+  return {vals,strong:desc[0],weak:desc[2]};
+}
+function weeklyTopicLabel(raw){
+  const s=String(raw||'').toLowerCase();
+  const map=[
+    [/careless|粗心|cuai/,{zh:'粗心',ms:'Kecuaian',en:'Carelessness'}],
+    [/time management|时间管理|masa/,{zh:'时间管理',ms:'Pengurusan Masa',en:'Time Management'}],
+    [/focus|专注|fokus/,{zh:'专注',ms:'Fokus',en:'Focus'}],
+    [/mistake|错题|kesilapan/,{zh:'错题与复盘',ms:'Kesilapan & Refleksi',en:'Mistakes & Review'}],
+    [/memory|复习|记忆|ulang kaji|ingatan/,{zh:'复习与记忆',ms:'Ulang Kaji & Ingatan',en:'Review & Memory'}],
+    [/understanding|理解|faham/,{zh:'理解',ms:'Kefahaman',en:'Understanding'}],
+    [/exam|考试|peperiksaan/,{zh:'考试策略',ms:'Strategi Peperiksaan',en:'Exam Strategy'}],
+    [/independent|自主|kendiri/,{zh:'自主学习',ms:'Pembelajaran Kendiri',en:'Independent Learning'}]
+  ];
+  for(const [rx,label] of map)if(rx.test(s))return label[PARENT_LANG]||label.zh;
+  return String(raw||'');
+}
+function weeklyLocalisedNarrative(r){
+  const info=weeklySkillInfo(r),n=Number(r.reflection_count)||0;
+  const firstTopic=Array.isArray(r.trend_topics)&&r.trend_topics[0] ? weeklyTopicLabel(r.trend_topics[0].name||r.trend_topics[0]) : '';
+  if(PARENT_LANG==='zh')return {
+    strengths:Array.isArray(r.strengths)&&r.strengths.length?r.strengths:[n?`本周已经留下 ${n} 次真实学习思考。`:'目前仍在建立学习记录。'],
+    improve:r.improvement_focus||`${info.weak.label}是下一阶段最值得优先训练的一项。`,
+    actions:Array.isArray(r.next_actions)&&r.next_actions.length?r.next_actions:['保持一个可重复的小行动，并在周末复盘结果。'],
+    parent:r.parent_tip||'本周以提问和支持为主，不需要增加监督。'
+  };
+  if(PARENT_LANG==='ms')return {
+    strengths:[n?`Minggu ini terdapat ${n} refleksi pembelajaran sebenar.`:'Rekod pembelajaran masih dalam peringkat pembinaan.',`${info.strong.label} ialah isyarat pertumbuhan relatif yang lebih jelas (${info.strong.v}%).`],
+    improve:`${info.weak.label} ialah keutamaan latihan seterusnya.${firstTopic?` Refleksi terkini juga menunjukkan petunjuk berkaitan “${firstTopic}”.`:''}`,
+    actions:info.weak.key==='focus'?['Tetapkan satu blok fokus 25 minit tanpa telefon.','Sediakan hanya bahan yang diperlukan sebelum bermula.']:info.weak.key==='time'?['Tulis Top 3 dan tetapkan waktu mula yang jelas untuk tugas pertama.','Bandingkan rancangan dengan apa yang benar-benar selesai selepas belajar.']:['Biarkan anak memilih satu tugas penting dan memulakannya sendiri.','Apabila tersekat, cuba sendiri dahulu sebelum meminta bantuan AI / guru.'],
+    parent:info.weak.key==='focus'?'Bantu anak melindungi satu waktu belajar tanpa gangguan; elakkan terlalu banyak peringatan.':info.weak.key==='time'?'Tanya satu soalan sahaja setiap hari: “Apakah tugas pembelajaran paling penting hari ini?”':'Minta anak menerangkan rancangan dan langkah seterusnya sebelum ibu bapa memberi jawapan.'
+  };
+  return {
+    strengths:[n?`There were ${n} real learning reflections this week.`:'Learning records are still being established.',`${info.strong.label} is currently the clearest relative growth signal (${info.strong.v}%).`],
+    improve:`${info.weak.label} is the highest-value area to train next.${firstTopic?` Recent reflections also contain clues related to “${firstTopic}”.`:''}`,
+    actions:info.weak.key==='focus'?['Protect one 25-minute phone-free focus block each day.','Keep only the materials needed for the current task before starting.']:info.weak.key==='time'?['Write a Top 3 and set a clear start time for the first task.','After studying, compare the plan with what was actually completed.']:['Let the child choose one important learning task and start it independently.','When stuck, try independently first before asking AI / a teacher for help.'],
+    parent:info.weak.key==='focus'?'Help protect one fixed distraction-free study period this week; repeated reminders are not necessary.':info.weak.key==='time'?'Ask just one question each day: “What is your most important learning task today?”':'Let the child explain the plan and next step before the parent gives an answer.'
+  };
+}
+function renderWeeklyReports(reports){
+  const t=weeklyT(),box=document.getElementById('weeklyReportList');if(!box)return;
+  const title=document.getElementById('weeklyReportTitle'),sub=document.getElementById('weeklyReportSub');
+  if(title)title.textContent=t.title;if(sub)sub.textContent=t.sub;
+  reports=Array.isArray(reports)?reports:[];
+  if(!reports.length){box.innerHTML=`<div class="empty">${esc(t.empty)}</div>`;return}
+  box.innerHTML=reports.map((r,i)=>{
+    const n=weeklyLocalisedNarrative(r),skills=weeklySkillInfo(r),generated=r.generated_at?weeklyFmtDate(r.generated_at):'',thought=String(r.reflection_summary||'').trim();
+    return `<details class="weeklyReportItem" ${i===0?'open':''}>
+      <summary><div><div class="weeklyReportPeriod">${esc(weeklyFmtDate(r.week_start))} – ${esc(weeklyFmtDate(r.week_end))}</div><div class="weeklyReportMeta">${t.progress}: Cycle ${esc(r.current_cycle||1)} · Day ${esc(r.current_day||1)}${generated?` · ${t.generated} ${esc(generated)}`:''}</div></div><span class="weeklyReportArrow">›</span></summary>
+      <div class="weeklyReportBody">
+        <div class="weeklyMetrics">
+          <div class="weeklyMetric"><small>${t.progress}</small><b>Day ${esc(r.current_day||1)}</b></div>
+          <div class="weeklyMetric"><small>${t.xp}</small><b>${esc(Number(r.xp)||0)} XP</b></div>
+          <div class="weeklyMetric"><small>${t.reflections}</small><b>${esc(Number(r.reflection_count)||0)} ${t.times}</b></div>
+          <div class="weeklyMetric"><small>${t.active}</small><b>${esc(Number(r.active_days)||0)} ${t.days}</b></div>
+        </div>
+        <div class="weeklySkillGrid">${skills.vals.map(s=>`<div class="weeklySkill"><div class="weeklySkillTop"><span>${esc(s.label)}</span><b>${esc(s.v)}%</b></div><div class="track"><i style="width:${Math.max(0,Math.min(100,s.v))}%"></i></div></div>`).join('')}</div>
+        <div class="weeklySection good"><b>${t.strengths}</b>${n.strengths.map(x=>`<div>• ${esc(x)}</div>`).join('')}</div>
+        <div class="weeklySection next"><b>${t.improve}</b><div>${esc(n.improve)}</div></div>
+        <div class="weeklySection"><b>${t.actions}</b><ol class="weeklyActions">${n.actions.map(x=>`<li>${esc(x)}</li>`).join('')}</ol></div>
+        <div class="weeklySection parent"><b>${t.parent}</b><div>${esc(n.parent)}</div></div>
+        ${thought?`<div class="weeklySection"><b>${t.thoughts}</b><div class="weeklyThoughts">${esc(thought)}</div></div>`:''}
+      </div>
+    </details>`;
+  }).join('');
+}
+async function loadWeeklyReports(child,force=false){
+  const t=weeklyT(),box=document.getElementById('weeklyReportList');if(!box)return;
+  const studentId=child?.student?.id;
+  if(!studentId){box.innerHTML=`<div class="empty">${esc(t.empty)}</div>`;return}
+  document.getElementById('weeklyReportTitle').textContent=t.title;
+  document.getElementById('weeklyReportSub').textContent=t.sub;
+  if(!force&&WEEKLY_REPORT_CACHE.has(studentId)){renderWeeklyReports(WEEKLY_REPORT_CACHE.get(studentId));return}
+  box.innerHTML=`<div class="empty">${esc(t.loading)}</div>`;
+  try{
+    const data=await apiPost('/api/parent-weekly-reports',{student_id:studentId});
+    WEEKLY_REPORT_CACHE.set(studentId,data.reports||[]);
+    if(DASH?.children?.[CURRENT_CHILD]?.student?.id===studentId)renderWeeklyReports(data.reports||[]);
+  }catch(err){
+    box.innerHTML=`<div class="empty">${esc(t.error+(err.result?.error||err.message||'Unknown error'))}</div>`;
+  }
+}
+const __parentRenderChildWeekly=renderChild;
+renderChild=function(child){__parentRenderChildWeekly(child);loadWeeklyReports(child)};
+const __parentRenderNoChildrenWeekly=renderNoChildren;
+renderNoChildren=function(){
+  __parentRenderNoChildrenWeekly();
+  const box=document.getElementById('weeklyReportList');if(box)box.innerHTML=`<div class="empty">${esc(weeklyT().empty)}</div>`;
+  const title=document.getElementById('weeklyReportTitle'),sub=document.getElementById('weeklyReportSub');if(title)title.textContent=weeklyT().title;if(sub)sub.textContent=weeklyT().sub;
+};
+const __parentLoadDashboardWeekly=loadDashboard;
+loadDashboard=async function(){WEEKLY_REPORT_CACHE.clear();await __parentLoadDashboardWeekly()};
+const __parentSetLanguageWeekly=setParentLanguage;
+setParentLanguage=function(lang){
+  __parentSetLanguageWeekly(lang);
+  const child=DASH?.children?.[CURRENT_CHILD],sid=child?.student?.id;
+  if(sid&&WEEKLY_REPORT_CACHE.has(sid))renderWeeklyReports(WEEKLY_REPORT_CACHE.get(sid));
+  else{const title=document.getElementById('weeklyReportTitle'),sub=document.getElementById('weeklyReportSub');if(title)title.textContent=weeklyT().title;if(sub)sub.textContent=weeklyT().sub}
+};
+
 
 /* Also localise the initial dashboard immediately. */
 applyParentLanguage();
