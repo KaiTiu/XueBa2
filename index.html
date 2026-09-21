@@ -487,6 +487,14 @@ body.premiumTeen .scoreANPCMiniBot{animation:scoreANPCTeenIdle 5s ease-in-out in
   border-color:#1769ff!important;
 }
 
+
+/* ===== CLOUD PROGRESS V2 ===== */
+.cloudProgressPill{font-size:11px;white-space:nowrap}
+.cloudProgressPill.syncing{background:#fff7d7;color:#8a5a00;border:1px solid #ffe28a}
+.cloudProgressPill.synced{background:#eaf9f1;color:#177552;border:1px solid #cdebd9}
+.cloudProgressPill.error{background:#fff0f0;color:#a83a3a;border:1px solid #efcccc}
+@media(max-width:700px){.cloudProgressPill{order:10;width:auto}}
+
 </style></head><body>
 <div id="authGate" class="authGate">
   <div class="authShell">
@@ -544,7 +552,7 @@ body.premiumTeen .scoreANPCMiniBot{animation:scoreANPCTeenIdle 5s ease-in-out in
 </div>
 <button id="scoreANPCDock" class="scoreANPCDock" type="button" onclick="scoreANPCExpand()" title="Open A-BOT">🤖</button>
 
-<header class="top"><div class="logo">🎓 How to Score A with AI<small data-i18n="brandSub">学霸学习成长系统 · Student OS</small></div><div class="nav"><span class="pill" id="streak">🔥 1 Day</span><span class="pill hide" id="level">Lv1 学霸觉醒</span><span class="pill" id="xp">⭐ 0 XP</span><span class="authTopUser" id="authTopUser"></span><div class="premiumControls"><button class="premiumControl" id="juniorModeBtn" onclick="setScoreAMode('junior')">Junior</button><button class="premiumControl" id="teenModeBtn" onclick="setScoreAMode('teen')">Teen</button><button class="premiumControl premiumLang" id="langZhBtn" onclick="setScoreALanguage('zh')">中文</button><button class="premiumControl premiumLang" id="langMsBtn" onclick="setScoreALanguage('ms')">BM</button><button class="premiumControl premiumLang" id="langEnBtn" onclick="setScoreALanguage('en')">EN</button></div><button class="topProfileBtn" onclick="openProfile()" title="我的资料 / Avatar">👤 <span class="profileText" data-i18n="profileTop">我的资料 / Avatar</span></button><button class="logoutBtn" onclick="scoreALogout()" data-i18n="logout">登出</button></div></header>
+<header class="top"><div class="logo">🎓 How to Score A with AI<small data-i18n="brandSub">学霸学习成长系统 · Student OS</small></div><div class="nav"><span class="pill" id="streak">🔥 1 Day</span><span class="pill hide" id="level">Lv1 学霸觉醒</span><span class="pill" id="xp">⭐ 0 XP</span><span class="authTopUser" id="authTopUser"></span><span class="pill cloudProgressPill" id="cloudProgressStatus">☁️ —</span><div class="premiumControls"><button class="premiumControl" id="juniorModeBtn" onclick="setScoreAMode('junior')">Junior</button><button class="premiumControl" id="teenModeBtn" onclick="setScoreAMode('teen')">Teen</button><button class="premiumControl premiumLang" id="langZhBtn" onclick="setScoreALanguage('zh')">中文</button><button class="premiumControl premiumLang" id="langMsBtn" onclick="setScoreALanguage('ms')">BM</button><button class="premiumControl premiumLang" id="langEnBtn" onclick="setScoreALanguage('en')">EN</button></div><button class="topProfileBtn" onclick="openProfile()" title="我的资料 / Avatar">👤 <span class="profileText" data-i18n="profileTop">我的资料 / Avatar</span></button><button class="logoutBtn" onclick="scoreALogout()" data-i18n="logout">登出</button></div></header>
 <main class="wrap">
 <div class="tabs" id="mainTabs"><button class="tab active" data-panel="home" onclick="show('home',this)">🏠 <span data-i18n="navHome">首页</span></button><button class="tab" data-panel="challenge" onclick="show('challenge',this)">🎮 <span data-i18n="navChallenge">今日挑战</span></button><button class="tab" data-panel="training" onclick="show('training',this)">🧰 <span data-i18n="navToolbox">工具箱</span></button><button class="tab" data-panel="library" onclick="show('library',this)">📚 <span data-i18n="navLibrary">资料库</span></button><button class="tab" data-panel="progress" onclick="show('progress',this)">🏆 <span data-i18n="navGrowth">我的成长</span></button></div>
 <section id="home" class="panel show">
@@ -2585,6 +2593,291 @@ async function loadPersonalizedLearning(email,student){
   }
 }
 
+
+/* ===== CLOUD PROGRESS V2 · STEP 2 =====
+   Source of truth after login:
+   - Existing Cloud V2 row -> restore it.
+   - Existing legacy progress row -> restore summary, then upgrade it to V2 JSON.
+   - No cloud row -> safely migrate this user's local state once.
+   All later important local state changes are automatically debounced to Supabase.
+*/
+const SCOREA_CLOUD_V2_OWNER_KEY='scoreaCloudProgressOwnerUidV2';
+const SCOREA_CLOUD_V2_KEYS=new Set([
+  'scoreAUnified21',
+  'scoreA30Cycle',
+  'scoreAStudentToolsV2',
+  'scoreaLanguage',
+  'scoreaVisualMode'
+]);
+
+let SCOREA_CLOUD_V2_RESTORING=false;
+let SCOREA_CLOUD_V2_TIMER=null;
+let SCOREA_CLOUD_V2_SAVING=false;
+let SCOREA_CLOUD_V2_PENDING=false;
+let SCOREA_CLOUD_V2_READY=false;
+let SCOREA_CLOUD_V2_LAST_ERROR='';
+
+function scoreACloudV2Text(kind){
+  const lang=(typeof getScoreALanguage==='function'?getScoreALanguage():'zh')||'zh';
+  const x={
+    zh:{loading:'☁️ 读取中',syncing:'☁️ 同步中',synced:'☁️ 已同步',local:'☁️ 本机资料',error:'☁️ 同步失败'},
+    ms:{loading:'☁️ Memuat',syncing:'☁️ Menyegerak',synced:'☁️ Terselaras',local:'☁️ Data tempatan',error:'☁️ Gagal selaras'},
+    en:{loading:'☁️ Loading',syncing:'☁️ Syncing',synced:'☁️ Synced',local:'☁️ Local data',error:'☁️ Sync failed'}
+  };
+  return (x[lang]||x.zh)[kind]||'☁️';
+}
+function scoreACloudV2Status(kind,title=''){
+  const el=document.getElementById('cloudProgressStatus');
+  if(!el)return;
+  el.textContent=scoreACloudV2Text(kind);
+  el.className='pill cloudProgressPill '+(kind==='error'?'error':kind==='synced'?'synced':kind==='syncing'||kind==='loading'?'syncing':'');
+  if(title)el.title=title;
+}
+function scoreACloudV2Clone(v,fallback){
+  try{return JSON.parse(JSON.stringify(v))}catch(e){return fallback}
+}
+function scoreACloudV2ObjectHasData(v){
+  return !!(v && typeof v==='object' && Object.keys(v).length);
+}
+function scoreACloudV2NormalizeName(v){
+  return String(v||'').trim().toLowerCase().replace(/\s+/g,' ');
+}
+function scoreACloudV2ResetLocalForNewOwner(){
+  /* Clean only student-progress state. Do NOT touch Supabase auth/session. */
+  S={
+    day:1,xp:0,done:[],badges:[],streak:1,
+    focus:0,time:0,learn:0,logs:[],rewarded:{}
+  };
+  CYCLE={
+    cycle:1,day:1,read:{},time:{},ai:{},
+    readThought:{},readCompletedAt:{},readDraft:{}
+  };
+  U={};
+  localStorage.setItem(K,JSON.stringify(S));
+  localStorage.setItem('scoreA30Cycle',JSON.stringify(CYCLE));
+  localStorage.setItem(UK,JSON.stringify(U));
+}
+function scoreACloudV2EnsureState(){
+  S=S||{};
+  S.day=Number(S.day)||1;
+  S.xp=Number(S.xp)||0;
+  S.done=Array.isArray(S.done)?S.done:[];
+  S.badges=Array.isArray(S.badges)?S.badges:[];
+  S.logs=Array.isArray(S.logs)?S.logs:[];
+  S.rewarded=S.rewarded&&typeof S.rewarded==='object'?S.rewarded:{};
+  S.streak=Math.max(1,Number(S.streak)||1);
+  S.focus=Number(S.focus)||0;
+  S.time=Number(S.time)||0;
+  S.learn=Number(S.learn)||0;
+
+  CYCLE=CYCLE||{};
+  CYCLE.cycle=Math.max(1,Number(CYCLE.cycle)||1);
+  CYCLE.day=Math.max(1,Number(CYCLE.day)||1);
+  CYCLE.read=CYCLE.read&&typeof CYCLE.read==='object'?CYCLE.read:{};
+  CYCLE.time=CYCLE.time&&typeof CYCLE.time==='object'?CYCLE.time:{};
+  CYCLE.ai=CYCLE.ai&&typeof CYCLE.ai==='object'?CYCLE.ai:{};
+  CYCLE.readThought=CYCLE.readThought&&typeof CYCLE.readThought==='object'?CYCLE.readThought:{};
+  CYCLE.readCompletedAt=CYCLE.readCompletedAt&&typeof CYCLE.readCompletedAt==='object'?CYCLE.readCompletedAt:{};
+  CYCLE.readDraft=CYCLE.readDraft&&typeof CYCLE.readDraft==='object'?CYCLE.readDraft:{};
+
+  U=U&&typeof U==='object'?U:{};
+}
+function scoreACloudV2PersistLocal(){
+  SCOREA_CLOUD_V2_RESTORING=true;
+  try{
+    localStorage.setItem(K,JSON.stringify(S));
+    localStorage.setItem('scoreA30Cycle',JSON.stringify(CYCLE));
+    localStorage.setItem(UK,JSON.stringify(U));
+  }finally{
+    SCOREA_CLOUD_V2_RESTORING=false;
+  }
+}
+function scoreACloudV2Payload(){
+  scoreACloudV2EnsureState();
+  const now=new Date().toISOString();
+  return {
+    user_id:SCOREA_AUTH_USER.id,
+    student_id:SCOREA_STUDENT_PROFILE.id,
+
+    /* Keep old Admin Dashboard summary columns current. */
+    current_cycle:CYCLE.cycle,
+    current_day:CYCLE.day,
+    xp:S.xp||0,
+    focus:S.focus||0,
+    time_management:S.time||0,
+    self_learning:S.learn||0,
+    updated_at:now,
+
+    /* Cloud Progress V2 full state. */
+    state_version:2,
+    app_state:scoreACloudV2Clone(S,{}),
+    cycle_state:scoreACloudV2Clone(CYCLE,{}),
+    user_state:scoreACloudV2Clone(U,{}),
+    avatar:S.avatar||U?.basic?.avatar||null,
+    visual_mode:(typeof getScoreAMode==='function'?getScoreAMode():localStorage.getItem('scoreaVisualMode'))||'junior',
+    language:(typeof getScoreALanguage==='function'?getScoreALanguage():localStorage.getItem('scoreaLanguage'))||'zh',
+    last_synced_at:now
+  };
+}
+
+async function scoreACloudV2Save(reason='auto'){
+  if(SCOREA_CLOUD_V2_RESTORING || !SCOREA_CLOUD_V2_READY || !SCOREA_AUTH_USER || !SCOREA_STUDENT_PROFILE)return false;
+  if(SCOREA_CLOUD_V2_SAVING){
+    SCOREA_CLOUD_V2_PENDING=true;
+    return false;
+  }
+  SCOREA_CLOUD_V2_SAVING=true;
+  SCOREA_CLOUD_V2_PENDING=false;
+  scoreACloudV2Status('syncing',reason);
+  try{
+    const payload=scoreACloudV2Payload();
+
+    /* Update by student_id first; no new unique constraint is required. */
+    const {data:updated,error:updateError}=await scoreASupabase
+      .from('scorea_student_progress')
+      .update(payload)
+      .eq('student_id',SCOREA_STUDENT_PROFILE.id)
+      .select('student_id');
+
+    if(updateError)throw updateError;
+
+    if(!(updated||[]).length){
+      const {error:insertError}=await scoreASupabase
+        .from('scorea_student_progress')
+        .insert(payload);
+      if(insertError)throw insertError;
+    }
+
+    SCOREA_CLOUD_V2_LAST_ERROR='';
+    scoreACloudV2Status('synced','Last sync: '+new Date().toLocaleString());
+    return true;
+  }catch(err){
+    SCOREA_CLOUD_V2_LAST_ERROR=err?.message||String(err);
+    console.warn('Cloud Progress V2 save failed',err);
+    scoreACloudV2Status('error',SCOREA_CLOUD_V2_LAST_ERROR);
+    return false;
+  }finally{
+    SCOREA_CLOUD_V2_SAVING=false;
+    if(SCOREA_CLOUD_V2_PENDING){
+      SCOREA_CLOUD_V2_PENDING=false;
+      setTimeout(()=>scoreACloudV2Save('pending'),250);
+    }
+  }
+}
+function scheduleScoreACloudV2(reason='change',delay=650){
+  if(SCOREA_CLOUD_V2_RESTORING || !SCOREA_CLOUD_V2_READY)return;
+  clearTimeout(SCOREA_CLOUD_V2_TIMER);
+  SCOREA_CLOUD_V2_TIMER=setTimeout(()=>scoreACloudV2Save(reason),delay);
+}
+
+async function restoreCloudProgressV2(){
+  if(!SCOREA_AUTH_USER || !SCOREA_STUDENT_PROFILE)return;
+  SCOREA_CLOUD_V2_READY=false;
+  SCOREA_CLOUD_V2_RESTORING=true;
+  scoreACloudV2Status('loading');
+
+  try{
+    const uid=SCOREA_AUTH_USER.id;
+    const studentId=SCOREA_STUDENT_PROFILE.id;
+    const owner=localStorage.getItem(SCOREA_CLOUD_V2_OWNER_KEY);
+
+    const {data:row,error}=await scoreASupabase
+      .from('scorea_student_progress')
+      .select('student_id,user_id,current_cycle,current_day,xp,focus,time_management,self_learning,updated_at,state_version,app_state,cycle_state,user_state,avatar,visual_mode,language,last_synced_at')
+      .eq('student_id',studentId)
+      .maybeSingle();
+
+    if(error)throw error;
+
+    if(row && scoreACloudV2ObjectHasData(row.app_state)){
+      /* Full Cloud V2 is authoritative. */
+      S=scoreACloudV2Clone(row.app_state,{})||{};
+      CYCLE=scoreACloudV2Clone(row.cycle_state,{})||{};
+      U=scoreACloudV2Clone(row.user_state,{})||{};
+      scoreACloudV2EnsureState();
+
+      if(row.avatar)S.avatar=row.avatar;
+      if(row.language && ['zh','ms','en'].includes(row.language))localStorage.setItem('scoreaLanguage',row.language);
+      if(row.visual_mode && ['junior','teen'].includes(row.visual_mode))localStorage.setItem('scoreaVisualMode',row.visual_mode);
+
+      scoreACloudV2PersistLocal();
+    }else if(row){
+      /* Existing pre-V2 cloud row: preserve its important summary first,
+         then upgrade it to full JSON after the app opens. */
+      scoreACloudV2EnsureState();
+      if(row.current_cycle!=null)CYCLE.cycle=Math.max(1,Number(row.current_cycle)||1);
+      if(row.current_day!=null)CYCLE.day=Math.max(1,Number(row.current_day)||1);
+      if(row.current_day!=null)S.day=Math.max(1,Number(row.current_day)||1);
+      if(row.xp!=null)S.xp=Math.max(0,Number(row.xp)||0);
+      if(row.focus!=null)S.focus=Math.max(0,Number(row.focus)||0);
+      if(row.time_management!=null)S.time=Math.max(0,Number(row.time_management)||0);
+      if(row.self_learning!=null)S.learn=Math.max(0,Number(row.self_learning)||0);
+      scoreACloudV2PersistLocal();
+    }else{
+      /* First V2 cloud save for this student.
+         Prevent another student's browser-local data from being migrated. */
+      const localName=scoreACloudV2NormalizeName(U?.basic?.name);
+      const cloudName=scoreACloudV2NormalizeName(SCOREA_STUDENT_PROFILE.full_name);
+
+      if((owner && owner!==uid) || (!owner && localName && cloudName && localName!==cloudName)){
+        scoreACloudV2ResetLocalForNewOwner();
+      }else{
+        scoreACloudV2EnsureState();
+      }
+    }
+
+    localStorage.setItem(SCOREA_CLOUD_V2_OWNER_KEY,uid);
+    scoreACloudV2EnsureState();
+    scoreACloudV2PersistLocal();
+
+    /* Rebuild UI from the restored student's state. */
+    try{loadBasic()}catch(e){}
+    try{setScoreAMode((localStorage.getItem('scoreaVisualMode')||'junior'))}catch(e){}
+    try{applyScoreAI18n()}catch(e){}
+    try{render()}catch(e){}
+    try{render30()}catch(e){}
+    try{renderDailyGate()}catch(e){}
+    try{renderPremiumUI()}catch(e){}
+
+    SCOREA_CLOUD_V2_READY=true;
+
+    /* If this was a first-time or legacy row, upgrade it immediately. */
+    await scoreACloudV2Save(row && scoreACloudV2ObjectHasData(row.app_state)?'restore-confirm':'v2-migration');
+    scoreACloudV2Status('synced');
+  }catch(err){
+    console.warn('Cloud Progress V2 restore failed',err);
+    SCOREA_CLOUD_V2_LAST_ERROR=err?.message||String(err);
+    scoreACloudV2Status('error',SCOREA_CLOUD_V2_LAST_ERROR);
+
+    /* Keep the course usable if cloud progress is temporarily unavailable. */
+    SCOREA_CLOUD_V2_READY=true;
+  }finally{
+    SCOREA_CLOUD_V2_RESTORING=false;
+  }
+}
+
+/* Watch the exact local state keys used by Student OS.
+   This catches XP, Day, Badge, Avatar, Toolbox, language and visual-mode changes
+   without rewriting every existing feature function. */
+(function installScoreACloudV2StorageHook(){
+  if(Storage.prototype.__scoreACloudV2Hooked)return;
+  Storage.prototype.__scoreACloudV2Hooked=true;
+  const original=Storage.prototype.setItem;
+  Storage.prototype.setItem=function(k,v){
+    const r=original.apply(this,arguments);
+    if(this===localStorage && SCOREA_CLOUD_V2_KEYS.has(String(k)) && !SCOREA_CLOUD_V2_RESTORING){
+      scheduleScoreACloudV2('state:'+String(k));
+    }
+    return r;
+  };
+})();
+
+window.addEventListener('online',()=>scheduleScoreACloudV2('back-online',250));
+document.addEventListener('visibilitychange',()=>{
+  if(document.visibilityState==='hidden')scoreACloudV2Save('page-hidden');
+});
+window.addEventListener('pagehide',()=>{scoreACloudV2Save('pagehide')});
+
 async function verifyScoreAAccess(user){
   try{
     const {data:student,error:se}=await scoreASupabase.from('students').select('id,student_id,full_name,grade,status').eq('user_id',user.id).maybeSingle();
@@ -2609,6 +2902,10 @@ async function verifyScoreAAccess(user){
     sessionStorage.setItem('scorea_verified',JSON.stringify({uid:user.id,student_id:student.student_id,expiry_date:enrollment.expiry_date,checked_at:new Date().toISOString()}));
     SCOREA_AUTH_USER=user;
     SCOREA_STUDENT_PROFILE=student;
+
+    /* Cloud Progress V2: restore this student's own state BEFORE showing the app. */
+    await restoreCloudProgressV2();
+
     openScoreA(student,enrollment);
     await loadPersonalizedLearning(user.email,student);
     try{
@@ -2630,7 +2927,17 @@ async function scoreALogin(){
   if(!data.user)return authMessage('登录失败：没有取得用户资料。');
   await verifyScoreAAccess(data.user);
 }
-async function scoreALogout(){sessionStorage.removeItem('scorea_verified');await scoreASupabase.auth.signOut();showLogin();document.getElementById('authPassword').value='';}
+async function scoreALogout(){
+  try{
+    clearTimeout(SCOREA_CLOUD_V2_TIMER);
+    if(SCOREA_CLOUD_V2_READY)await scoreACloudV2Save('logout');
+  }catch(e){}
+  SCOREA_CLOUD_V2_READY=false;
+  sessionStorage.removeItem('scorea_verified');
+  await scoreASupabase.auth.signOut();
+  showLogin();
+  document.getElementById('authPassword').value='';
+}
 
 document.getElementById('authPassword')?.addEventListener('keydown',e=>{if(e.key==='Enter')scoreALogin()});
 (async()=>{
@@ -5859,6 +6166,22 @@ setTimeout(()=>scoreAForceBlankThought(true),520);
   /* Initial load: current Day's saved answer if it exists; otherwise blank. */
   setTimeout(()=>apply({forceNewView:true}),180);
   window.addEventListener('load',()=>setTimeout(()=>apply({forceNewView:true}),260));
+})();
+
+
+
+/* Cloud status also follows the selected interface language. */
+(function(){
+  if(typeof setScoreALanguage==='function'){
+    const __cloudV2SetLang=setScoreALanguage;
+    setScoreALanguage=function(lang){
+      const r=__cloudV2SetLang.apply(this,arguments);
+      if(SCOREA_CLOUD_V2_LAST_ERROR)scoreACloudV2Status('error',SCOREA_CLOUD_V2_LAST_ERROR);
+      else if(SCOREA_CLOUD_V2_READY)scoreACloudV2Status('synced');
+      scheduleScoreACloudV2('language');
+      return r;
+    };
+  }
 })();
 
 </script>
