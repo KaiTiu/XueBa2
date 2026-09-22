@@ -7663,4 +7663,267 @@ scoreA365Episode=function(absDay,lang=getScoreALanguage()){
 })();
 </script>
 
+
+<script id="scorea-v93-boss-state-fix">
+/* ===== V9.3 FIX: Boss checkbox state + defeat action =====
+   Root fix: read task state directly from the visible checkboxes, persist it,
+   and make Defeat Boss use that same state instead of relying on older wrapped handlers.
+*/
+(function(){
+  function bossLang(){
+    try{return getScoreALanguage()}catch(e){return "zh"}
+  }
+  function bt(zh,ms,en){
+    const l=bossLang(); return l==="ms"?ms:l==="en"?en:zh;
+  }
+  function absDay(){return scoreAGlobalDay()}
+  function bossKey(abs=absDay()){return String(abs)}
+  function ensureBossStore(){
+    CYCLE.bossTasks=CYCLE.bossTasks||{};
+    CYCLE.bossCleared=CYCLE.bossCleared||{};
+    CYCLE.bossQuizCorrect=CYCLE.bossQuizCorrect||{};
+    CYCLE.bossQuizChoice=CYCLE.bossQuizChoice||{};
+  }
+  function getSavedTasks(abs=absDay()){
+    ensureBossStore();
+    const raw=CYCLE.bossTasks[bossKey(abs)];
+    const arr=Array.isArray(raw)?raw.slice(0,4):[];
+    while(arr.length<4)arr.push(false);
+    return arr.map(Boolean);
+  }
+  function saveTasks(abs,arr){
+    ensureBossStore();
+    CYCLE.bossTasks[bossKey(abs)]=arr.slice(0,4).map(Boolean);
+    csave();
+  }
+  function domTasks(){
+    return [...document.querySelectorAll("#bossChecks input.bc")].slice(0,4).map(x=>!!x.checked);
+  }
+  function syncDomTasks(abs=absDay()){
+    const arr=domTasks();
+    if(arr.length===4)saveTasks(abs,arr);
+    return arr.length===4?arr:getSavedTasks(abs);
+  }
+
+  window.scoreAV93SetBossTask=function(abs,i,checked){
+    const arr=getSavedTasks(abs);
+    arr[Number(i)]=!!checked;
+    saveTasks(abs,arr);
+    window.scoreAV93UpdateBossState(abs);
+    try{if(typeof scoreANPCSet==="function")scoreANPCSet("boss",{},false)}catch(e){}
+  };
+
+  window.scoreAV93UpdateBossState=function(abs=absDay()){
+    ensureBossStore();
+    // DOM is the truth while the card is visible; this prevents "checked visually but still 0/4".
+    let arr=domTasks();
+    if(arr.length===4)saveTasks(abs,arr);
+    else arr=getSavedTasks(abs);
+
+    const quizOK=!!CYCLE.bossQuizCorrect[bossKey(abs)];
+    const dailyOK=!!CYCLE.challengeCorrect?.[ck()];
+    const gate=!!gateOK();
+    const taskCount=arr.filter(Boolean).length;
+    const tasksOK=taskCount===4;
+    const ready=gate&&dailyOK&&quizOK&&tasksOK;
+
+    const box=document.getElementById("bossStatus");
+    if(box){
+      box.classList.toggle("ready",ready);
+      if(ready){
+        box.innerHTML=bt(
+          "✅ 4/4 Boss 真实任务完成。现在按「击败 Boss」领取徽章并解锁下一 World。",
+          "✅ 4/4 tugasan Boss sebenar selesai. Tekan “Kalahkan Boss” untuk mendapatkan lencana dan membuka World seterusnya.",
+          "✅ 4/4 real Boss tasks complete. Press “Defeat Boss” to claim the badge and unlock the next World."
+        );
+      }else{
+        box.innerHTML=
+          bt("完成进度：","Kemajuan: ","Progress: ")+
+          `${gate?"✓":"○"} ${bt("今日解锁任务","Tugasan buka kunci","Unlock tasks")} · `+
+          `${dailyOK?"✓":"○"} ${bt("今日故事挑战题","Cabaran cerita","Story challenge")} · `+
+          `${quizOK?"✓":"○"} ${bt("Boss 最终题","Soalan akhir Boss","Boss final question")} · `+
+          `${taskCount}/4 ${bt("Boss 真实任务","Tugasan Boss sebenar","real Boss tasks")}`;
+      }
+    }
+
+    const btn=document.getElementById("bossDefeatBtn")||document.querySelector("#boss button");
+    if(btn){
+      btn.disabled=false;
+      btn.style.pointerEvents="auto";
+      btn.style.opacity="1";
+      btn.style.cursor="pointer";
+      btn.dataset.ready=ready?"1":"0";
+    }
+    return ready;
+  };
+
+  function bindBossTaskEvents(abs){
+    document.querySelectorAll("#bossChecks input.bc").forEach((cb,i)=>{
+      cb.onchange=null;
+      cb.addEventListener("change",()=>{
+        scoreAV93SetBossTask(abs,i,cb.checked);
+      });
+    });
+  }
+
+  // Completely replace Boss renderer so there is only one source of truth.
+  window.bossRender=function(){
+    const abs=absDay(), l=bossLang(), topic=scoreA365Topic(abs,l);
+    const title=document.getElementById("bossTitle");
+    if(title)title.textContent="🏆 "+topic;
+    ensureBossStore();
+
+    const qKey=bossKey(abs);
+    const selected=Number.isFinite(Number(CYCLE.bossQuizChoice?.[qKey]))?Number(CYCLE.bossQuizChoice[qKey]):-1;
+    const quizOK=!!CYCLE.bossQuizCorrect[qKey];
+
+    const question=bt(
+      "最后的 Boss 要你证明什么？",
+      "Apakah yang perlu anda buktikan untuk Boss terakhir ini?",
+      "What must you prove to clear this Boss?"
+    );
+    const options=l==="ms"?[
+      "Tekan butang Boss sahaja tanpa menunjukkan hasil pembelajaran.",
+      "Gunakan kaedah daripada World ini dalam tugasan pembelajaran sebenar, lengkapkan tindakan dan tinggalkan bukti yang boleh disemak.",
+      "Lihat jumlah hari yang selesai sahaja tanpa membuktikan kaedah itu boleh digunakan."
+    ]:l==="en"?[
+      "Just press the Boss button without showing any learning result.",
+      "Use a method from this World in a real learning task, complete the action, and leave evidence that can be checked.",
+      "Only count completed days without proving the method can be applied."
+    ]:[
+      "只要按下 Boss 按钮，不需要展示任何学习成果。",
+      "把这个 World 学到的方法用在一个真实学习任务里，完成行动并留下可以检查的证据。",
+      "只看完成了多少天，不需要证明这些方法真的会用。"
+    ];
+
+    const quiz=document.getElementById("bossQuiz");
+    if(quiz){
+      quiz.innerHTML=`<div class="bossQuizBox">
+        <div class="bossQuizKicker">${bt("BOSS 最终题","SOALAN AKHIR BOSS","BOSS FINAL QUESTION")}</div>
+        <h3>${question}</h3>
+        <div class="bossQuizChoices">${options.map((x,i)=>{
+          let cls="bossQuizChoice";
+          if(selected===i)cls+=i===1?" correct":" wrong";
+          return `<button type="button" class="${cls}" data-boss-answer="${i}">${String.fromCharCode(65+i)}. ${x}</button>`;
+        }).join("")}</div>
+        <div class="bossQuizFeedback">${
+          selected<0?bt("请选择一个答案。","Pilih satu jawapan.","Choose one answer."):
+          quizOK?bt("✅ 回答正确。现在完成下面 4 项真实任务。","✅ Betul. Lengkapkan 4 tugasan sebenar di bawah.","✅ Correct. Complete the 4 real tasks below."):
+          bt("再想一想：Boss 要看的是你能不能把方法真正用出来。","Cuba lagi: Boss mahu melihat anda menggunakan kaedah itu.","Try again: the Boss wants to see you apply the method.")
+        }</div>
+      </div>`;
+
+      quiz.querySelectorAll("[data-boss-answer]").forEach(btn=>{
+        btn.addEventListener("click",()=>{
+          const i=Number(btn.dataset.bossAnswer);
+          CYCLE.bossQuizChoice[qKey]=i;
+          CYCLE.bossQuizCorrect[qKey]=(i===1);
+          csave();
+          bossRender();
+          try{scoreANPCSet?.(i===1?"correct":"wrong",i===1?{}:{level:1})}catch(e){}
+        });
+      });
+    }
+
+    const tasks=l==="ms"?[
+      "Tetapkan sendiri satu matlamat pembelajaran sebenar untuk hari ini",
+      "Lengkapkan satu sesi fokus sebenar dan dapatkan hasil yang boleh dilihat",
+      "Analisis satu masalah pembelajaran sebenar dan nyatakan puncanya",
+      "Buat refleksi: bukti apa yang menunjukkan anda bertambah baik, dan apakah langkah seterusnya?"
+    ]:l==="en"?[
+      "Set one real learning goal by yourself today",
+      "Complete one real focus session and produce a visible result",
+      "Analyse one real learning problem and identify its cause",
+      "Reflect: what evidence shows improvement, and what is your next step?"
+    ]:[
+      "自己制定一个今天真正要完成的学习目标",
+      "完成一次真实专注训练，并留下看得见的成果",
+      "分析一个真实学习问题，并找出原因",
+      "完成复盘：写出成长证据，以及下一步要怎样改善"
+    ];
+
+    const saved=getSavedTasks(abs);
+    const checks=document.getElementById("bossChecks");
+    if(checks){
+      checks.innerHTML=`<div style="font-weight:900;margin:6px 0 4px">${bt("⚔️ Boss 真实任务","⚔️ Tugasan Boss Sebenar","⚔️ Real Boss Tasks")}</div>`+
+        tasks.map((x,i)=>`<label class="check"><input type="checkbox" class="bc" data-boss-task="${i}" ${saved[i]?"checked":""}> ${x}</label>`).join("");
+      bindBossTaskEvents(abs);
+    }
+
+    const defeat=document.getElementById("bossDefeatBtn")||document.querySelector("#boss button");
+    if(defeat){
+      defeat.textContent=l==="ms"?`Kalahkan Boss & Dapatkan ${scoreABadgeName(scoreABossWorld(abs),l)}`
+        :l==="en"?`Defeat Boss & Claim ${scoreABadgeName(scoreABossWorld(abs),l)}`
+        :`击败 Boss · 领取 ${scoreABadgeName(scoreABossWorld(abs),l)}`;
+    }
+
+    scoreAV93UpdateBossState(abs);
+  };
+
+  // Final Boss action: sync the visible checkboxes first, then complete directly.
+  window.beatBoss=function(){
+    const abs=absDay(), l=bossLang();
+    if(!scoreAIsBossDay(abs))return;
+
+    ensureBossStore();
+    const arr=syncDomTasks(abs);
+    const missing=[];
+
+    if(!gateOK())missing.push(bt("今日解锁任务","tugasan buka kunci","unlock tasks"));
+    if(!CYCLE.challengeCorrect?.[ck()])missing.push(bt("今日故事挑战题","cabaran cerita","story challenge"));
+    if(!CYCLE.bossQuizCorrect?.[bossKey(abs)])missing.push(bt("Boss 最终题","soalan akhir Boss","Boss final question"));
+    if(arr.filter(Boolean).length<4)missing.push(`${arr.filter(Boolean).length}/4 ${bt("Boss 真实任务","tugasan Boss sebenar","real Boss tasks")}`);
+
+    if(missing.length){
+      const box=document.getElementById("bossStatus");
+      if(box){
+        box.classList.remove("ready");
+        box.innerHTML=bt("⚠️ 还不能击败 Boss，还差：","⚠️ Boss belum boleh dikalahkan. Belum selesai: ","⚠️ Boss cannot be defeated yet. Still missing: ")+missing.join(" · ");
+      }
+      scoreAV93UpdateBossState(abs);
+      return;
+    }
+
+    // Everything is truly complete.
+    CYCLE.bossCleared[bossKey(abs)]=true;
+    saveTasks(abs,[true,true,true,true]);
+    csave();
+
+    const btn=document.getElementById("bossDefeatBtn")||document.querySelector("#boss button");
+    if(btn){
+      btn.textContent=bt("✓ Boss 已击败！正在解锁下一 World…","✓ Boss dikalahkan! Membuka World seterusnya…","✓ Boss defeated! Unlocking the next World…");
+      btn.disabled=true;
+    }
+
+    // Existing finishTodayChallenge awards the badge, advances the world, cloud-syncs, and shows reward.
+    setTimeout(()=>finishTodayChallenge(true),80);
+  };
+
+  // If another render path redraws the page, restore the fixed Boss UI.
+  if(typeof render==="function"){
+    const oldRender=render;
+    window.render=function(){
+      const r=oldRender.apply(this,arguments);
+      try{
+        if(scoreAIsBossDay(absDay())){
+          const boss=document.getElementById("boss");
+          if(boss){
+            boss.classList.remove("challengeLocked");
+            boss.style.pointerEvents="auto";
+            setTimeout(()=>bossRender(),0);
+          }
+        }
+      }catch(e){}
+      return r;
+    };
+  }
+
+  setTimeout(()=>{
+    try{
+      if(scoreAIsBossDay(absDay()))bossRender();
+    }catch(e){}
+  },120);
+})();
+</script>
+
 </body></html>
