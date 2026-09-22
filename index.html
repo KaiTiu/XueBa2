@@ -7926,4 +7926,175 @@ scoreA365Episode=function(absDay,lang=getScoreALanguage()){
 })();
 </script>
 
+
+<!-- ===== V10.0 WORLD PROGRESSION + AVATAR LEVEL + TRILINGUAL FINAL FIX ===== -->
+<style id="scorea-v10-progress-fix">
+.premiumWorld.done{border-color:#9fdfbf;background:#effaf5;opacity:1}
+.premiumWorld.done:after{content:"✓";float:right;margin-top:-22px;color:#16845f;font-weight:950}
+.premiumWorld.current{border-color:#57dcd0;background:#eefbf8;opacity:1;box-shadow:0 0 0 2px #57dcd022}
+.premiumWorld.lock{opacity:.5}
+#homeWorldCurrentNote{margin-top:8px;font-size:11px;color:#b9d2e6;line-height:1.5}
+</style>
+<script>
+(function(){
+  'use strict';
+  const V10={};
+  function lang(){try{return getScoreALanguage()}catch(e){return 'zh'}}
+  function absDay(){
+    try{if(typeof scoreAGlobalDay==='function')return scoreAGlobalDay()}catch(e){}
+    try{return Math.min(365,Math.max(1,((CYCLE?.cycle||1)-1)*30+(CYCLE?.day||1)))}catch(e){return 1}
+  }
+  function worldMeta(day=absDay()){
+    try{if(typeof scoreA365World==='function')return scoreA365World(day)}catch(e){}
+    const n=day<=360?Math.floor((day-1)/30)+1:13;
+    return {world:n,start:n<=12?(n-1)*30+1:361,end:n<=12?n*30:365,zh:`World ${String(n).padStart(2,'0')}`,ms:`World ${String(n).padStart(2,'0')}`,en:`World ${String(n).padStart(2,'0')}`};
+  }
+  function worldName(day=absDay(),l=lang()){
+    try{if(typeof scoreA365WorldName==='function')return scoreA365WorldName(day,l)}catch(e){}
+    const w=worldMeta(day);return w[l]||w.zh;
+  }
+  function setText(el,txt){if(el&&txt!=null)el.textContent=txt}
+
+  /* Avatar level now follows the 365-day journey: Lv1=World01 ... Lv12=World12, Lv13=Graduation. */
+  window.premiumLevel=function(){
+    const d=absDay();return d<=360?Math.floor((d-1)/30)+1:13;
+  };
+
+  const stageNames={
+    zh:['起点','探索','训练','应用','复盘','Boss'],
+    ms:['Mula','Teroka','Latihan','Aplikasi','Refleksi','Boss'],
+    en:['Start','Explore','Practice','Apply','Review','Boss']
+  };
+  function applyHomeWorld(){
+    const l=lang(),d=absDay(),w=worldMeta(d),wn=worldName(d,l),local=d<=360?((d-1)%30)+1:d-360;
+    const kicker=document.querySelector('#home [data-i18n="homeKicker"]');
+    if(kicker)setText(kicker,wn.toUpperCase());
+    const title=document.querySelector('#home [data-i18n="homeWorld01Title"]');
+    if(title)setText(title,(l==='ms'?'🗺️ Peta ':l==='en'?'🗺️ ':'🗺️ ')+wn+(l==='en'?' Map':''));
+    const sub=document.querySelector('#home [data-i18n="homeWorld01Sub"]');
+    if(sub){
+      setText(sub,l==='ms'?`Day ${d}/365 · Hari ${local} dalam World ini. Setiap hari mempunyai cabaran yang berbeza.`:
+                  l==='en'?`Day ${d}/365 · Day ${local} in this World. Every day uses a different challenge.`:
+                  `第 ${d}/365 天 · 本 World 第 ${local} 天。每天都会进入不同的学习挑战。`);
+    }
+    const names=stageNames[l]||stageNames.zh;
+    document.querySelectorAll('#homeWorldMap [data-home-stage] small').forEach((el,i)=>{if(names[i])setText(el,names[i])});
+    let note=document.getElementById('homeWorldCurrentNote');
+    const map=document.getElementById('homeWorldMap');
+    if(map&&!note){note=document.createElement('div');note.id='homeWorldCurrentNote';map.insertAdjacentElement('afterend',note)}
+    if(note)setText(note,l==='ms'?`World semasa: ${wn} · Topik Hari ${d}: ${typeof scoreA365Topic==='function'?scoreA365Topic(d,l):''}`:
+                             l==='en'?`Current World: ${wn} · Day ${d} topic: ${typeof scoreA365Topic==='function'?scoreA365Topic(d,l):''}`:
+                             `当前 World：${wn} · 第 ${d} 天主题：${typeof scoreA365Topic==='function'?scoreA365Topic(d,l):''}`);
+  }
+
+  function applyGrowthWorlds(){
+    const d=absDay(),current=d<=360?Math.floor((d-1)/30)+1:13,l=lang();
+    const wrap=document.querySelector('#progress .premiumWorlds');if(!wrap)return;
+    const cards=[...wrap.querySelectorAll('.premiumWorld')];
+    cards.forEach((card,i)=>{const n=i+1;card.classList.remove('done','current','lock');card.classList.add(n<current?'done':n===current?'current':'lock')});
+    let final=document.getElementById('scoreAFinalWorldCard');
+    if(!final){final=document.createElement('div');final.id='scoreAFinalWorldCard';final.className='premiumWorld';wrap.appendChild(final)}
+    final.classList.remove('done','current','lock');final.classList.add(current>13?'done':current===13?'current':'lock');
+    final.innerHTML=`<b>${l==='ms'?'🎓 Final · Dewan Pertumbuhan':l==='en'?'🎓 Final · Hall of Growth':'🎓 Final · 成长殿堂'}</b><small>Day 361–365</small>`;
+    const intro=document.querySelector('#progress [data-i18n="worldJourneyIntro"]');
+    if(intro)setText(intro,l==='ms'?`Anda kini berada pada Day ${d}/365 · ${worldName(d,l)}. World yang selesai ditanda ✓ dan World seterusnya dibuka mengikut kemajuan sebenar.`:
+                           l==='en'?`You are now on Day ${d}/365 · ${worldName(d,l)}. Completed Worlds are marked ✓ and the next World unlocks from real progress.`:
+                           `你现在位于第 ${d}/365 天 · ${worldName(d,l)}。已完成 World 会显示 ✓，下一 World 会按真实进度解锁。`);
+  }
+
+  const subjectAliases={
+    math:['数学','Matematik','Mathematics'], chinese:['华文','Bahasa Cina','Chinese'], bm:['国文 / BM','国文','Bahasa Melayu'],
+    english:['英文','Bahasa Inggeris','English'], science:['科学','Sains','Science'], history:['历史','Sejarah','History']
+  };
+  const subjectTarget={
+    zh:{math:'数学',chinese:'华文',bm:'国文 / BM',english:'英文',science:'科学',history:'历史'},
+    ms:{math:'Matematik',chinese:'Bahasa Cina',bm:'Bahasa Melayu',english:'Bahasa Inggeris',science:'Sains',history:'Sejarah'},
+    en:{math:'Mathematics',chinese:'Chinese',bm:'Bahasa Melayu',english:'English',science:'Science',history:'History'}
+  };
+  function translatedSubject(v,l){for(const [k,a] of Object.entries(subjectAliases))if(a.includes((v||'').trim()))return subjectTarget[l][k];return v}
+  function applyDynamicLanguageFixes(){
+    const l=lang();
+    document.querySelectorAll('[data-term]').forEach(el=>{const p=el.dataset.term?.split('-');if(p?.[2]==='subject')el.value=translatedSubject(el.value,l)});
+    document.querySelectorAll('#reviewRows input[id^="ri"]').forEach(el=>{
+      if(el.dataset.originalItem==='自定义复盘项目'||el.value==='自定义复盘项目'||el.value==='Item refleksi tersuai'||el.value==='Custom reflection item'){
+        el.value=l==='ms'?'Item refleksi tersuai':l==='en'?'Custom reflection item':'自定义复盘项目';
+      }
+    });
+    document.querySelectorAll('[data-schedule]').forEach(el=>{
+      if(el.placeholder==='时间'||el.placeholder==='Masa'||el.placeholder==='Time')el.placeholder=l==='ms'?'Masa':l==='en'?'Time':'时间';
+      if(el.placeholder==='安排'||el.placeholder==='Aktiviti'||el.placeholder==='Plan')el.placeholder=l==='ms'?'Aktiviti':l==='en'?'Plan':'安排';
+    });
+    const ward=document.querySelector('.avatarWardrobeBtn');if(ward)setText(ward,l==='ms'?'🎭 Wardrobe Avatar':l==='en'?'🎭 Avatar Wardrobe':'🎭 换装衣柜');
+    const mode=document.getElementById('premiumModeLabel');if(mode)setText(mode,getScoreAMode&&getScoreAMode()==='teen'?(l==='ms'?'Mod Pertumbuhan Remaja':l==='en'?'Teen Growth Mode':'Teen 成长模式'):(l==='ms'?'Mod Pengembaraan Junior':l==='en'?'Junior Adventure Mode':'Junior 冒险模式'));
+    const md=document.getElementById('premiumMissionDay');if(md)setText(md,l==='ms'?`MISI HARI INI · HARI ${absDay()}`:l==='en'?`TODAY'S MISSION · DAY ${absDay()}`:`今日任务 · 第 ${absDay()} 天`);
+    const levelTop=document.getElementById('level');if(levelTop){const lv=premiumLevel();setText(levelTop,l==='ms'?`Lv${lv} · ${worldName(absDay(),l)}`:l==='en'?`Lv${lv} · ${worldName(absDay(),l)}`:`Lv${lv} · ${worldName(absDay(),l)}`)}
+  }
+
+  function applyAll(){
+    try{applyHomeWorld()}catch(e){console.warn('V10 home world',e)}
+    try{applyGrowthWorlds()}catch(e){console.warn('V10 growth worlds',e)}
+    try{if(typeof renderPremiumAvatar==='function')renderPremiumAvatar()}catch(e){}
+    try{applyDynamicLanguageFixes()}catch(e){console.warn('V10 i18n',e)}
+  }
+
+  /* Translate the few legacy alerts/reward popups that were still hard-coded in Chinese. */
+  if(!window.__scoreAOriginalAlertV10){
+    window.__scoreAOriginalAlertV10=window.alert.bind(window);
+    window.alert=function(msg){
+      let s=String(msg??''),l=lang();
+      if(l==='ms'){
+        s=s.replace('✓ 今日时间管理已保存','✓ Pengurusan masa hari ini telah disimpan')
+           .replace('✓ 学期目标与复盘已保存','✓ Sasaran penggal dan refleksi telah disimpan');
+      }else if(l==='en'){
+        s=s.replace('✓ 今日时间管理已保存','✓ Today’s time management has been saved')
+           .replace('✓ 学期目标与复盘已保存','✓ Term goals and reflection have been saved');
+      }
+      return window.__scoreAOriginalAlertV10(s);
+    };
+  }
+  if(typeof showReward==='function'&&!window.__scoreAOriginalRewardV10){
+    window.__scoreAOriginalRewardV10=showReward;
+    window.showReward=function(icon,title,text){
+      const l=lang();let t=String(title||''),x=String(text||'');
+      if(l==='ms'){
+        const m={'思考内容已更新':'Kandungan refleksi telah dikemas kini','今日必读 + 思考完成':'Bacaan + Refleksi Hari Ini Selesai','今日挑战完成':'Cabaran Hari Ini Selesai','今日挑战已完成':'Cabaran Hari Ini Selesai'};t=m[t]||t;
+        x=x.replace('你的新思考已经保存。','Refleksi baharu anda telah disimpan。').replace('你已经用自己的话完成今天的思考。+15 XP','Anda telah melengkapkan refleksi hari ini dengan kata-kata sendiri. +15 XP');
+      }else if(l==='en'){
+        const m={'思考内容已更新':'Reflection Updated','今日必读 + 思考完成':'Today’s Read + Think Complete','今日挑战完成':'Today’s Challenge Complete','今日挑战已完成':'Today’s Challenge Complete'};t=m[t]||t;
+        x=x.replace('你的新思考已经保存。','Your updated reflection has been saved.').replace('你已经用自己的话完成今天的思考。+15 XP','You completed today’s reflection in your own words. +15 XP');
+      }
+      return window.__scoreAOriginalRewardV10(icon,t,x);
+    };
+  }
+
+  /* Wrap key render/language functions so the fix is reapplied after every screen update. */
+  const oldLang=window.setScoreALanguage;
+  if(typeof oldLang==='function')window.setScoreALanguage=function(v){const r=oldLang(v);setTimeout(applyAll,0);setTimeout(applyAll,120);return r};
+  const oldRender=window.render;
+  if(typeof oldRender==='function')window.render=function(){const r=oldRender.apply(this,arguments);setTimeout(applyAll,0);return r};
+  const oldOpenTool=window.openToolbox;
+  if(typeof oldOpenTool==='function')window.openToolbox=function(){const r=oldOpenTool.apply(this,arguments);setTimeout(applyDynamicLanguageFixes,0);return r};
+  const oldRenderTerm=window.renderTerm;
+  if(typeof oldRenderTerm==='function')window.renderTerm=function(){const r=oldRenderTerm.apply(this,arguments);setTimeout(applyDynamicLanguageFixes,0);return r};
+  const oldReview=window.renderReview;
+  if(typeof oldReview==='function')window.renderReview=function(){const r=oldReview.apply(this,arguments);setTimeout(applyDynamicLanguageFixes,0);return r};
+  const oldAddReview=window.addReview;
+  if(typeof oldAddReview==='function')window.addReview=function(){const r=oldAddReview.apply(this,arguments);setTimeout(applyDynamicLanguageFixes,0);return r};
+
+  /* Add-time-row placeholders were legacy Chinese-only. */
+  window.addTimeRow=function(){
+    let table=document.querySelector('.dataTable');if(!table)return;
+    if(typeof saveTimeAll==='function')saveTimeAll(false);
+    let idx=table.rows.length;for(let i=0;i<7;i++)if(U.schedule[`d${i}r${idx}`]===undefined)U.schedule[`d${i}r${idx}`]='';
+    U.schedule[`time${idx}`]=U.schedule[`time${idx}`]||'';if(typeof usave==='function')usave();
+    let l=lang(),pt=l==='ms'?'Masa':l==='en'?'Time':'时间',pa=l==='ms'?'Aktiviti':l==='en'?'Plan':'安排';
+    let r=table.insertRow(-1);r.innerHTML=`<td><input data-schedule="time${idx}" placeholder="${pt}"></td>`+Array.from({length:7},(_,i)=>`<td><input data-schedule="d${i}r${idx}" placeholder="${pa}"></td>`).join('');
+    if(typeof loadScheduleValues==='function')loadScheduleValues();
+  };
+
+  window.scoreAApplyV10=applyAll;
+  setTimeout(applyAll,150);setTimeout(applyAll,700);
+})();
+</script>
+<!-- ===== END V10.0 FIX ===== -->
 </body></html>
