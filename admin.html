@@ -119,6 +119,64 @@ input{width:100%;padding:12px 13px;border:1px solid #d8e1ed;border-radius:12px;o
 @media(max-width:900px){.salesTalkTabs{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:560px){.salesTalkTabs{grid-template-columns:1fr}.salesTalkControl{min-width:100%;width:100%}.salesTalkStatus{padding-bottom:0}}
 
+
+/* ===== ADMIN V4 · 4 WORKSPACES ===== */
+.adminOverview{margin-top:4px}
+.adminOverviewHead{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;margin-bottom:12px}
+.adminOverviewHead h2{margin:4px 0 5px;font-size:24px}
+.adminOverviewHead p{margin:0;color:#718096;line-height:1.55}
+.adminEyebrow{font-size:10px;font-weight:950;letter-spacing:.12em;color:#5f6ed8}
+.adminKeyStats{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px}
+.adminKeyStats .card{padding:14px;min-height:84px}
+.adminKeyStats .stat b{font-size:23px}
+
+.adminWorkspaceNav{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:16px 0}
+.adminWorkspaceBtn{border:1px solid #dfe7f2;background:#fff;border-radius:18px;padding:15px;text-align:left;cursor:pointer;display:flex;gap:11px;align-items:center;box-shadow:0 6px 18px rgba(25,48,90,.04);transition:.18s;color:#1b3558}
+.adminWorkspaceBtn:hover{transform:translateY(-1px);border-color:#9eb7df}
+.adminWorkspaceBtn.active{background:linear-gradient(135deg,#102a57,#245eea);border-color:#245eea;color:#fff;box-shadow:0 10px 24px rgba(36,94,234,.18)}
+.adminWorkspaceBtn .adminWorkspaceIcon{font-size:28px;flex:none}
+.adminWorkspaceBtn b{display:block;font-size:14px;margin-bottom:4px}
+.adminWorkspaceBtn small{display:block;font-size:10px;line-height:1.35;color:#74839a}
+.adminWorkspaceBtn.active small{color:#dbe7ff}
+.adminMobileNav{display:none;margin:14px 0;padding:12px;border:1px solid #dfe7f2;background:#fff;border-radius:15px}
+.adminMobileNav label{margin:0 0 7px;display:block;color:#314866}
+.adminMobileNav select{width:100%;padding:11px 12px;border:1px solid #d7e0ed;border-radius:11px;background:#fff;font-weight:850;color:#1d3556}
+
+.adminPanel{display:none}
+.adminPanel.active{display:block}
+.adminPanelIntro{background:linear-gradient(135deg,#eef4ff,#faf7ff);border:1px solid #dce5f5;border-radius:20px;padding:16px 18px;margin:0 0 14px}
+.adminPanelIntro>div{display:flex;align-items:center;gap:12px}
+.adminPanelIntro>div>span{width:42px;height:42px;border-radius:13px;background:#172f5e;color:#fff;display:grid;place-items:center;font-weight:950}
+.adminPanelIntro h2{margin:0 0 4px;font-size:21px}
+.adminPanelIntro p{margin:0;color:#6f7e94;font-size:12px;line-height:1.5}
+.adminPanel>.card,.adminPanel>.two,.adminPanel>.salesTalkShell{margin-top:14px}
+.adminPanel .createStudentCard{margin-top:0}
+.adminSectionGap{height:2px}
+.adminSecondaryStats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:14px}
+.adminSecondaryStats .card{padding:14px}
+.adminSalesNote{background:#f8fbff;border-style:dashed}
+.adminSalesNote h3{margin:0 0 5px}
+.adminSalesNote p{margin:0;color:#6f7d91;font-size:12px;line-height:1.55}
+#adminPanel-reports aside.card{margin-top:14px}
+#adminPanel-reports aside.card .quickLinks{margin-top:14px}
+
+@media(max-width:1100px){
+  .adminKeyStats{grid-template-columns:repeat(3,1fr)}
+  .adminWorkspaceNav{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:700px){
+  .adminWorkspaceNav{display:none}
+  .adminMobileNav{display:block}
+  .adminKeyStats{grid-template-columns:repeat(2,1fr)}
+  .adminSecondaryStats{grid-template-columns:repeat(2,1fr)}
+  .adminOverviewHead h2{font-size:21px}
+}
+@media(max-width:430px){
+  .adminKeyStats,.adminSecondaryStats{grid-template-columns:1fr 1fr}
+  .adminKeyStats .card,.adminSecondaryStats .card{padding:12px}
+  .adminKeyStats .stat b{font-size:20px}
+}
+
 </style>
 </head>
 <body>
@@ -135,26 +193,277 @@ input{width:100%;padding:12px 13px;border:1px solid #d8e1ed;border-radius:12px;o
   <div id="loginMsg" class="msg">等待登录…</div>
 </section>
 
+
 <main id="dashView" class="wrap hidden">
-  <div class="top">
-    <div class="brand">
-      <small>LEARVIA EDUCATION CENTER · SCORE A EDTECH OS</small>
-      <h1>🛡️ Admin Dashboard</h1>
-      <div class="muted" id="adminEmail"></div>
-    </div>
-    <div class="rowActions">
-      <span class="pill" id="refreshStatus">READY</span>
-      <button class="btn light" onclick="openAdminPasswordModal()">🔐 修改 Password</button>
-      <button class="btn light" onclick="loadDashboard()">↻ 更新资料</button>
-      <button class="btn light" onclick="logout()">登出</button>
+<div class="top">
+<div class="brand">
+<small>LEARVIA EDUCATION CENTER · SCORE A EDTECH OS</small>
+<h1>🛡️ Admin Dashboard</h1>
+<div class="muted" id="adminEmail"></div>
+</div>
+<div class="rowActions">
+<span class="pill" id="refreshStatus">READY</span>
+<button class="btn light" onclick="openAdminPasswordModal()">🔐 修改 Password</button>
+<button class="btn light" onclick="loadDashboard()">↻ 更新资料</button>
+<button class="btn light" onclick="logout()">登出</button>
+</div>
+</div>
+
+<section class="adminOverview">
+  <div class="adminOverviewHead">
+    <div>
+      <div class="adminEyebrow">SCORE A ADMIN WORKSPACE</div>
+      <h2>今天需要处理什么？</h2>
+      <p>选择一个工作区。一次只显示相关功能，避免一页出现太多资料。</p>
     </div>
   </div>
 
-  <div class="grid8">
+  <div class="adminKeyStats">
     <div class="card stat"><small>学生总数</small><b id="statStudents">0</b></div>
     <div class="card stat goodStat"><small>ACTIVE 课程</small><b id="statActive">0</b></div>
     <div class="card stat goodStat"><small>最近 7 天活跃学生</small><b id="statActive7">0</b></div>
     <div class="card stat attention"><small>30 天内到期</small><b id="statExpiring30">0</b></div>
+    <div class="card stat attention"><small>未付款学生</small><b id="overviewUnpaid">0</b></div>
+    <div class="card stat goodStat"><small>已付款销售额</small><b id="overviewSalesTotal">RM 0.00</b></div>
+  </div>
+</section>
+
+<nav class="adminWorkspaceNav" aria-label="Admin 工作区">
+  <button type="button" class="adminWorkspaceBtn active" data-admin-panel="students" onclick="adminShowPanel('students',this)">
+    <span class="adminWorkspaceIcon">👨‍🎓</span>
+    <span><b>学生管理</b><small>新增学生 · 账号 · 课程权限</small></span>
+  </button>
+  <button type="button" class="adminWorkspaceBtn" data-admin-panel="parents" onclick="adminShowPanel('parents',this)">
+    <span class="adminWorkspaceIcon">👨‍👩‍👧</span>
+    <span><b>家长与学生绑定</b><small>Parent Account · 孩子绑定</small></span>
+  </button>
+  <button type="button" class="adminWorkspaceBtn" data-admin-panel="sales" onclick="adminShowPanel('sales',this)">
+    <span class="adminWorkspaceIcon">💰</span>
+    <span><b>销售与收款</b><small>来源 · 售价 · 付款 · 成交话术</small></span>
+  </button>
+  <button type="button" class="adminWorkspaceBtn" data-admin-panel="reports" onclick="adminShowPanel('reports',this)">
+    <span class="adminWorkspaceIcon">📊</span>
+    <span><b>报告与运营</b><small>周报 · 活跃度 · 到期 · 学习记录</small></span>
+  </button>
+</nav>
+
+<div class="adminMobileNav">
+  <label for="adminWorkspaceSelect">☰ Admin Menu</label>
+  <select id="adminWorkspaceSelect" onchange="adminShowPanel(this.value)">
+    <option value="students">👨‍🎓 学生管理</option>
+    <option value="parents">👨‍👩‍👧 家长与学生绑定</option>
+    <option value="sales">💰 销售与收款</option>
+    <option value="reports">📊 报告与运营</option>
+  </select>
+</div>
+
+<section class="adminPanel active" id="adminPanel-students">
+  <div class="adminPanelIntro">
+    <div><span>01</span><div><h2>👨‍🎓 学生管理</h2><p>新增学生、查看现有学生、管理账号与课程权限。</p></div></div>
+  </div>
+  <section class="card createStudentCard">
+<div class="sectionTitle">
+<div>
+<h2 style="margin:0">➕ 新增学生</h2>
+<div class="muted">建立 Auth 账号、Student Profile、student role 和 SCORE-A 课程权限。管理员只发 Temporary Password；学生首次登录必须自行更改。</div>
+</div>
+<span class="pill">STEP 3B</span>
+</div>
+<div class="formGrid">
+<div class="formField">
+<label>学生姓名</label>
+<input id="newStudentName" placeholder="例如：Lim Wei Jun"/>
+</div>
+<div class="formField">
+<label>年级</label>
+<input id="newStudentGrade" placeholder="例如：Year 4 / Form 1"/>
+</div>
+<div class="formField">
+<label>学生 Email</label>
+<input id="newStudentEmail" placeholder="student@example.com" type="email"/>
+</div>
+<div class="formField">
+<label>Temporary Password（首次登录必须更改）</label>
+<input id="newStudentPassword" placeholder="设置临时 Password，至少 8 个字符" type="text"/>
+</div>
+<div class="formField">
+<label>课程开始日期</label>
+<input id="newStudentStart" type="date"/>
+</div>
+<div class="formField">
+<label>课程期限</label>
+<div class="planRow">
+<label class="planChoice"><input checked="" name="planDays" type="radio" value="365"/>普通 1 年｜365 天</label>
+<label class="planChoice"><input name="planDays" type="radio" value="730"/>指定学生｜365 + 免费365 = 730 天</label>
+</div>
+<div class="accountHint">一般学生使用 365 天；730 天只用于你指定的少数学生。免费额外一年不是永久权限。</div>
+</div>
+<div class="formField">
+<label>学生售价（RM）</label>
+<input id="newStudentSalePrice" min="0" placeholder="例如：199.00" step="0.01" type="number"/>
+</div>
+<div class="formField">
+<label>从哪里得知课程</label>
+<select id="newStudentLeadSource"><option value="">请选择来源</option><option>Facebook</option><option>Instagram</option><option>TikTok</option><option>小红书</option><option>WhatsApp</option><option>朋友介绍</option><option>家长介绍</option><option>学校 / 老师</option><option>Google / Search</option><option>活动 / Seminar</option><option>其他</option></select>
+</div>
+<div class="formField">
+<label>付款状态</label>
+<select id="newStudentPaymentStatus"><option value="UNPAID">未付款</option><option value="PAID">已付款</option></select>
+</div>
+<div class="formFull">
+<div class="createActions">
+<button class="btn" id="createStudentBtn" onclick="createStudent()">建立学生并开通课程</button>
+<button class="btn light" onclick="clearCreateStudentForm()">清空</button>
+<span class="muted">下一位 Student ID 会由系统自动产生，不需要手动填写。</span>
+</div>
+<div class="resultBox hidden" id="createStudentResult"></div>
+</div>
+</div>
+</section>
+  <div class="adminSectionGap"></div>
+  <section class="card">
+<div class="sectionTitle">
+<div><h2 style="margin:0">👨‍🎓 学生与课程权限</h2><div class="muted">查看、搜索、筛选学生，并管理课程、账号与学习状态。</div><div id="lastRefreshText"></div></div>
+<span class="pill">STEP 2</span>
+</div>
+<div class="adminToolbar">
+<input id="studentSearch" oninput="renderAdminStudentTable()" placeholder="搜索 Student ID / 姓名 / 年级"/>
+<select id="studentStatusFilter" onchange="renderAdminStudentTable()">
+<option value="ALL">全部状态</option>
+<option value="ACTIVE">ACTIVE</option>
+<option value="PAUSED">PAUSED</option>
+<option value="EXPIRED">EXPIRED</option>
+<option value="NONE">无课程</option>
+<option value="ATTENTION">需要跟进</option>
+</select>
+<select id="salesPaymentFilter" onchange="renderAdminStudentTable()"><option value="ALL">全部付款状态</option><option value="PAID">已付款</option><option value="UNPAID">未付款</option><option value="UNSET">未记录</option></select>
+<button class="btn light" onclick="exportStudentCSV()">⬇ 导出 CSV</button>
+<span class="tableCount" id="studentTableCount"></span>
+</div>
+<div id="studentTableWrap"></div>
+</section>
+</section>
+
+<section class="adminPanel" id="adminPanel-parents">
+  <div class="adminPanelIntro">
+    <div><span>02</span><div><h2>👨‍👩‍👧 家长与学生绑定</h2><p>建立 Parent Account、绑定孩子，或为现有家长增加另一个孩子。</p></div></div>
+  </div>
+  <section class="card" style="margin-top:14px">
+<div class="sectionTitle">
+<div>
+<h2 style="margin:0">👨‍👩‍👧 建立 Parent Account</h2>
+<div class="muted">Parent 使用独立 Email 登录，只能查看被授权绑定的孩子。</div>
+</div>
+<span class="pill">STAGE 4</span>
+</div>
+<div class="parentAdminGrid">
+<div class="formField">
+<label>家长姓名</label>
+<input id="newParentName" placeholder="例如：Lim Liang Ie"/>
+</div>
+<div class="formField">
+<label>Parent Email</label>
+<input id="newParentEmail" placeholder="parent@example.com" type="email"/>
+</div>
+<div class="formField">
+<label>Temporary Password</label>
+<input id="newParentPassword" placeholder="至少 8 个字符；首次登录必须更改" type="text"/>
+</div>
+<div class="formField">
+<label>电话（可选）</label>
+<input id="newParentPhone" placeholder="例如：012-3456789"/>
+</div>
+<div class="formField">
+<label>关系</label>
+<select id="newParentRelationship">
+<option value="parent">Parent</option>
+<option value="mother">Mother</option>
+<option value="father">Father</option>
+<option value="guardian">Guardian</option>
+</select>
+</div>
+<div class="formField">
+<label>绑定学生</label>
+<select id="newParentStudent">
+<option value="">正在读取学生…</option>
+</select>
+</div>
+</div>
+<div class="createActions" style="margin-top:14px">
+<button class="btn" id="createParentBtn" onclick="createParentAccount()">建立 Parent Account + 绑定学生</button>
+<button class="btn light" onclick="clearParentForm()">清空</button>
+</div>
+<div class="parentAdminResult hidden" id="createParentResult"></div>
+<div style="margin-top:20px">
+<h3 style="margin-bottom:8px">🔗 Parent ↔ Student 绑定</h3>
+<div id="parentLinkTable"><div class="empty">等待读取…</div></div>
+<div style="margin-top:18px;padding-top:16px;border-top:1px solid #e7edf5">
+<h3 style="margin:0 0 5px">➕ 给现有 Parent 绑定另一个孩子</h3>
+<div class="muted" style="margin-bottom:12px">不需要重新建立 Parent Account。一个 Parent 可以绑定多个孩子。</div>
+<div class="parentAdminGrid">
+<div class="formField">
+<label>现有 Parent</label>
+<select id="existingParentSelect"><option value="">请选择 Parent</option></select>
+</div>
+<div class="formField">
+<label>另一个 Student</label>
+<select id="existingParentStudent"><option value="">请选择 Student</option></select>
+</div>
+<div class="formField">
+<label>Relationship</label>
+<select id="existingParentRelationship">
+<option value="parent">Parent</option>
+<option value="mother">Mother</option>
+<option value="father">Father</option>
+<option value="guardian">Guardian</option>
+</select>
+</div>
+</div>
+<div class="createActions" style="margin-top:12px">
+<button class="btn" id="linkExistingParentBtn" onclick="linkExistingParentToStudent()">绑定另一个孩子</button>
+</div>
+<div class="parentAdminResult hidden" id="linkExistingParentResult"></div>
+</div>
+</div>
+</section>
+</section>
+
+<section class="adminPanel" id="adminPanel-sales">
+  <div class="adminPanelIntro">
+    <div><span>03</span><div><h2>💰 销售与收款</h2><p>集中管理售价、客户来源、付款状态与三语成交话术。</p></div></div>
+  </div>
+  <section class="card" id="salesCrmSection" style="margin-top:14px">
+<div class="sectionTitle"><div><h2 style="margin:0">💼 学生销售记录</h2><div class="muted">记录每位学生的实际售价、客户来源与付款状态，方便后续跟进。</div></div><span class="pill">SALES CRM</span></div>
+<div class="salesSummary"><div class="salesMetric"><small>已付款学生</small><b id="salesPaidCount">0</b></div><div class="salesMetric"><small>未付款学生</small><b id="salesUnpaidCount">0</b></div><div class="salesMetric"><small>已付款销售额</small><b id="salesPaidTotal">RM 0.00</b></div></div>
+<div class="salesStorageNote" id="salesStorageNote">正在检查销售记录储存方式…</div>
+</section>
+  <div class="adminSalesNote card">
+    <h3>销售资料在哪里修改？</h3>
+    <p>新增学生时可以直接填写售价、来源与付款状态；现有学生可到「学生管理」→「管理」中更新销售资料。</p>
+  </div>
+  <section class="salesTalkShell" id="salesTalkLibrary">
+<div class="salesTalkHead">
+<div><h2>💬 <span id="salesTalkHeading">成交话术库</span></h2><p id="salesTalkSub">客户回复到哪一步，就点对应按钮。话术会自动出现，再按「复制话术」即可。</p></div>
+<button class="salesTalkToggle" id="salesTalkToggle" onclick="toggleSalesTalkLibrary()" type="button">展开</button>
+</div>
+<div class="salesTalkBody" id="salesTalkBody">
+<div class="salesTalkControls">
+<div class="salesTalkControl"><label id="salesTalkLangLabel">话术语言 / Language</label><select id="salesTalkLang" onchange="renderSalesTalkLibrary()"><option value="zh">中文</option><option value="ms">Bahasa Melayu</option><option value="en">English</option></select></div>
+<div class="salesTalkControl"><label id="salesTalkPriceLabel">销售阶段 / Price Stage</label><select id="salesTalkPrice" onchange="renderSalesTalkLibrary()"><option value="launch">首发价 RM99</option><option value="regular">正式售价 RM199</option></select></div>
+<div class="salesTalkStatus" id="salesTalkStatus"></div>
+</div>
+<div class="salesTalkTabs" id="salesTalkTabs"></div>
+<div class="salesTalkContent"><h3 id="salesTalkTitle"></h3><div class="salesTalkText" id="salesTalkText"></div><button class="salesTalkCopy" id="salesTalkCopy" onclick="copyCurrentSalesTalk()" type="button">复制话术</button><div class="salesTalkTip" id="salesTalkTip"></div></div>
+</div>
+</section>
+</section>
+
+<section class="adminPanel" id="adminPanel-reports">
+  <div class="adminPanelIntro">
+    <div><span>04</span><div><h2>📊 报告与运营</h2><p>集中查看周报、到期提醒、学习活跃度、云端进度与每日思考。</p></div></div>
+  </div>
+
+  <div class="adminSecondaryStats">
     <div class="card stat"><small>Parent 总数</small><b id="statParents">0</b></div>
     <div class="card stat"><small>ACTIVE 家长绑定</small><b id="statParentLinks">0</b></div>
     <div class="card stat"><small>已建立云端进度</small><b id="statProgress">0</b></div>
@@ -162,246 +471,43 @@ input{width:100%;padding:12px 13px;border:1px solid #d8e1ed;border-radius:12px;o
   </div>
 
   <section class="card" style="margin-top:14px">
-    <div class="sectionTitle">
-      <div>
-        <h2 style="margin:0">📊 Weekly Growth Reports</h2>
-        <div class="muted">一次为全部 ACTIVE 学生建立或更新本周周报。系统会逐批处理；同一学生同一星期不会重复新增。</div>
-      </div>
-      <span class="pill">STAGE 5A</span>
-    </div>
-    <div class="actionRow">
-      <button class="btn" id="generateAllWeeklyBtn" onclick="generateAllWeeklyReports()">📊 生成全部 ACTIVE 学生周报</button>
-    </div>
-    <div id="generateAllWeeklyResult" class="manageResult hidden" style="margin-top:12px"></div>
-  </section>
+<div class="sectionTitle">
+<div>
+<h2 style="margin:0">📊 Weekly Growth Reports</h2>
+<div class="muted">一次为全部 ACTIVE 学生建立或更新本周周报。系统会逐批处理；同一学生同一星期不会重复新增。</div>
+</div>
+<span class="pill">STAGE 5A</span>
+</div>
+<div class="actionRow">
+<button class="btn" id="generateAllWeeklyBtn" onclick="generateAllWeeklyReports()">📊 生成全部 ACTIVE 学生周报</button>
+</div>
+<div class="manageResult hidden" id="generateAllWeeklyResult" style="margin-top:12px"></div>
+</section>
 
+  <div class="adminSectionGap"></div>
+  <aside class="card">
+<h2 style="margin-top:0">⚠️ 运营提醒</h2>
+<div id="opsAttention"><div class="empty">正在分析…</div></div>
+<div class="quickLinks">
+<a href="index.html" target="_blank">🎓 Student OS</a>
+<a href="parent.html" target="_blank">👨‍👩‍👧 Parent</a>
+<a href="free.html" target="_blank">🧭 Free Center</a>
+</div>
+<hr style="border:0;border-top:1px solid #edf1f6;margin:18px 0"/>
+<h3>最近云端学习进度</h3>
+<div id="progressList"><div class="empty">等待读取…</div></div>
+</aside>
 
-  <section class="card" style="margin-top:14px" id="salesCrmSection">
-    <div class="sectionTitle"><div><h2 style="margin:0">💼 学生销售记录</h2><div class="muted">记录每位学生的实际售价、客户来源与付款状态，方便后续跟进。</div></div><span class="pill">SALES CRM</span></div>
-    <div class="salesSummary"><div class="salesMetric"><small>已付款学生</small><b id="salesPaidCount">0</b></div><div class="salesMetric"><small>未付款学生</small><b id="salesUnpaidCount">0</b></div><div class="salesMetric"><small>已付款销售额</small><b id="salesPaidTotal">RM 0.00</b></div></div>
-    <div class="salesStorageNote" id="salesStorageNote">正在检查销售记录储存方式…</div>
-  </section>
-  <div class="two">
-    <section class="card">
-      <div class="sectionTitle">
-        <div><h2 style="margin:0">👨‍🎓 学生与课程权限</h2><div class="muted">查看、搜索、筛选学生，并管理课程、账号与学习状态。</div><div id="lastRefreshText"></div></div>
-        <span class="pill">STEP 2</span>
-      </div>
-      <div class="adminToolbar">
-        <input id="studentSearch" placeholder="搜索 Student ID / 姓名 / 年级" oninput="renderAdminStudentTable()">
-        <select id="studentStatusFilter" onchange="renderAdminStudentTable()">
-          <option value="ALL">全部状态</option>
-          <option value="ACTIVE">ACTIVE</option>
-          <option value="PAUSED">PAUSED</option>
-          <option value="EXPIRED">EXPIRED</option>
-          <option value="NONE">无课程</option>
-          <option value="ATTENTION">需要跟进</option>
-        </select>
-        <select id="salesPaymentFilter" onchange="renderAdminStudentTable()"><option value="ALL">全部付款状态</option><option value="PAID">已付款</option><option value="UNPAID">未付款</option><option value="UNSET">未记录</option></select>
-        <button class="btn light" onclick="exportStudentCSV()">⬇ 导出 CSV</button>
-        <span id="studentTableCount" class="tableCount"></span>
-      </div>
-      <div id="studentTableWrap"></div>
-    </section>
-
-    <aside class="card">
-      <h2 style="margin-top:0">⚠️ 运营提醒</h2>
-      <div id="opsAttention"><div class="empty">正在分析…</div></div>
-      <div class="quickLinks">
-        <a href="index.html" target="_blank">🎓 Student OS</a>
-        <a href="parent.html" target="_blank">👨‍👩‍👧 Parent</a>
-        <a href="free.html" target="_blank">🧭 Free Center</a>
-      </div>
-      <hr style="border:0;border-top:1px solid #edf1f6;margin:18px 0">
-      <h3>最近云端学习进度</h3>
-      <div id="progressList"><div class="empty">等待读取…</div></div>
-    </aside>
-  </div>
-
-  <section class="card createStudentCard">
-    <div class="sectionTitle">
-      <div>
-        <h2 style="margin:0">➕ 新增学生</h2>
-        <div class="muted">建立 Auth 账号、Student Profile、student role 和 SCORE-A 课程权限。管理员只发 Temporary Password；学生首次登录必须自行更改。</div>
-      </div>
-      <span class="pill">STEP 3B</span>
-    </div>
-
-    <div class="formGrid">
-      <div class="formField">
-        <label>学生姓名</label>
-        <input id="newStudentName" placeholder="例如：Lim Wei Jun">
-      </div>
-
-      <div class="formField">
-        <label>年级</label>
-        <input id="newStudentGrade" placeholder="例如：Year 4 / Form 1">
-      </div>
-
-      <div class="formField">
-        <label>学生 Email</label>
-        <input id="newStudentEmail" type="email" placeholder="student@example.com">
-      </div>
-
-      <div class="formField">
-        <label>Temporary Password（首次登录必须更改）</label>
-        <input id="newStudentPassword" type="text" placeholder="设置临时 Password，至少 8 个字符">
-      </div>
-
-      <div class="formField">
-        <label>课程开始日期</label>
-        <input id="newStudentStart" type="date">
-      </div>
-
-      <div class="formField">
-        <label>课程期限</label>
-        <div class="planRow">
-          <label class="planChoice"><input type="radio" name="planDays" value="365" checked>普通 1 年｜365 天</label>
-          <label class="planChoice"><input type="radio" name="planDays" value="730">指定学生｜365 + 免费365 = 730 天</label>
-        </div>
-        <div class="accountHint">一般学生使用 365 天；730 天只用于你指定的少数学生。免费额外一年不是永久权限。</div>
-      </div>
-
-
-      <div class="formField">
-        <label>学生售价（RM）</label>
-        <input id="newStudentSalePrice" type="number" min="0" step="0.01" placeholder="例如：199.00">
-      </div>
-      <div class="formField">
-        <label>从哪里得知课程</label>
-        <select id="newStudentLeadSource"><option value="">请选择来源</option><option>Facebook</option><option>Instagram</option><option>TikTok</option><option>小红书</option><option>WhatsApp</option><option>朋友介绍</option><option>家长介绍</option><option>学校 / 老师</option><option>Google / Search</option><option>活动 / Seminar</option><option>其他</option></select>
-      </div>
-      <div class="formField">
-        <label>付款状态</label>
-        <select id="newStudentPaymentStatus"><option value="UNPAID">未付款</option><option value="PAID">已付款</option></select>
-      </div>
-
-      <div class="formFull">
-        <div class="createActions">
-          <button class="btn" id="createStudentBtn" onclick="createStudent()">建立学生并开通课程</button>
-          <button class="btn light" onclick="clearCreateStudentForm()">清空</button>
-          <span class="muted">下一位 Student ID 会由系统自动产生，不需要手动填写。</span>
-        </div>
-        <div id="createStudentResult" class="resultBox hidden"></div>
-      </div>
-    </div>
-  </section>
-
+  <div class="adminSectionGap"></div>
   <section class="card" style="margin-top:14px">
-    <div class="sectionTitle">
-      <div>
-        <h2 style="margin:0">👨‍👩‍👧 建立 Parent Account</h2>
-        <div class="muted">Parent 使用独立 Email 登录，只能查看被授权绑定的孩子。</div>
-      </div>
-      <span class="pill">STAGE 4</span>
-    </div>
-
-    <div class="parentAdminGrid">
-      <div class="formField">
-        <label>家长姓名</label>
-        <input id="newParentName" placeholder="例如：Lim Liang Ie">
-      </div>
-
-      <div class="formField">
-        <label>Parent Email</label>
-        <input id="newParentEmail" type="email" placeholder="parent@example.com">
-      </div>
-
-      <div class="formField">
-        <label>Temporary Password</label>
-        <input id="newParentPassword" type="text" placeholder="至少 8 个字符；首次登录必须更改">
-      </div>
-
-      <div class="formField">
-        <label>电话（可选）</label>
-        <input id="newParentPhone" placeholder="例如：012-3456789">
-      </div>
-
-      <div class="formField">
-        <label>关系</label>
-        <select id="newParentRelationship">
-          <option value="parent">Parent</option>
-          <option value="mother">Mother</option>
-          <option value="father">Father</option>
-          <option value="guardian">Guardian</option>
-        </select>
-      </div>
-
-      <div class="formField">
-        <label>绑定学生</label>
-        <select id="newParentStudent">
-          <option value="">正在读取学生…</option>
-        </select>
-      </div>
-    </div>
-
-    <div class="createActions" style="margin-top:14px">
-      <button class="btn" id="createParentBtn" onclick="createParentAccount()">建立 Parent Account + 绑定学生</button>
-      <button class="btn light" onclick="clearParentForm()">清空</button>
-    </div>
-
-    <div id="createParentResult" class="parentAdminResult hidden"></div>
-
-    <div style="margin-top:20px">
-      <h3 style="margin-bottom:8px">🔗 Parent ↔ Student 绑定</h3>
-      <div id="parentLinkTable"><div class="empty">等待读取…</div></div>
-
-      <div style="margin-top:18px;padding-top:16px;border-top:1px solid #e7edf5">
-        <h3 style="margin:0 0 5px">➕ 给现有 Parent 绑定另一个孩子</h3>
-        <div class="muted" style="margin-bottom:12px">不需要重新建立 Parent Account。一个 Parent 可以绑定多个孩子。</div>
-
-        <div class="parentAdminGrid">
-          <div class="formField">
-            <label>现有 Parent</label>
-            <select id="existingParentSelect"><option value="">请选择 Parent</option></select>
-          </div>
-          <div class="formField">
-            <label>另一个 Student</label>
-            <select id="existingParentStudent"><option value="">请选择 Student</option></select>
-          </div>
-          <div class="formField">
-            <label>Relationship</label>
-            <select id="existingParentRelationship">
-              <option value="parent">Parent</option>
-              <option value="mother">Mother</option>
-              <option value="father">Father</option>
-              <option value="guardian">Guardian</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="createActions" style="margin-top:12px">
-          <button class="btn" id="linkExistingParentBtn" onclick="linkExistingParentToStudent()">绑定另一个孩子</button>
-        </div>
-        <div id="linkExistingParentResult" class="parentAdminResult hidden"></div>
-      </div>
-    </div>
-  </section>
-
-  <section class="card" style="margin-top:14px">
-    <div class="sectionTitle">
-      <div><h2 style="margin:0">📝 最近每日思考</h2><div class="muted">SYSTEM TEST / Cycle 999 自动隐藏。</div></div>
-    </div>
-    <div id="reflectionTableWrap"></div>
-  </section>
-
-  <section class="salesTalkShell" id="salesTalkLibrary">
-    <div class="salesTalkHead">
-      <div><h2>💬 <span id="salesTalkHeading">成交话术库</span></h2><p id="salesTalkSub">客户回复到哪一步，就点对应按钮。话术会自动出现，再按「复制话术」即可。</p></div>
-      <button class="salesTalkToggle" id="salesTalkToggle" type="button" onclick="toggleSalesTalkLibrary()">展开</button>
-    </div>
-    <div class="salesTalkBody" id="salesTalkBody">
-      <div class="salesTalkControls">
-        <div class="salesTalkControl"><label id="salesTalkLangLabel">话术语言 / Language</label><select id="salesTalkLang" onchange="renderSalesTalkLibrary()"><option value="zh">中文</option><option value="ms">Bahasa Melayu</option><option value="en">English</option></select></div>
-        <div class="salesTalkControl"><label id="salesTalkPriceLabel">销售阶段 / Price Stage</label><select id="salesTalkPrice" onchange="renderSalesTalkLibrary()"><option value="launch">首发价 RM99</option><option value="regular">正式售价 RM199</option></select></div>
-        <div class="salesTalkStatus" id="salesTalkStatus"></div>
-      </div>
-      <div class="salesTalkTabs" id="salesTalkTabs"></div>
-      <div class="salesTalkContent"><h3 id="salesTalkTitle"></h3><div class="salesTalkText" id="salesTalkText"></div><button class="salesTalkCopy" id="salesTalkCopy" type="button" onclick="copyCurrentSalesTalk()">复制话术</button><div class="salesTalkTip" id="salesTalkTip"></div></div>
-    </div>
-  </section>
-
+<div class="sectionTitle">
+<div><h2 style="margin:0">📝 最近每日思考</h2><div class="muted">SYSTEM TEST / Cycle 999 自动隐藏。</div></div>
+</div>
+<div id="reflectionTableWrap"></div>
+</section>
+</section>
 </main>
+
 
 <div id="enrollmentModal" class="modalBack hidden" onclick="if(event.target===this)closeEnrollmentManager()">
   <div class="modalCard">
@@ -1867,6 +1973,8 @@ function renderSalesSummary(){
   if($('salesPaidCount'))$('salesPaidCount').textContent=paid;
   if($('salesUnpaidCount'))$('salesUnpaidCount').textContent=unpaid;
   if($('salesPaidTotal'))$('salesPaidTotal').textContent='RM '+total.toFixed(2);
+  if($('overviewUnpaid'))$('overviewUnpaid').textContent=unpaid;
+  if($('overviewSalesTotal'))$('overviewSalesTotal').textContent='RM '+total.toFixed(2);
 }
 function salesFmtPrice(x){return x&&Number(x.sale_price)>=0?'RM '+Number(x.sale_price||0).toFixed(2):'—'}
 function salesPaymentHtml(x){if(!x)return '<span class="paymentTag UNSET">未记录</span>';const p=x.payment_status||'UNPAID';return `<span class="paymentTag ${p}">${p==='PAID'?'已付款':'未付款'}</span>`}
@@ -2000,6 +2108,43 @@ window.selectSalesTalk=function(i){current=i;renderSalesTalkLibrary()};
 window.toggleSalesTalkLibrary=function(){open=!open;document.getElementById('salesTalkBody')?.classList.toggle('show',open);renderSalesTalkLibrary();if(open)setTimeout(()=>document.getElementById('salesTalkLibrary')?.scrollIntoView({behavior:'smooth',block:'start'}),60)};
 window.copyCurrentSalesTalk=function(){const d=DB[L()]||DB.zh,v=document.getElementById('salesTalkText')?.innerText||'';const done=()=>{if(typeof salesToast==='function')salesToast(d.copied)};if(navigator.clipboard?.writeText)navigator.clipboard.writeText(v).then(done).catch(()=>{const t=document.createElement('textarea');t.value=v;document.body.appendChild(t);t.select();document.execCommand('copy');t.remove();done()});else{const t=document.createElement('textarea');t.value=v;document.body.appendChild(t);t.select();document.execCommand('copy');t.remove();done()}};
 setTimeout(renderSalesTalkLibrary,100);
+})();
+</script>
+
+
+<script>
+(function(){
+  const validPanels = ['students','parents','sales','reports'];
+
+  window.adminShowPanel = function(key, button){
+    if(!validPanels.includes(key)) key = 'students';
+
+    document.querySelectorAll('.adminPanel').forEach(p=>{
+      p.classList.toggle('active', p.id === 'adminPanel-' + key);
+    });
+
+    document.querySelectorAll('.adminWorkspaceBtn').forEach(b=>{
+      b.classList.toggle('active', b.dataset.adminPanel === key);
+    });
+
+    const select = document.getElementById('adminWorkspaceSelect');
+    if(select) select.value = key;
+
+    try{ localStorage.setItem('scoreaAdminWorkspace', key); }catch(e){}
+
+    const panel = document.getElementById('adminPanel-' + key);
+    if(panel){
+      const y = Math.max(0, panel.getBoundingClientRect().top + window.scrollY - 12);
+      window.scrollTo({top:y, behavior:'smooth'});
+    }
+  };
+
+  document.addEventListener('DOMContentLoaded', function(){
+    let saved = 'students';
+    try{ saved = localStorage.getItem('scoreaAdminWorkspace') || 'students'; }catch(e){}
+    if(!validPanels.includes(saved)) saved = 'students';
+    adminShowPanel(saved);
+  });
 })();
 </script>
 
