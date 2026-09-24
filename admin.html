@@ -113,6 +113,12 @@ input{width:100%;padding:12px 13px;border:1px solid #d8e1ed;border-radius:12px;o
 /* ===== ADMIN V3.0 SALES CRM + SALES SCRIPTS ===== */
 .salesSummary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:12px}.salesMetric{border:1px solid #dfe7f2;background:#f8fafc;border-radius:14px;padding:13px}.salesMetric small{display:block;color:#75839a;font-size:11px;font-weight:850;margin-bottom:5px}.salesMetric b{font-size:22px;color:#173a73}.paymentTag{display:inline-block;padding:5px 8px;border-radius:999px;font-size:10px;font-weight:900}.paymentTag.PAID{background:#e8f8ef;color:#177552}.paymentTag.UNPAID{background:#fff1f1;color:#a23b3b}.paymentTag.UNSET{background:#eef2f7;color:#67768c}.salesScripts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px}.salesScript{border:1px solid #e1e8f2;background:#fbfcff;border-radius:15px;padding:14px}.salesScript h3{margin:0 0 6px;font-size:15px}.salesScript p{margin:0;color:#4d607b;line-height:1.65;font-size:13px;white-space:pre-line}.salesScript button{margin-top:10px;border:0;border-radius:9px;background:#edf3ff;color:#294f88;padding:8px 10px;font-weight:900;cursor:pointer}.salesStorageNote{font-size:11px;color:#738199;margin-top:9px;line-height:1.5}.crmGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.crmGrid .formFull{grid-column:1/-1}.crmSaveRow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px}.copyToast{position:fixed;right:18px;bottom:18px;background:#10213e;color:#fff;border-radius:12px;padding:10px 13px;font-size:12px;font-weight:850;opacity:0;transform:translateY(8px);pointer-events:none;transition:.2s;z-index:12000}.copyToast.show{opacity:1;transform:none}
 @media(max-width:760px){.salesSummary,.salesScripts,.crmGrid{grid-template-columns:1fr}}
+
+/* ===== ADMIN V4.0 TRILINGUAL CLOSING SCRIPT LIBRARY ===== */
+.salesTalkShell{margin-top:18px;border:1px solid #d9e4d9;background:linear-gradient(135deg,#fffdf8,#f7fbf6);border-radius:22px;padding:18px}.salesTalkHead{display:flex;justify-content:space-between;gap:14px;align-items:flex-start}.salesTalkHead h2{margin:0;color:#235c4f}.salesTalkHead p{margin:6px 0 0;color:#66758a;line-height:1.55}.salesTalkToggle{border:0;background:#e2eddf;color:#245b4e;border-radius:12px;padding:10px 13px;font-weight:950;cursor:pointer}.salesTalkBody{display:none;margin-top:14px}.salesTalkBody.show{display:block}.salesTalkControls{display:flex;gap:12px;align-items:end;flex-wrap:wrap;border:1px solid #dce7dd;background:#f6f9f4;border-radius:16px;padding:13px}.salesTalkControl{min-width:220px}.salesTalkControl label{margin:0 0 6px;color:#275547}.salesTalkControl select{width:100%;padding:11px 12px;border:1px solid #d6e1d6;border-radius:12px;background:#fff;font-weight:800}.salesTalkStatus{font-size:12px;color:#687b70;padding-bottom:10px}.salesTalkTabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px;margin:14px 0}.salesTalkTab{border:1px solid #dce5dc;background:#fff;color:#275446;border-radius:13px;padding:11px 12px;text-align:left;font-weight:900;cursor:pointer;line-height:1.35}.salesTalkTab.active{background:#e5efe2;border-color:#a9c5a7}.salesTalkContent{border:1px solid #dbe5db;background:#fff;border-radius:16px;padding:15px}.salesTalkContent h3{margin:0 0 10px;color:#245b4e}.salesTalkText{white-space:pre-line;line-height:1.72;color:#405166;font-size:13px}.salesTalkCopy{margin-top:12px;border:0;border-radius:10px;background:#245eea;color:#fff;padding:9px 12px;font-weight:900;cursor:pointer}.salesTalkTip{margin-top:9px;font-size:11px;color:#7b887f}.salesTalkPriceBadge{display:inline-block;padding:5px 8px;border-radius:999px;background:#edf5eb;color:#2d654f;font-size:11px;font-weight:900;margin-left:7px}
+@media(max-width:900px){.salesTalkTabs{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.salesTalkTabs{grid-template-columns:1fr}.salesTalkControl{min-width:100%;width:100%}.salesTalkStatus{padding-bottom:0}}
+
 </style>
 </head>
 <body>
@@ -175,27 +181,6 @@ input{width:100%;padding:12px 13px;border:1px solid #d8e1ed;border-radius:12px;o
     <div class="salesSummary"><div class="salesMetric"><small>已付款学生</small><b id="salesPaidCount">0</b></div><div class="salesMetric"><small>未付款学生</small><b id="salesUnpaidCount">0</b></div><div class="salesMetric"><small>已付款销售额</small><b id="salesPaidTotal">RM 0.00</b></div></div>
     <div class="salesStorageNote" id="salesStorageNote">正在检查销售记录储存方式…</div>
   </section>
-
-  <section class="card" style="margin-top:14px">
-    <div class="sectionTitle"><div><h2 style="margin:0">💬 销售话术</h2><div class="muted">家长咨询时可直接复制，再按孩子实际情况调整；不要一次把所有话术发给客户。</div></div><span class="pill">SALES TOOLKIT</span></div>
-    <div class="salesScripts">
-      <div class="salesScript"><h3>① 第一次咨询</h3><p id="salesScript1">您好，谢谢您来了解 How to Score A with AI 😊
-我想先了解一下，孩子现在是几年级？目前最想改善的是：粗心、拖延、不会安排时间、不知道怎样复习、考试容易紧张，还是太依赖 AI？
-我先了解孩子的情况，再告诉您这个系统是否适合。</p><button onclick="copySalesScript('salesScript1')">复制话术</button></div>
-      <div class="salesScript"><h3>② 找到痛点后</h3><p id="salesScript2">了解。这个系统不是让孩子一直刷题，而是先找出为什么会失分，再训练学习方法、时间管理、错题分析、复习和考试策略。
-孩子每天会有一个清楚的学习流程，完成后也会留下成长记录，让家长看到他有没有真正行动。</p><button onclick="copySalesScript('salesScript2')">复制话术</button></div>
-      <div class="salesScript"><h3>③ 邀请体验 / 了解</h3><p id="salesScript3">您可以先让孩子看看系统的学习方式。它不是普通“看资料”的课程，而是每天需要孩子自己思考、执行和记录。
-如果您愿意，我可以先说明孩子进入系统后的第一天会怎样使用，您再决定是否开通。</p><button onclick="copySalesScript('salesScript3')">复制话术</button></div>
-      <div class="salesScript"><h3>④ 成交</h3><p id="salesScript4">如果您觉得这个方向适合孩子，我可以现在帮他建立个人学习账号，并开通课程权限。
-开通后孩子会有自己的学习进度、Avatar、World、XP、工具箱、资料库和成长记录。
-您确认后，我就帮您安排账号。</p><button onclick="copySalesScript('salesScript4')">复制话术</button></div>
-      <div class="salesScript"><h3>⑤ 未付款跟进</h3><p id="salesScript5">您好，想跟进一下孩子的课程安排。之前您有了解 How to Score A with AI，我这边目前还没有看到付款记录。
-如果您还有任何关于课程内容、使用方式或孩子是否适合的问题，可以直接告诉我，我先帮您确认清楚，再决定也可以。</p><button onclick="copySalesScript('salesScript5')">复制话术</button></div>
-      <div class="salesScript"><h3>⑥ 续费 / 到期</h3><p id="salesScript6">您好，孩子的 How to Score A with AI 课程权限将在近期到期。
-如果您希望孩子继续保留学习系统、成长记录和后续训练，我可以帮您安排续费。需要的话我也可以先帮您查看目前的学习进度，再决定下一步。</p><button onclick="copySalesScript('salesScript6')">复制话术</button></div>
-    </div>
-  </section>
-
   <div class="two">
     <section class="card">
       <div class="sectionTitle">
@@ -399,6 +384,23 @@ input{width:100%;padding:12px 13px;border:1px solid #d8e1ed;border-radius:12px;o
     </div>
     <div id="reflectionTableWrap"></div>
   </section>
+
+  <section class="salesTalkShell" id="salesTalkLibrary">
+    <div class="salesTalkHead">
+      <div><h2>💬 <span id="salesTalkHeading">成交话术库</span></h2><p id="salesTalkSub">客户回复到哪一步，就点对应按钮。话术会自动出现，再按「复制话术」即可。</p></div>
+      <button class="salesTalkToggle" id="salesTalkToggle" type="button" onclick="toggleSalesTalkLibrary()">展开</button>
+    </div>
+    <div class="salesTalkBody" id="salesTalkBody">
+      <div class="salesTalkControls">
+        <div class="salesTalkControl"><label id="salesTalkLangLabel">话术语言 / Language</label><select id="salesTalkLang" onchange="renderSalesTalkLibrary()"><option value="zh">中文</option><option value="ms">Bahasa Melayu</option><option value="en">English</option></select></div>
+        <div class="salesTalkControl"><label id="salesTalkPriceLabel">销售阶段 / Price Stage</label><select id="salesTalkPrice" onchange="renderSalesTalkLibrary()"><option value="launch">首发价 RM99</option><option value="regular">正式售价 RM199</option></select></div>
+        <div class="salesTalkStatus" id="salesTalkStatus"></div>
+      </div>
+      <div class="salesTalkTabs" id="salesTalkTabs"></div>
+      <div class="salesTalkContent"><h3 id="salesTalkTitle"></h3><div class="salesTalkText" id="salesTalkText"></div><button class="salesTalkCopy" id="salesTalkCopy" type="button" onclick="copyCurrentSalesTalk()">复制话术</button><div class="salesTalkTip" id="salesTalkTip"></div></div>
+    </div>
+  </section>
+
 </main>
 
 <div id="enrollmentModal" class="modalBack hidden" onclick="if(event.target===this)closeEnrollmentManager()">
@@ -1936,5 +1938,70 @@ exportStudentCSV=function(){
   link.href=URL.createObjectURL(blob);link.download=`scorea-students-sales-${new Date().toISOString().slice(0,10)}.csv`;link.click();URL.revokeObjectURL(link.href);
 };
 </script>
+
+<script>
+/* ===== ADMIN V4.0 TRILINGUAL SALES SCRIPT LIBRARY ===== */
+(function(){
+const DB={
+zh:{heading:'成交话术库',sub:'客户回复到哪一步，就点对应按钮。话术会自动出现，再按「复制话术」即可。',toggleOpen:'展开',toggleClose:'收起',lang:'话术语言 / Language',price:'销售阶段 / Price Stage',launch:'首发价 RM99',regular:'正式售价 RM199',status:(p)=>`目前显示：中文｜${p==='RM99'?'首发会员价 RM99':'正式售价 RM199'}。`,copy:'复制话术',copied:'✓ 话术已复制',tip:'建议根据孩子的年级、问题和家长语气稍微调整，不要一次把 14 段全部发给客户。',items:[
+['1｜客户说：想了解',`您好 😊 谢谢您想了解 How to Score A with AI。\n\n我先不急着介绍一大堆功能，想先了解孩子现在是几年级？目前最想改善的是：粗心、拖延、不会安排时间、不知道怎样复习、考试容易紧张，还是太依赖 AI？\n\n您告诉我最主要的一项，我再根据孩子的情况说明系统怎样帮助他。`],
+['2｜客户完成 FREE 后跟进',`您好 😊 想问一下孩子刚才体验后，哪一个部分最有感觉？\n\n这个系统最重要的不是“看很多内容”，而是每天让孩子完成真实学习行动：思考、时间管理、AI 练习、挑战、错题与复盘。\n\n如果您愿意，我可以根据孩子刚才的情况，直接告诉您正式课程最适合从哪里开始。`],
+['3｜客户问：{{PRICE}} 有什么？',`{{PRICE}} 是 How to Score A with AI 正式学习系统的课程价格。\n\n里面不是只有几份 PDF，而是一套可以持续使用的 Student OS，包括：365-Day 学习旅程、每日挑战、XP 与奖励、World / Boss / Badge、学习工具箱、资料库、AI 学习练习、错题与时间管理、成长记录，以及家长可以看到的成长方向。\n\n重点是帮助孩子慢慢建立“会学习”的方法，而不是只多做几题。`],
+['4｜客户说：我考虑一下',`当然可以 😊 课程最重要是适合孩子，不需要急着决定。\n\n您可以先想一个问题：如果孩子现在的学习方式一直不改变，3 个月后最可能还是卡在哪里？\n\n如果您愿意，也可以把孩子目前最头痛的一个问题告诉我，我先帮您分析，再决定要不要加入。`],
+['5｜客户说：有点贵',`我明白，家长一定会比较价格。\n\n这套系统不是单纯卖“资料数量”，而是把每天的学习流程、时间管理、错题分析、复习方法、AI 练习、成长记录和长期习惯放在一个系统里。\n\n如果孩子真的使用起来，价值是在于减少“每天不知道该怎么读”的情况。现在的价格是 {{PRICE}}。您可以先看它是否解决孩子真正的问题，再决定值不值得。`],
+['6｜客户问：真的有用吗？',`这个问题很重要。任何学习系统都不能保证孩子自动拿 A，因为最后还是需要孩子自己行动。\n\nHow to Score A with AI 做的是把“应该怎样学习”变成每天可以执行的步骤，并留下真实记录，让孩子知道自己哪里做到了、哪里还需要改善。\n\n如果孩子愿意跟着做，家长会比较容易看到他的学习行为有没有开始改变。`],
+['7｜客户问：为什么需要长期使用？',`因为学习习惯、时间管理、审题、错题复盘和考试策略都不是看一次就会稳定。\n\n系统把成长拆成 365 天、12 个 World，每 30 天有一个阶段目标和 Boss 检查。这样做不是要求孩子每天学很久，而是让正确方法重复到变成习惯。\n\n我们追求的是“长期越来越会学”，不是短期看完一堆内容。`],
+['8｜客户说：我要加入',`可以 😊 我现在可以帮孩子建立个人学习账号。\n\n目前价格：{{PRICE}}。\n\n请给我：\n1. 学生姓名\n2. 年级 / Form\n3. 学生 Email\n4. 家长联络方式\n\n资料确认后，我会帮您安排账号和课程权限。`],
+['9｜客户付款后',`谢谢您，付款已经收到 🙏\n\n我现在会为孩子建立 How to Score A with AI 学习账号。开通后，我会把登录方式和第一次使用步骤发给您。\n\n建议孩子第一次不要急着乱点，先看「第一次使用指南」，再从今日挑战开始。`],
+['10｜账号已经开通',`账号已经开通 ✅\n\n第一次登录后，请孩子先：\n1. 检查个人资料\n2. 选择 Junior / Teen 与语言\n3. 选择 Avatar\n4. 打开「第一次使用指南」\n5. 从「今日挑战」开始完成当天流程\n\n如果登录或使用时遇到问题，截图给我，我可以帮您检查。`],
+['11｜当天晚上跟进',`您好 😊 想简单跟进一下，孩子今天有成功登录和开始第一天吗？\n\n如果已经开始，不需要一天完成很多；先把当天核心流程做完整就好。\n\n如果卡在某个步骤，也可以截图给我，我帮您确认。`],
+['12｜客户买了但还没开始',`您好 😊 看到账号已经开通，不过孩子还没有正式开始。\n\n不需要等到“有很多时间”才开始，第一天只要打开系统、看第一次使用指南，然后完成当天一个流程就可以。\n\n最难的通常不是学很多，而是开始第一步。今天先完成 Day 1 就好。`],
+['13｜到期前 30 天续费',`您好，孩子的课程权限将在大约 30 天后到期。\n\n如果希望继续保留学习系统、长期进度、World / Badge、成长记录和后续训练，可以提前安排续费。\n\n如果您需要，我也可以先帮您看孩子目前已经进行到哪里，再决定接下来怎样安排。`],
+['14｜最短成交版',`如果孩子目前最大的问题是“知道要读书，但不知道怎样有效地读”，这套系统就是把正确学习方法变成每天可以执行的步骤。\n\n目前价格 {{PRICE}}。如果您要加入，我现在可以直接帮孩子建立账号。`]
+]},
+ms:{heading:'Pustaka Skrip Jualan',sub:'Pilih langkah yang sepadan dengan balasan pelanggan. Skrip akan dipaparkan dan boleh terus disalin.',toggleOpen:'Buka',toggleClose:'Tutup',lang:'Bahasa Skrip / Language',price:'Peringkat Harga / Price Stage',launch:'Harga Pelancaran RM99',regular:'Harga Rasmi RM199',status:(p)=>`Paparan semasa: BM｜${p==='RM99'?'Harga ahli pelancaran RM99':'Harga rasmi RM199'}.`,copy:'Salin Skrip',copied:'✓ Skrip disalin',tip:'Laraskan sedikit mengikut tahun/tingkatan, masalah anak dan nada ibu bapa. Jangan hantar semua 14 skrip sekaligus.',items:[
+['1｜Pelanggan: Nak tahu lebih lanjut',`Hai 😊 Terima kasih kerana berminat dengan How to Score A with AI.\n\nSebelum saya terangkan semua fungsi, boleh saya tahu anak sekarang Tahun / Tingkatan berapa? Masalah utama sekarang lebih kepada cuai, suka bertangguh, susah urus masa, tidak tahu cara ulang kaji, mudah cemas semasa peperiksaan atau terlalu bergantung pada AI?\n\nBeritahu saya satu masalah paling utama dan saya akan terangkan bagaimana sistem ini boleh membantu.`],
+['2｜Selepas pelanggan cuba FREE',`Hai 😊 Selepas anak mencuba versi FREE tadi, bahagian mana yang paling dirasakan berguna?\n\nSistem ini bukan sekadar membaca bahan. Setiap hari anak perlu melakukan tindakan sebenar: berfikir, urus masa, latihan AI, cabaran, analisis kesilapan dan refleksi.\n\nJika anda mahu, saya boleh cadangkan bahagian terbaik untuk anak mulakan dalam kursus penuh.`],
+['3｜Apa yang termasuk dalam {{PRICE}}?',`{{PRICE}} ialah harga untuk sistem pembelajaran penuh How to Score A with AI.\n\nIa bukan sekadar beberapa PDF. Ia termasuk 365-Day Journey, Cabaran Harian, XP dan ganjaran, World / Boss / Badge, Kotak Alat, Pustaka, latihan AI, pengurusan masa dan kesilapan, rekod perkembangan serta panduan pertumbuhan untuk ibu bapa.\n\nFokusnya ialah membantu anak belajar cara belajar dengan lebih baik.`],
+['4｜Pelanggan: Saya fikir dulu',`Boleh 😊 Yang penting ialah kesesuaian dengan anak; tidak perlu tergesa-gesa.\n\nCuba fikir satu perkara: jika cara belajar sekarang tidak berubah, apakah masalah yang mungkin masih sama 3 bulan lagi?\n\nJika anda mahu, beritahu saya satu masalah paling susah sekarang. Saya boleh bantu analisis dahulu sebelum anda membuat keputusan.`],
+['5｜Pelanggan: Agak mahal',`Saya faham, ibu bapa memang perlu membandingkan kos.\n\nNilai sistem ini bukan pada jumlah bahan semata-mata. Ia menggabungkan rutin harian, pengurusan masa, analisis kesilapan, ulang kaji, latihan AI, rekod perkembangan dan pembinaan tabiat dalam satu sistem.\n\nHarga semasa ialah {{PRICE}}. Yang penting ialah sama ada ia benar-benar menyelesaikan masalah pembelajaran anak.`],
+['6｜Betul-betul berkesan?',`Soalan ini penting. Tiada sistem boleh menjamin anak terus mendapat A kerana anak masih perlu melakukan kerja sebenar.\n\nHow to Score A with AI menukarkan “cara belajar yang betul” kepada langkah harian yang boleh dibuat dan direkod. Dengan itu, anak dan ibu bapa boleh melihat sama ada tingkah laku belajar benar-benar berubah.`],
+['7｜Mengapa perlu guna jangka panjang?',`Tabiat belajar, pengurusan masa, membaca soalan, analisis kesilapan dan strategi peperiksaan tidak menjadi stabil selepas melihatnya sekali.\n\nSistem membahagikan perkembangan kepada 365 hari dan 12 World, dengan sasaran dan Boss setiap 30 hari. Tujuannya bukan belajar terlalu lama setiap hari, tetapi mengulang cara yang betul sehingga menjadi tabiat.`],
+['8｜Pelanggan: Saya mahu sertai',`Boleh 😊 Saya boleh sediakan akaun pembelajaran anak sekarang.\n\nHarga semasa: {{PRICE}}.\n\nSila beri:\n1. Nama pelajar\n2. Tahun / Tingkatan\n3. Email pelajar\n4. Nombor hubungan ibu bapa\n\nSelepas maklumat disahkan, saya akan sediakan akaun dan akses kursus.`],
+['9｜Selepas pembayaran',`Terima kasih, bayaran telah diterima 🙏\n\nSaya akan menyediakan akaun How to Score A with AI untuk anak. Selepas aktif, saya akan hantar cara log masuk dan langkah penggunaan kali pertama.\n\nSebaiknya anak baca “Panduan Penggunaan Kali Pertama” sebelum memulakan Cabaran Hari Ini.`],
+['10｜Akaun telah diaktifkan',`Akaun sudah aktif ✅\n\nPada log masuk pertama, minta anak:\n1. Semak profil\n2. Pilih Junior / Teen dan bahasa\n3. Pilih Avatar\n4. Buka Panduan Penggunaan Kali Pertama\n5. Mulakan dari Cabaran Hari Ini\n\nJika ada masalah, hantar tangkap layar kepada saya.`],
+['11｜Follow-up malam hari pertama',`Hai 😊 Nak tanya ringkas, adakah anak berjaya log masuk dan mula Day 1 hari ini?\n\nTidak perlu buat terlalu banyak pada hari pertama. Lengkapkan aliran teras hari ini dahulu.\n\nJika tersekat di mana-mana langkah, hantar tangkap layar dan saya boleh semak.`],
+['12｜Sudah beli tetapi belum mula',`Hai 😊 Akaun sudah aktif tetapi nampaknya anak belum mula lagi.\n\nTidak perlu tunggu sampai ada banyak masa. Hari pertama hanya perlu buka sistem, baca panduan kali pertama dan selesaikan satu aliran harian.\n\nLangkah paling penting sekarang ialah mula dengan Day 1.`],
+['13｜30 hari sebelum tamat / renew',`Hai, akses kursus anak akan tamat dalam kira-kira 30 hari.\n\nJika mahu terus menyimpan sistem pembelajaran, kemajuan jangka panjang, World / Badge, rekod perkembangan dan latihan seterusnya, pembaharuan boleh diatur lebih awal.\n\nJika mahu, saya boleh semak kemajuan semasa dahulu sebelum anda membuat keputusan.`],
+['14｜Versi closing paling ringkas',`Jika masalah utama anak ialah “tahu perlu belajar tetapi tidak tahu cara belajar dengan berkesan”, sistem ini menukarkan kaedah yang betul kepada langkah harian yang boleh dibuat.\n\nHarga semasa {{PRICE}}. Jika anda mahu sertai, saya boleh terus sediakan akaun anak sekarang.`]
+]},
+en:{heading:'Closing Script Library',sub:'Choose the stage that matches the customer’s reply. The script appears automatically and can be copied.',toggleOpen:'Expand',toggleClose:'Collapse',lang:'Script Language / Language',price:'Sales Stage / Price Stage',launch:'Launch Price RM99',regular:'Official Price RM199',status:(p)=>`Showing: English｜${p==='RM99'?'Launch member price RM99':'Official price RM199'}.`,copy:'Copy Script',copied:'✓ Script copied',tip:'Adjust the wording to the child’s year/form, learning problem and the parent’s tone. Do not send all 14 scripts at once.',items:[
+['1｜Customer: I want to know more',`Hi 😊 Thanks for your interest in How to Score A with AI.\n\nBefore I explain every feature, may I know your child’s year/form? What is the biggest issue right now: carelessness, procrastination, time management, not knowing how to revise, exam anxiety, or over-reliance on AI?\n\nTell me the main one and I’ll explain how the system may help.`],
+['2｜Follow up after FREE experience',`Hi 😊 After your child tried the FREE experience, which part felt most useful?\n\nThe system is not just content to read. Each day the student takes real actions: thinking, time management, AI practice, challenges, mistake analysis and reflection.\n\nIf you’d like, I can suggest the best place for your child to start in the full course.`],
+['3｜What is included in {{PRICE}}?',`{{PRICE}} is the price for the full How to Score A with AI learning system.\n\nIt is more than a few PDFs: it includes the 365-Day Journey, Daily Challenges, XP and rewards, Worlds / Bosses / Badges, Toolbox, Library, AI learning practice, time and mistake management, growth records, and parent-facing growth direction.\n\nThe main goal is to help students learn how to learn.`],
+['4｜Customer: I’ll think about it',`Of course 😊 The important thing is whether it fits your child, so there is no need to rush.\n\nOne useful question is: if the current way of studying does not change, what problem is most likely to still be there three months from now?\n\nIf you want, tell me the single biggest problem now and I can help you analyse it before you decide.`],
+['5｜Customer: It’s a bit expensive',`I understand. Parents naturally compare the cost.\n\nThe value is not just the amount of content. The system combines daily routines, time management, mistake analysis, revision methods, AI practice, growth records and habit-building in one place.\n\nThe current price is {{PRICE}}. The key question is whether it solves the learning problem your child actually has.`],
+['6｜Does it really work?',`That is an important question. No learning system can guarantee an A automatically because the student still has to do the real work.\n\nHow to Score A with AI turns effective learning methods into daily actions that can be completed and recorded, so both the student and parent can see whether learning behaviour is genuinely changing.`],
+['7｜Why use it long term?',`Study habits, time management, question-reading, mistake review and exam strategy do not become stable after seeing them once.\n\nThe system breaks growth into 365 days and 12 Worlds, with a stage goal and Boss check every 30 days. The aim is not to study for hours every day, but to repeat the right methods until they become habits.`],
+['8｜Customer: I want to join',`Sure 😊 I can set up your child’s learning account now.\n\nCurrent price: {{PRICE}}.\n\nPlease send:\n1. Student name\n2. Year / Form\n3. Student email\n4. Parent contact number\n\nOnce confirmed, I’ll arrange the account and course access.`],
+['9｜After payment',`Thank you — payment has been received 🙏\n\nI’ll now prepare the How to Score A with AI account. Once activated, I’ll send the login details and first-time setup steps.\n\nI recommend starting with the “First-Time Use Guide” before Today’s Challenge.`],
+['10｜Account activated',`The account is active ✅\n\nOn the first login, please ask the student to:\n1. Check the profile\n2. Choose Junior / Teen and language\n3. Choose an Avatar\n4. Open the First-Time Use Guide\n5. Start from Today’s Challenge\n\nIf anything looks wrong, send me a screenshot and I can check it.`],
+['11｜Same-evening follow-up',`Hi 😊 Just checking in — did your child manage to log in and start Day 1 today?\n\nThere is no need to do too much on the first day. Completing the core flow is enough.\n\nIf your child gets stuck at any step, send me a screenshot and I’ll help check it.`],
+['12｜Bought but has not started',`Hi 😊 The account is already active, but it looks like the course has not been started yet.\n\nThere is no need to wait for a large block of free time. For Day 1, simply open the system, read the First-Time Use Guide and complete one daily flow.\n\nThe most important step now is simply to start.`],
+['13｜30 days before renewal',`Hi, your child’s course access will expire in about 30 days.\n\nIf you would like to keep the learning system, long-term progress, Worlds / Badges, growth records and future training, renewal can be arranged in advance.\n\nIf helpful, I can first check the student’s current progress before you decide.`],
+['14｜Shortest closing version',`If your child’s main problem is “I know I should study, but I don’t know how to study effectively,” this system turns effective learning methods into daily actions.\n\nThe current price is {{PRICE}}. If you’d like to join, I can set up the student account now.`]
+]}};
+let current=0,open=false;
+function L(){return document.getElementById('salesTalkLang')?.value||'zh'}
+function P(){return document.getElementById('salesTalkPrice')?.value==='regular'?'RM199':'RM99'}
+function replacePrice(v){return String(v||'').replace(/\{\{PRICE\}\}/g,P())}
+window.renderSalesTalkLibrary=function(){const d=DB[L()]||DB.zh;document.getElementById('salesTalkHeading').textContent=d.heading;document.getElementById('salesTalkSub').textContent=d.sub;document.getElementById('salesTalkLangLabel').textContent=d.lang;document.getElementById('salesTalkPriceLabel').textContent=d.price;const ps=document.getElementById('salesTalkPrice');if(ps){ps.options[0].textContent=d.launch;ps.options[1].textContent=d.regular}document.getElementById('salesTalkStatus').textContent=d.status(P());document.getElementById('salesTalkToggle').textContent=open?d.toggleClose:d.toggleOpen;document.getElementById('salesTalkCopy').textContent=d.copy;document.getElementById('salesTalkTip').textContent=d.tip;const tabs=document.getElementById('salesTalkTabs');tabs.innerHTML=d.items.map((it,i)=>`<button type="button" class="salesTalkTab ${i===current?'active':''}" onclick="selectSalesTalk(${i})">${replacePrice(it[0])}</button>`).join('');const it=d.items[current]||d.items[0];document.getElementById('salesTalkTitle').textContent=replacePrice(it[0]);document.getElementById('salesTalkText').textContent=replacePrice(it[1]);};
+window.selectSalesTalk=function(i){current=i;renderSalesTalkLibrary()};
+window.toggleSalesTalkLibrary=function(){open=!open;document.getElementById('salesTalkBody')?.classList.toggle('show',open);renderSalesTalkLibrary();if(open)setTimeout(()=>document.getElementById('salesTalkLibrary')?.scrollIntoView({behavior:'smooth',block:'start'}),60)};
+window.copyCurrentSalesTalk=function(){const d=DB[L()]||DB.zh,v=document.getElementById('salesTalkText')?.innerText||'';const done=()=>{if(typeof salesToast==='function')salesToast(d.copied)};if(navigator.clipboard?.writeText)navigator.clipboard.writeText(v).then(done).catch(()=>{const t=document.createElement('textarea');t.value=v;document.body.appendChild(t);t.select();document.execCommand('copy');t.remove();done()});else{const t=document.createElement('textarea');t.value=v;document.body.appendChild(t);t.select();document.execCommand('copy');t.remove();done()}};
+setTimeout(renderSalesTalkLibrary,100);
+})();
+</script>
+
 </body>
 </html>
