@@ -109,6 +109,10 @@ input{width:100%;padding:12px 13px;border:1px solid #d8e1ed;border-radius:12px;o
 @media(max-width:900px){.grid8{grid-template-columns:repeat(2,1fr)}.opsGrid{grid-template-columns:1fr}}
 @media(max-width:560px){.grid8{grid-template-columns:1fr}.adminToolbar input,.adminToolbar select{width:100%;min-width:0}.quickLinks a{flex:1;text-align:center}}
 
+
+/* ===== ADMIN V3.0 SALES CRM + SALES SCRIPTS ===== */
+.salesSummary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:12px}.salesMetric{border:1px solid #dfe7f2;background:#f8fafc;border-radius:14px;padding:13px}.salesMetric small{display:block;color:#75839a;font-size:11px;font-weight:850;margin-bottom:5px}.salesMetric b{font-size:22px;color:#173a73}.paymentTag{display:inline-block;padding:5px 8px;border-radius:999px;font-size:10px;font-weight:900}.paymentTag.PAID{background:#e8f8ef;color:#177552}.paymentTag.UNPAID{background:#fff1f1;color:#a23b3b}.paymentTag.UNSET{background:#eef2f7;color:#67768c}.salesScripts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px}.salesScript{border:1px solid #e1e8f2;background:#fbfcff;border-radius:15px;padding:14px}.salesScript h3{margin:0 0 6px;font-size:15px}.salesScript p{margin:0;color:#4d607b;line-height:1.65;font-size:13px;white-space:pre-line}.salesScript button{margin-top:10px;border:0;border-radius:9px;background:#edf3ff;color:#294f88;padding:8px 10px;font-weight:900;cursor:pointer}.salesStorageNote{font-size:11px;color:#738199;margin-top:9px;line-height:1.5}.crmGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.crmGrid .formFull{grid-column:1/-1}.crmSaveRow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px}.copyToast{position:fixed;right:18px;bottom:18px;background:#10213e;color:#fff;border-radius:12px;padding:10px 13px;font-size:12px;font-weight:850;opacity:0;transform:translateY(8px);pointer-events:none;transition:.2s;z-index:12000}.copyToast.show{opacity:1;transform:none}
+@media(max-width:760px){.salesSummary,.salesScripts,.crmGrid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -165,6 +169,33 @@ input{width:100%;padding:12px 13px;border:1px solid #d8e1ed;border-radius:12px;o
     <div id="generateAllWeeklyResult" class="manageResult hidden" style="margin-top:12px"></div>
   </section>
 
+
+  <section class="card" style="margin-top:14px" id="salesCrmSection">
+    <div class="sectionTitle"><div><h2 style="margin:0">💼 学生销售记录</h2><div class="muted">记录每位学生的实际售价、客户来源与付款状态，方便后续跟进。</div></div><span class="pill">SALES CRM</span></div>
+    <div class="salesSummary"><div class="salesMetric"><small>已付款学生</small><b id="salesPaidCount">0</b></div><div class="salesMetric"><small>未付款学生</small><b id="salesUnpaidCount">0</b></div><div class="salesMetric"><small>已付款销售额</small><b id="salesPaidTotal">RM 0.00</b></div></div>
+    <div class="salesStorageNote" id="salesStorageNote">正在检查销售记录储存方式…</div>
+  </section>
+
+  <section class="card" style="margin-top:14px">
+    <div class="sectionTitle"><div><h2 style="margin:0">💬 销售话术</h2><div class="muted">家长咨询时可直接复制，再按孩子实际情况调整；不要一次把所有话术发给客户。</div></div><span class="pill">SALES TOOLKIT</span></div>
+    <div class="salesScripts">
+      <div class="salesScript"><h3>① 第一次咨询</h3><p id="salesScript1">您好，谢谢您来了解 How to Score A with AI 😊
+我想先了解一下，孩子现在是几年级？目前最想改善的是：粗心、拖延、不会安排时间、不知道怎样复习、考试容易紧张，还是太依赖 AI？
+我先了解孩子的情况，再告诉您这个系统是否适合。</p><button onclick="copySalesScript('salesScript1')">复制话术</button></div>
+      <div class="salesScript"><h3>② 找到痛点后</h3><p id="salesScript2">了解。这个系统不是让孩子一直刷题，而是先找出为什么会失分，再训练学习方法、时间管理、错题分析、复习和考试策略。
+孩子每天会有一个清楚的学习流程，完成后也会留下成长记录，让家长看到他有没有真正行动。</p><button onclick="copySalesScript('salesScript2')">复制话术</button></div>
+      <div class="salesScript"><h3>③ 邀请体验 / 了解</h3><p id="salesScript3">您可以先让孩子看看系统的学习方式。它不是普通“看资料”的课程，而是每天需要孩子自己思考、执行和记录。
+如果您愿意，我可以先说明孩子进入系统后的第一天会怎样使用，您再决定是否开通。</p><button onclick="copySalesScript('salesScript3')">复制话术</button></div>
+      <div class="salesScript"><h3>④ 成交</h3><p id="salesScript4">如果您觉得这个方向适合孩子，我可以现在帮他建立个人学习账号，并开通课程权限。
+开通后孩子会有自己的学习进度、Avatar、World、XP、工具箱、资料库和成长记录。
+您确认后，我就帮您安排账号。</p><button onclick="copySalesScript('salesScript4')">复制话术</button></div>
+      <div class="salesScript"><h3>⑤ 未付款跟进</h3><p id="salesScript5">您好，想跟进一下孩子的课程安排。之前您有了解 How to Score A with AI，我这边目前还没有看到付款记录。
+如果您还有任何关于课程内容、使用方式或孩子是否适合的问题，可以直接告诉我，我先帮您确认清楚，再决定也可以。</p><button onclick="copySalesScript('salesScript5')">复制话术</button></div>
+      <div class="salesScript"><h3>⑥ 续费 / 到期</h3><p id="salesScript6">您好，孩子的 How to Score A with AI 课程权限将在近期到期。
+如果您希望孩子继续保留学习系统、成长记录和后续训练，我可以帮您安排续费。需要的话我也可以先帮您查看目前的学习进度，再决定下一步。</p><button onclick="copySalesScript('salesScript6')">复制话术</button></div>
+    </div>
+  </section>
+
   <div class="two">
     <section class="card">
       <div class="sectionTitle">
@@ -181,6 +212,7 @@ input{width:100%;padding:12px 13px;border:1px solid #d8e1ed;border-radius:12px;o
           <option value="NONE">无课程</option>
           <option value="ATTENTION">需要跟进</option>
         </select>
+        <select id="salesPaymentFilter" onchange="renderAdminStudentTable()"><option value="ALL">全部付款状态</option><option value="PAID">已付款</option><option value="UNPAID">未付款</option><option value="UNSET">未记录</option></select>
         <button class="btn light" onclick="exportStudentCSV()">⬇ 导出 CSV</button>
         <span id="studentTableCount" class="tableCount"></span>
       </div>
@@ -243,6 +275,20 @@ input{width:100%;padding:12px 13px;border:1px solid #d8e1ed;border-radius:12px;o
           <label class="planChoice"><input type="radio" name="planDays" value="730">指定学生｜365 + 免费365 = 730 天</label>
         </div>
         <div class="accountHint">一般学生使用 365 天；730 天只用于你指定的少数学生。免费额外一年不是永久权限。</div>
+      </div>
+
+
+      <div class="formField">
+        <label>学生售价（RM）</label>
+        <input id="newStudentSalePrice" type="number" min="0" step="0.01" placeholder="例如：199.00">
+      </div>
+      <div class="formField">
+        <label>从哪里得知课程</label>
+        <select id="newStudentLeadSource"><option value="">请选择来源</option><option>Facebook</option><option>Instagram</option><option>TikTok</option><option>小红书</option><option>WhatsApp</option><option>朋友介绍</option><option>家长介绍</option><option>学校 / 老师</option><option>Google / Search</option><option>活动 / Seminar</option><option>其他</option></select>
+      </div>
+      <div class="formField">
+        <label>付款状态</label>
+        <select id="newStudentPaymentStatus"><option value="UNPAID">未付款</option><option value="PAID">已付款</option></select>
       </div>
 
       <div class="formFull">
@@ -386,6 +432,18 @@ input{width:100%;padding:12px 13px;border:1px solid #d8e1ed;border-radius:12px;o
         <button class="btn warn" id="renew365Btn" onclick="manageScoreAAccess('RENEW_365')">💳 续费1年</button>
       </div>
       <div class="muted">开通1年＝365 天；免费加1年＝只给指定学生 +365 天；续费1年＝学生付款后 +365 天。免费与付费续费会分别记录在后台 Audit Log。</div>
+    </div>
+
+
+    <div class="accountBox">
+      <h3>💼 销售资料</h3>
+      <div class="accountHint">修改这个学生的实际售价、客户来源与付款状态。</div>
+      <div class="crmGrid" style="margin-top:10px">
+        <div class="formField"><label>售价（RM）</label><input id="manageSalePrice" type="number" min="0" step="0.01" placeholder="0.00"></div>
+        <div class="formField"><label>付款状态</label><select id="managePaymentStatus"><option value="UNPAID">未付款</option><option value="PAID">已付款</option></select></div>
+        <div class="formField formFull"><label>从哪里得知课程</label><select id="manageLeadSource"><option value="">请选择来源</option><option>Facebook</option><option>Instagram</option><option>TikTok</option><option>小红书</option><option>WhatsApp</option><option>朋友介绍</option><option>家长介绍</option><option>学校 / 老师</option><option>Google / Search</option><option>活动 / Seminar</option><option>其他</option></select></div>
+      </div>
+      <div class="crmSaveRow"><button class="btn" onclick="saveCurrentStudentSales()">💾 保存销售资料</button><span class="muted" id="manageSalesSaved"></span></div>
     </div>
 
     <div class="accountBox">
@@ -1636,6 +1694,9 @@ function clearCreateStudentForm(){
   $("newStudentGrade").value="";
   $("newStudentEmail").value="";
   $("newStudentPassword").value="";
+  if($("newStudentSalePrice"))$("newStudentSalePrice").value="";
+  if($("newStudentLeadSource"))$("newStudentLeadSource").value="";
+  if($("newStudentPaymentStatus"))$("newStudentPaymentStatus").value="UNPAID";
   setDefaultStartDate();
   const p=document.querySelector('input[name="planDays"][value="365"]');
   if(p)p.checked=true;
@@ -1650,6 +1711,9 @@ async function createStudent(){
   const password=$("newStudentPassword").value;
   const startDate=$("newStudentStart").value;
   const planDays=selectedPlanDays();
+  const salePrice=Number($("newStudentSalePrice")?.value||0);
+  const leadSource=$("newStudentLeadSource")?.value||"";
+  const paymentStatus=$("newStudentPaymentStatus")?.value||"UNPAID";
   const btn=$("createStudentBtn");
   const box=$("createStudentResult");
 
@@ -1707,6 +1771,7 @@ async function createStudent(){
     }
 
     const student=result.student||{};
+    if(student.id){await saveSalesRecord(student.id,{sale_price:salePrice,lead_source:leadSource,payment_status:paymentStatus});}
     const enrollment=result.enrollment||student.enrollment||{};
     const courseCode=enrollment.course_code||result.course?.course_code||'SCORE-A';
     const shownPlanDays=enrollment.plan_days??student.plan_days??planDays;
@@ -1727,6 +1792,9 @@ Email: ${student.email||email}
 开始: ${shownStartDate}
 到期: ${shownExpiryDate}
 状态: ${shownStatus}
+售价: RM ${salePrice.toFixed(2)}
+来源: ${leadSource||'—'}
+付款: ${paymentStatus==='PAID'?'已付款':'未付款'}
 
 请把登录 Email 与 Temporary Password 安全地交给学生/家长。学生第一次登录必须先更改为自己的新 Password。`;
     await loadDashboard();
@@ -1736,6 +1804,9 @@ Email: ${student.email||email}
     $("newStudentGrade").value="";
     $("newStudentEmail").value="";
     $("newStudentPassword").value="";
+    if($("newStudentSalePrice"))$("newStudentSalePrice").value="";
+    if($("newStudentLeadSource"))$("newStudentLeadSource").value="";
+    if($("newStudentPaymentStatus"))$("newStudentPaymentStatus").value="UNPAID";
     setDefaultStartDate();
   }catch(err){
     console.error("Create student failed",err);
@@ -1755,6 +1826,115 @@ setDefaultStartDate();
   const {data:role}=await db.from("user_roles").select("role").eq("user_id",user.id).eq("role","admin").maybeSingle();
   if(role){showDashboard(user);loadDashboard();}
 })();
+
+/* ===== ADMIN V3.0 SALES CRM ===== */
+const SCOREA_SALES_LOCAL_KEY='scorea_admin_student_sales_v1';
+let SCOREA_SALES_MAP=new Map();
+let SCOREA_SALES_STORAGE='local';
+function salesLocalAll(){try{return JSON.parse(localStorage.getItem(SCOREA_SALES_LOCAL_KEY)||'{}')||{}}catch(e){return {}}}
+function salesLocalSaveAll(v){localStorage.setItem(SCOREA_SALES_LOCAL_KEY,JSON.stringify(v||{}))}
+function salesNormalize(r){return {student_id:r?.student_id||'',sale_price:Number(r?.sale_price||0),lead_source:r?.lead_source||'',payment_status:String(r?.payment_status||'UNPAID').toUpperCase()==='PAID'?'PAID':'UNPAID',updated_at:r?.updated_at||new Date().toISOString()}}
+async function loadSalesCRM(){
+  let rows=[];SCOREA_SALES_STORAGE='local';
+  try{
+    const {data,error}=await db.from('scorea_student_sales').select('student_id,sale_price,lead_source,payment_status,updated_at');
+    if(error)throw error; rows=data||[]; SCOREA_SALES_STORAGE='cloud';
+  }catch(e){rows=Object.values(salesLocalAll());}
+  const merged=new Map(Object.values(salesLocalAll()).map(r=>{const x=salesNormalize(r);return [x.student_id,x]}));
+  rows.forEach(r=>{const x=salesNormalize(r);merged.set(x.student_id,x)});
+  SCOREA_SALES_MAP=merged;
+  renderSalesSummary();
+  const note=$('salesStorageNote');
+  if(note)note.textContent=SCOREA_SALES_STORAGE==='cloud'?'✓ 销售记录已连接 Supabase 云端。':'销售记录目前保存在此 Admin 浏览器；如建立 scorea_student_sales 表，会自动切换为 Supabase 云端记录。';
+}
+async function saveSalesRecord(studentId,record){
+  if(!studentId)return;
+  const x=salesNormalize({student_id:studentId,...record,updated_at:new Date().toISOString()});
+  let cloud=false;
+  try{
+    const {error}=await db.from('scorea_student_sales').upsert(x,{onConflict:'student_id'});
+    if(error)throw error;
+    cloud=true;SCOREA_SALES_STORAGE='cloud';
+  }catch(e){}
+  const local=salesLocalAll();local[studentId]=x;salesLocalSaveAll(local);
+  SCOREA_SALES_MAP.set(studentId,x);if(cloud)SCOREA_SALES_STORAGE='cloud';renderSalesSummary();
+}
+function renderSalesSummary(){
+  const students=ADMIN_STATE.students||[];let paid=0,unpaid=0,total=0;
+  students.forEach(s=>{const x=SCOREA_SALES_MAP.get(s.id);if(!x)return;if(x.payment_status==='PAID'){paid++;total+=Number(x.sale_price||0)}else unpaid++});
+  if($('salesPaidCount'))$('salesPaidCount').textContent=paid;
+  if($('salesUnpaidCount'))$('salesUnpaidCount').textContent=unpaid;
+  if($('salesPaidTotal'))$('salesPaidTotal').textContent='RM '+total.toFixed(2);
+}
+function salesFmtPrice(x){return x&&Number(x.sale_price)>=0?'RM '+Number(x.sale_price||0).toFixed(2):'—'}
+function salesPaymentHtml(x){if(!x)return '<span class="paymentTag UNSET">未记录</span>';const p=x.payment_status||'UNPAID';return `<span class="paymentTag ${p}">${p==='PAID'?'已付款':'未付款'}</span>`}
+function copySalesScript(id){
+  const value=$(id)?.innerText||'';
+  if(navigator.clipboard?.writeText){
+    navigator.clipboard.writeText(value).then(()=>salesToast('✓ 话术已复制')).catch(()=>salesCopyFallback(value));
+  }else salesCopyFallback(value);
+}
+function salesCopyFallback(value){const ta=document.createElement('textarea');ta.value=value;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();salesToast('✓ 话术已复制')}
+function salesToast(msg){let e=$('copyToast');if(!e){e=document.createElement('div');e.id='copyToast';e.className='copyToast';document.body.appendChild(e)}e.textContent=msg;e.classList.add('show');setTimeout(()=>e.classList.remove('show'),1500)}
+
+const __adminOldLoadDashboard=loadDashboard;
+loadDashboard=async function(){const r=await __adminOldLoadDashboard.apply(this,arguments);await loadSalesCRM();renderAdminStudentTable();return r};
+
+renderAdminStudentTable=function(){
+  const students=ADMIN_STATE.students||[], enroll=ADMIN_STATE.enroll||[], progress=ADMIN_STATE.progress||[];
+  const enrollMap=new Map(enroll.map(e=>[e.student_id,e]));
+  const progressMap=new Map(progress.map(p=>[p.student_id,p]));
+  const q=($('studentSearch')?.value||'').trim().toLowerCase();
+  const filter=$('studentStatusFilter')?.value||'ALL';
+  const payFilter=$('salesPaymentFilter')?.value||'ALL';
+  const rows=students.filter(s=>{
+    const e=enrollMap.get(s.id),p=progressMap.get(s.id),sales=SCOREA_SALES_MAP.get(s.id);
+    const status=e?effectiveEnrollmentStatus(e):'NONE';
+    const reasons=adminAttentionReasons(s,e,p);
+    const hay=`${s.student_id||''} ${s.full_name||''} ${s.grade||''} ${sales?.lead_source||''} ${sales?.payment_status||''}`.toLowerCase();
+    return(!q||hay.includes(q))&&(filter==='ALL'||status===filter||(filter==='ATTENTION'&&reasons.length>0))&&(payFilter==='ALL'||(sales?.payment_status||'UNSET')===payFilter);
+  });
+  if($('studentTableCount'))$('studentTableCount').textContent=`显示 ${rows.length} / ${students.length} 位学生`;
+  $('studentTableWrap').innerHTML=rows.length?`<div style="overflow:auto"><table><thead><tr><th>Student ID</th><th>姓名</th><th>年级</th><th>售价</th><th>来源</th><th>付款</th><th>课程</th><th>到期</th><th>学习进度</th><th>最近活动</th><th>管理</th></tr></thead><tbody>${rows.map(s=>{
+    const e=enrollMap.get(s.id),p=progressMap.get(s.id),sales=SCOREA_SALES_MAP.get(s.id);
+    const status=e?effectiveEnrollmentStatus(e):String(s.status||'').toUpperCase()||'NONE';
+    const statusClass=status==='ACTIVE'?'active':status==='EXPIRED'?'expired':'';
+    const left=e?adminDaysUntil(e.expiry_date):null;
+    const age=adminProgressAgeDays(p);
+    const activity=!p?'尚无进度':age===0?'<span class="fresh">今天</span>':age===1?'<span class="fresh">昨天</span>':age!==null&&age<7?`<span class="fresh">${age} 天前</span>`:age!==null?`<span class="stale">${age} 天前</span>`:'—';
+    const expiry=e?.expiry_date?`${esc(e.expiry_date)}${status==='ACTIVE'&&left!==null&&left<=30&&left>=0?`<br><span class="expirySoon">剩 ${left} 天</span>`:''}`:'—';
+    return `<tr><td><b>${esc(s.student_id)}</b></td><td>${esc(s.full_name)}</td><td>${esc(s.grade)}</td><td>${salesFmtPrice(sales)}</td><td>${esc(sales?.lead_source||'—')}</td><td>${salesPaymentHtml(sales)}</td><td><span class="tag ${statusClass}">${esc(status)}</span></td><td>${expiry}</td><td>${p?`Cycle ${p.current_cycle} · Day ${p.current_day}<br><span class="muted">${p.xp||0} XP</span>`:'尚未建立'}</td><td>${activity}</td><td><button class="manageBtn" onclick='openEnrollmentManager(${JSON.stringify({student_uuid:s.id,student_id:s.student_id,full_name:s.full_name,user_id:s.user_id,enrollment_id:e?.id||null,status:e?effectiveEnrollmentStatus(e):'NONE',raw_status:e?.status||'',start_date:e?.start_date||'',expiry_date:e?.expiry_date||'',plan_days:e?.plan_days||''})})'>管理</button></td></tr>`;
+  }).join('')}</tbody></table></div>`:'<div class="empty">没有符合筛选条件的学生。</div>';
+};
+
+const __adminOldOpenEnrollmentManager=openEnrollmentManager;
+openEnrollmentManager=function(info){
+  const r=__adminOldOpenEnrollmentManager.apply(this,arguments);
+  const x=SCOREA_SALES_MAP.get(info?.student_uuid)||{};
+  if($('manageSalePrice'))$('manageSalePrice').value=x.sale_price??'';
+  if($('manageLeadSource'))$('manageLeadSource').value=x.lead_source||'';
+  if($('managePaymentStatus'))$('managePaymentStatus').value=x.payment_status||'UNPAID';
+  if($('manageSalesSaved'))$('manageSalesSaved').textContent='';
+  return r;
+};
+async function saveCurrentStudentSales(){
+  if(!CURRENT_ENROLLMENT?.student_uuid)return;
+  const price=Number($('manageSalePrice')?.value||0),source=$('manageLeadSource')?.value||'',payment=$('managePaymentStatus')?.value||'UNPAID';
+  await saveSalesRecord(CURRENT_ENROLLMENT.student_uuid,{sale_price:price,lead_source:source,payment_status:payment});
+  if($('manageSalesSaved'))$('manageSalesSaved').textContent='✓ 已保存';
+  renderAdminStudentTable();
+}
+
+exportStudentCSV=function(){
+  const students=ADMIN_STATE.students||[], enroll=ADMIN_STATE.enroll||[], progress=ADMIN_STATE.progress||[];
+  const enrollMap=new Map(enroll.map(e=>[e.student_id,e]));const progressMap=new Map(progress.map(p=>[p.student_id,p]));
+  const quote=v=>'"'+String(v??'').replace(/"/g,'""')+'"';
+  const rows=[['Student ID','Name','Grade','Sale Price RM','Lead Source','Payment Status','Course Status','Expiry','Cycle','Day','XP','Last Updated','Attention']];
+  students.forEach(s=>{const e=enrollMap.get(s.id),p=progressMap.get(s.id),sales=SCOREA_SALES_MAP.get(s.id),status=e?effectiveEnrollmentStatus(e):'NONE';rows.push([s.student_id,s.full_name,s.grade,sales?.sale_price||0,sales?.lead_source||'',sales?.payment_status||'UNPAID',status,e?.expiry_date||'',p?.current_cycle||'',p?.current_day||'',p?.xp||'',p?.updated_at||'',adminAttentionReasons(s,e,p).join('; ')])});
+  const csv='\ufeff'+rows.map(r=>r.map(quote).join(',')).join('\n');
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8'}),link=document.createElement('a');
+  link.href=URL.createObjectURL(blob);link.download=`scorea-students-sales-${new Date().toISOString().slice(0,10)}.csv`;link.click();URL.revokeObjectURL(link.href);
+};
 </script>
 </body>
 </html>
