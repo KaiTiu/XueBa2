@@ -2313,6 +2313,47 @@ setParentLanguage=function(lang){
 })();
 
 
+/* ===== Parent Dashboard V10: CLEAN LEGACY WEEKLY REPORTS =====
+   Old reports were generated before the weekly behaviour-signal model.
+   To avoid presenting lifetime cumulative scores as weekly percentages:
+   - remove the legacy warning banner requested by the user;
+   - hide the old habit percentage grid;
+   - hide old habit-based advice blocks that may rely on those legacy scores;
+   - retain safe historical facts: Day, XP, reflection count, active days and reflection summary.
+   New weekly-report-v2 reports continue to show the full weekly habit analysis.
+*/
+(function(){
+  function isLegacyWeekly(r){
+    return String(r?.source_version||'').toLowerCase()!=='weekly-report-v2';
+  }
+  const __renderWeeklyReportsV10=renderWeeklyReports;
+  renderWeeklyReports=function(reports){
+    __renderWeeklyReportsV10(reports);
+    const rows=Array.isArray(reports)?reports:[];
+    const items=[...document.querySelectorAll('#weeklyReportList .weeklyReportItem')];
+    items.forEach((item,i)=>{
+      const r=rows[i]||{};
+      if(!isLegacyWeekly(r))return;
+
+      // Remove the yellow legacy banner completely.
+      item.querySelectorAll('.legacyWeeklyNote').forEach(el=>el.remove());
+
+      // Old cumulative focus/time/self values must not be shown as weekly percentages.
+      const skillGrid=item.querySelector('.weeklySkillGrid');
+      if(skillGrid)skillGrid.style.display='none';
+
+      // Old narrative blocks may also have been generated from cumulative scores.
+      // Keep only objective historical metrics and any saved reflection summary.
+      item.querySelectorAll('.weeklySection.good,.weeklySection.next,.weeklySection.parent').forEach(el=>el.style.display='none');
+      item.querySelectorAll('.weeklyActions').forEach(list=>{
+        const sec=list.closest('.weeklySection');
+        if(sec)sec.style.display='none';
+      });
+    });
+  };
+})();
+
+
 /* Also localise the initial dashboard immediately. */
 applyParentLanguage();
 
