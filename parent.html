@@ -83,6 +83,26 @@ button,input{font:inherit}
 .weeklySection{margin-top:12px;padding:12px 13px;border-radius:13px;background:#fafcff;border:1px solid #e5ebf3;line-height:1.65}.weeklySection.good{background:#eefaf4;border-color:#cde9d9}.weeklySection.next{background:#fff8e8;border-color:#efdda9}.weeklySection.parent{background:#eef4ff;border-color:#d6e2fb}.weeklySection b{display:block;margin-bottom:5px}.weeklyActions{margin:5px 0 0;padding-left:20px}.weeklyThoughts{white-space:pre-line;color:#51627a}
 @media(max-width:760px){.weeklyMetrics{grid-template-columns:repeat(2,1fr)}.weeklySkillGrid{grid-template-columns:1fr}}
 
+
+/* ===== Parent Dashboard V4: 4-category navigation ===== */
+.parentCategoryNavWrap{margin:16px 0 0}
+.parentCategoryLabel{font-size:11px;font-weight:950;letter-spacing:.12em;color:#65728a;margin:0 0 8px 2px}
+.parentCategoryNav{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.parentCatBtn{appearance:none;border:1px solid #dce5f2;background:#fff;border-radius:18px;padding:15px 16px;display:flex;align-items:center;gap:12px;text-align:left;cursor:pointer;box-shadow:0 8px 24px #17315d08;transition:.18s ease;color:#223957;min-height:82px}
+.parentCatBtn:hover{transform:translateY(-1px);border-color:#bfcff0;box-shadow:0 12px 28px #17315d12}
+.parentCatBtn.active{background:linear-gradient(135deg,#102a57,#284b85);border-color:#102a57;color:#fff;box-shadow:0 13px 30px #102a5726}
+.parentCatIcon{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;background:#eef4ff;font-size:23px;flex:0 0 44px}
+.parentCatBtn.active .parentCatIcon{background:#ffffff18}
+.parentCatText{min-width:0}.parentCatText b{display:block;font-size:14px;line-height:1.3}.parentCatText small{display:block;margin-top:4px;font-size:10px;line-height:1.35;color:#7d8ba0;font-weight:750}
+.parentCatBtn.active .parentCatText small{color:#d8e6ff}
+.parentCategoryPanel{display:none;animation:parentCatFade .18s ease}
+.parentCategoryPanel.active{display:block}
+.parentPanelIntro{margin:14px 0 0;padding:13px 15px;border:1px solid #e0e7f2;border-radius:16px;background:linear-gradient(135deg,#f8fbff,#fbf8ff)}
+.parentPanelIntro b{display:block;font-size:15px;color:#233957}.parentPanelIntro span{display:block;font-size:11px;color:#71809a;line-height:1.55;margin-top:3px}
+@keyframes parentCatFade{from{opacity:.45;transform:translateY(4px)}to{opacity:1;transform:none}}
+@media(max-width:900px){.parentCategoryNav{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.parentCategoryNav{grid-template-columns:1fr}.parentCatBtn{min-height:70px;padding:12px 13px}.parentCatIcon{width:40px;height:40px;flex-basis:40px}.parentCatText b{font-size:13px}}
+
 </style>
 </head>
 <body>
@@ -174,6 +194,27 @@ button,input{font:inherit}
       </div>
     </section>
 
+    <div class="parentCategoryNavWrap">
+      <div class="parentCategoryLabel" id="parentCategoryLabel">PARENT CENTER · 4 MAIN AREAS</div>
+      <nav class="parentCategoryNav" aria-label="Parent Dashboard categories">
+        <button class="parentCatBtn active" type="button" data-parent-cat="overview" onclick="showParentCategory('overview')">
+          <span class="parentCatIcon">🏠</span><span class="parentCatText"><b>孩子概况</b><small>快速看最近成长与本周重点</small></span>
+        </button>
+        <button class="parentCatBtn" type="button" data-parent-cat="records" onclick="showParentCategory('records')">
+          <span class="parentCatIcon">📖</span><span class="parentCatText"><b>学习记录</b><small>趋势、阅读与每日思考</small></span>
+        </button>
+        <button class="parentCatBtn" type="button" data-parent-cat="reports" onclick="showParentCategory('reports')">
+          <span class="parentCatIcon">📊</span><span class="parentCatText"><b>成长报告</b><small>Weekly Growth Report 历史记录</small></span>
+        </button>
+        <button class="parentCatBtn" type="button" data-parent-cat="guide" onclick="showParentCategory('guide')">
+          <span class="parentCatIcon">👨‍👩‍👧</span><span class="parentCatText"><b>家长指南</b><small>遇到问题时直接查陪伴方法</small></span>
+        </button>
+      </nav>
+    </div>
+
+    <div id="parentCatOverview" class="parentCategoryPanel active">
+      <div class="parentPanelIntro"><b>🏠 先看孩子最近的成长</b><span>用最少的时间看能力变化、最近做得好的地方，以及家长这一周最值得做的一件事。</span></div>
+
     <div class="grid2">
       <section class="card">
         <h3>📈 能力成长信号</h3>
@@ -194,6 +235,10 @@ button,input{font:inherit}
         <div class="insight ask"><b>💬 今晚可以这样问</b><br><span id="parentQuestion">“这个星期，你觉得自己哪一个地方比以前做得更好了？”</span></div>
       </section>
     </div>
+    </div>
+
+    <div id="parentCatRecords" class="parentCategoryPanel">
+      <div class="parentPanelIntro"><b>📖 看孩子最近在想什么</b><span>这里集中显示学习趋势与每日真实思考，方便家长了解孩子卡在哪里、正在怎样调整。</span></div>
 
     <section class="card" style="margin-top:14px">
       <h3>🔎 系统观察到的学习趋势</h3>
@@ -208,7 +253,9 @@ button,input{font:inherit}
       <div id="reflectionList"><div class="empty">等待真实学习记录。</div></div>
       <div class="note">SYSTEM TEST / Cycle 999 会自动隐藏，不会显示给家长。</div>
     </section>
+    </div>
 
+    <div id="parentCatReports" class="parentCategoryPanel">
     <section id="weeklyReportSection" class="card weeklyHistory">
       <div class="weeklyHistoryHead">
         <div>
@@ -218,7 +265,9 @@ button,input{font:inherit}
       </div>
       <div id="weeklyReportList" class="weeklyReportList"><div class="empty">正在读取历史周报…</div></div>
     </section>
+    </div>
 
+    <div id="parentCatGuide" class="parentCategoryPanel">
     <section id="parentGuideSection" class="guideShell">
       <div class="guideHero">
         <div>
@@ -708,6 +757,7 @@ button,input{font:inherit}
 </article>
       </div>
     </section>
+    </div>
   </main>
 </div>
 
@@ -1481,6 +1531,47 @@ setParentLanguage=function(lang){
   else{const title=document.getElementById('weeklyReportTitle'),sub=document.getElementById('weeklyReportSub');if(title)title.textContent=weeklyT().title;if(sub)sub.textContent=weeklyT().sub}
 };
 
+
+
+/* ===== Parent Dashboard V4: 4-category controller ===== */
+const PARENT_CATEGORY_T={
+  zh:{label:'PARENT CENTER · 4 大类',overview:['孩子概况','快速看最近成长与本周重点'],records:['学习记录','趋势、阅读与每日思考'],reports:['成长报告','Weekly Growth Report 历史记录'],guide:['家长指南','遇到问题时直接查陪伴方法'],introOverview:['🏠 先看孩子最近的成长','用最少的时间看能力变化、最近做得好的地方，以及家长这一周最值得做的一件事。'],introRecords:['📖 看孩子最近在想什么','这里集中显示学习趋势与每日真实思考，方便家长了解孩子卡在哪里、正在怎样调整。']},
+  ms:{label:'PARENT CENTER · 4 BAHAGIAN',overview:['Ringkasan Anak','Lihat perkembangan terkini & fokus minggu ini'],records:['Rekod Pembelajaran','Trend, bacaan & refleksi harian'],reports:['Laporan Pertumbuhan','Sejarah Weekly Growth Report'],guide:['Panduan Ibu Bapa','Cari cara sokongan apabila perlu'],introOverview:['🏠 Lihat perkembangan terkini anak','Semak perubahan keupayaan, perkara yang berjalan baik dan satu tindakan ibu bapa yang paling berguna minggu ini.'],introRecords:['📖 Fahami apa yang anak sedang fikirkan','Trend pembelajaran dan refleksi harian dikumpulkan di sini supaya ibu bapa dapat melihat halangan dan penyesuaian yang sedang berlaku.']},
+  en:{label:'PARENT CENTER · 4 MAIN AREAS',overview:['Child Overview','Recent growth & this week’s focus'],records:['Learning Records','Trends, reading & daily reflections'],reports:['Growth Reports','Weekly Growth Report history'],guide:['Parent Guide','Find support methods when needed'],introOverview:['🏠 See your child’s recent growth first','Quickly review ability changes, what has been going well, and the single most useful parent action for this week.'],introRecords:['📖 See what your child has been thinking about','Learning trends and real daily reflections are gathered here so you can understand where your child is stuck and how they are adjusting.']}
+};
+let PARENT_ACTIVE_CATEGORY='overview';
+function parentCategoryText(){return PARENT_CATEGORY_T[PARENT_LANG]||PARENT_CATEGORY_T.zh}
+function applyParentCategoryLanguage(){
+  const t=parentCategoryText();
+  const label=document.getElementById('parentCategoryLabel');if(label)label.textContent=t.label;
+  document.querySelectorAll('[data-parent-cat]').forEach(btn=>{
+    const key=btn.dataset.parentCat,v=t[key];if(!v)return;
+    const b=btn.querySelector('.parentCatText b'),s=btn.querySelector('.parentCatText small');if(b)b.textContent=v[0];if(s)s.textContent=v[1];
+  });
+  const ov=document.querySelector('#parentCatOverview .parentPanelIntro');if(ov){const b=ov.querySelector('b'),s=ov.querySelector('span');if(b)b.textContent=t.introOverview[0];if(s)s.textContent=t.introOverview[1]}
+  const rec=document.querySelector('#parentCatRecords .parentPanelIntro');if(rec){const b=rec.querySelector('b'),s=rec.querySelector('span');if(b)b.textContent=t.introRecords[0];if(s)s.textContent=t.introRecords[1]}
+}
+function showParentCategory(name,opts={}){
+  const valid=['overview','records','reports','guide'];
+  PARENT_ACTIVE_CATEGORY=valid.includes(name)?name:'overview';
+  document.querySelectorAll('.parentCategoryPanel').forEach(p=>p.classList.toggle('active',p.id===`parentCat${PARENT_ACTIVE_CATEGORY[0].toUpperCase()+PARENT_ACTIVE_CATEGORY.slice(1)}`));
+  document.querySelectorAll('[data-parent-cat]').forEach(b=>{const on=b.dataset.parentCat===PARENT_ACTIVE_CATEGORY;b.classList.toggle('active',on);b.setAttribute('aria-pressed',on?'true':'false')});
+  if(opts.scroll!==false){document.querySelector('.parentCategoryNavWrap')?.scrollIntoView({behavior:'smooth',block:'start'})}
+  if(PARENT_ACTIVE_CATEGORY==='guide'&&opts.focus!==false)setTimeout(()=>document.getElementById('parentGuideSearch')?.focus(),320);
+}
+
+/* The existing top Parent Guide button now opens the Guide category instead of scrolling through a long page. */
+scrollToParentGuide=function(){showParentCategory('guide')};
+
+/* Keep the four category labels in sync with 中文 / BM / EN. */
+const __parentSetLanguageCategories=setParentLanguage;
+setParentLanguage=function(lang){
+  __parentSetLanguageCategories(lang);
+  applyParentCategoryLanguage();
+  showParentCategory(PARENT_ACTIVE_CATEGORY,{scroll:false,focus:false});
+};
+applyParentCategoryLanguage();
+showParentCategory('overview',{scroll:false,focus:false});
 
 /* Also localise the initial dashboard immediately. */
 applyParentLanguage();
