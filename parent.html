@@ -1822,6 +1822,86 @@ setParentLanguage=function(lang){
   }
 };
 
+
+
+/* ===== Parent Dashboard V7: RECOVER REFLECTIONS FROM CLOUD PROGRESS =====
+   If scorea_daily_reflections is empty, use Cloud Progress V2 cycle_state.readThought.
+   Requires the Reflection Recovery V2 SQL parent-read policy for scorea_student_progress.
+*/
+function scoreAProgressReflectionRows(row){
+  const cs=(row&&row.cycle_state&&typeof row.cycle_state==='object')?row.cycle_state:{};
+  const thoughts=(cs.readThought&&typeof cs.readThought==='object')?cs.readThought:{};
+  const completed=(cs.readCompletedAt&&typeof cs.readCompletedAt==='object')?cs.readCompletedAt:{};
+  const rows=[];
+  Object.entries(thoughts).forEach(([key,val])=>{
+    const m=/^(\d+)-(\d+)$/.exec(String(key||''));
+    const answer=String(val||'').trim();
+    if(!m||!answer)return;
+    const cycle=Number(m[1]),day=Number(m[2]);
+    if(cycle<1||day<1||day>30)return;
+    rows.push({
+      student_id:row.student_id||null,
+      user_id:row.user_id||null,
+      cycle_number:cycle,
+      day_number:day,
+      lesson_type:PARENT_LANG==='en'?'Daily Read':PARENT_LANG==='ms'?'Bacaan Harian':'每日必读',
+      lesson_title:`Day ${day} · ${PARENT_LANG==='en'?'Learning Reflection':PARENT_LANG==='ms'?'Refleksi Pembelajaran':'学习思考'}`,
+      lesson_question:null,
+      reflection_text:answer,
+      completed_at:completed[key]||row.updated_at||null,
+      _scorea_recovered_from_progress:true
+    });
+  });
+  return rows;
+}
+
+async function scoreAParentLoadProgressReflectionFallback(){
+  if(!DASH?.children?.length)return [];
+  try{
+    const {data,error}=await sb.from('scorea_student_progress')
+      .select('student_id,user_id,current_cycle,current_day,cycle_state,updated_at')
+      .order('updated_at',{ascending:false})
+      .limit(50);
+    if(error)throw error;
+    const progressRows=Array.isArray(data)?data:[];
+    const recovered=progressRows.flatMap(scoreAProgressReflectionRows)
+      .sort((a,b)=>{
+        const ta=new Date(a.completed_at||0).getTime()||0;
+        const tb=new Date(b.completed_at||0).getTime()||0;
+        if(tb!==ta)return tb-ta;
+        if(b.cycle_number!==a.cycle_number)return b.cycle_number-a.cycle_number;
+        return b.day_number-a.day_number;
+      });
+    if(recovered.length){
+      scoreAAttachAuthorisedReflections(DASH.children,recovered);
+      SCOREA_PARENT_REFLECTIONS_READY=true;
+      SCOREA_PARENT_REFLECTIONS_COUNT=recovered.length;
+      SCOREA_PARENT_REFLECTIONS_LAST_ERROR=null;
+      scoreAParentReflectionStatus(
+        PARENT_LANG==='en'?`✓ Recovered ${recovered.length} reflection record(s) from Student OS cloud progress.`:
+        PARENT_LANG==='ms'?`✓ ${recovered.length} rekod refleksi dipulihkan daripada kemajuan cloud Student OS.`:
+        `✓ 已从 Student OS 云端学习进度恢复 ${recovered.length} 条思考记录。`,'ok');
+    }
+    return recovered;
+  }catch(err){
+    console.warn('Parent progress reflection fallback failed',err);
+    return [];
+  }
+}
+
+const __parentLoadDashboardV7=loadDashboard;
+loadDashboard=async function(){
+  await __parentLoadDashboardV7();
+  if(DASH?.children?.length && Number(SCOREA_PARENT_REFLECTIONS_COUNT||0)===0){
+    const recovered=await scoreAParentLoadProgressReflectionFallback();
+    if(recovered.length){
+      const child=DASH.children[CURRENT_CHILD];
+      if(child)renderChild(child);
+    }
+  }
+};
+
+
 /* Also localise the initial dashboard immediately. */
 applyParentLanguage();
 
