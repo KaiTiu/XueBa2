@@ -2004,6 +2004,315 @@ setParentLanguage=function(lang){
 };
 
 
+
+/* ===== Parent Dashboard V9: RECENT-HABIT + TREND + WEEKLY LOGIC =====
+   Goals:
+   1) Growth bars are recent 7-day learning-habit signals, not lifetime counters.
+   2) Trend analysis reads the student's own reflection text only.
+   3) Weekly report Day is shown on the absolute 365-day timeline.
+   4) Old V1 weekly reports are explicitly marked as legacy cumulative-signal reports.
+*/
+(function(){
+  const copy={
+    zh:{
+      growthTitle:'📈 最近 7 天学习习惯信号',
+      growthSub:'根据最近 7 个实际日期的学习行为计算；没有学习的日期也会计入，因此更适合观察稳定度，不代表考试能力。',
+      skills:['专注习惯','时间管理习惯','自主学习习惯'],
+      noHabit:'最近 7 天还没有足够的真实学习行为记录。先继续完成每日「必读 + 思考、时间管理、AI 练习、今日挑战」。',
+      equalHabit:'三个学习习惯信号目前接近。先继续累积至少 3 个实际学习日，再观察哪一项最稳定、哪一项最需要加强。',
+      strong:(label,val)=>`${label}是最近 7 天相对较稳定的习惯信号（${val}%）。可以具体肯定孩子做对的行为，而不是只称赞“聪明”。`,
+      weak:(label,val)=>`${label}目前是最近 7 天相对较弱的习惯信号（${val}%）。本周只针对这一项做一个小改善。`,
+      action:{
+        focus:['帮助孩子保护一个 25 分钟无手机、无聊天的专注时段。','“今天哪一个时间段最适合完全不被打扰地完成一件事？”'],
+        time:['和孩子一起确定一个固定开始时间，只提醒一次，完成后再讨论效果。','“你今天几点开始最容易做到？第一件最重要的任务是什么？”'],
+        self:['少给一个答案，多问一个问题，让孩子先说出自己的下一步。','“如果下一次再遇到同样的问题，你准备先做哪一步？”']
+      },
+      legacy:'旧版周报：此报告保存的是旧累积分数。新生成的周报会改用该周真实学习行为计算习惯信号。',
+      weeklySignal:'本周习惯信号'
+    },
+    ms:{
+      growthTitle:'📈 Isyarat Tabiat Belajar 7 Hari Terkini',
+      growthSub:'Dikira daripada tingkah laku pembelajaran pada 7 hari kalendar terkini. Hari tanpa aktiviti juga diambil kira; ini menunjukkan kestabilan tabiat, bukan keupayaan peperiksaan.',
+      skills:['Tabiat Fokus','Tabiat Pengurusan Masa','Tabiat Pembelajaran Kendiri'],
+      noHabit:'Belum cukup rekod tingkah laku pembelajaran sebenar untuk 7 hari terkini. Terus lengkapkan Baca + Fikir, Pengurusan Masa, Latihan AI dan Cabaran Harian.',
+      equalHabit:'Ketiga-tiga isyarat tabiat masih hampir sama. Kumpulkan sekurang-kurangnya 3 hari pembelajaran sebenar sebelum membuat kesimpulan.',
+      strong:(label,val)=>`${label} ialah isyarat tabiat yang relatif lebih stabil dalam 7 hari terkini (${val}%).`,
+      weak:(label,val)=>`${label} ialah isyarat yang relatif lebih lemah dalam 7 hari terkini (${val}%). Fokus pada satu penambahbaikan kecil minggu ini.`,
+      action:{
+        focus:['Lindungi satu blok fokus 25 minit tanpa telefon atau sembang.','“Bilakah masa terbaik hari ini untuk buat satu tugas tanpa gangguan?”'],
+        time:['Tetapkan satu waktu mula yang jelas dan beri satu peringatan sahaja.','“Pukul berapa paling mudah untuk mula hari ini, dan apakah tugas pertama yang paling penting?”'],
+        self:['Kurangkan memberi jawapan; minta anak terangkan langkah seterusnya dahulu.','“Jika jumpa masalah yang sama lagi, apakah langkah pertama yang kamu akan cuba?”']
+      },
+      legacy:'Laporan lama: laporan ini menggunakan skor terkumpul versi lama. Laporan baharu akan menggunakan isyarat tabiat berdasarkan tingkah laku sebenar minggu tersebut.',
+      weeklySignal:'Isyarat tabiat minggu ini'
+    },
+    en:{
+      growthTitle:'📈 Recent 7-Day Learning-Habit Signals',
+      growthSub:'Calculated from real learning behaviour across the latest 7 calendar days. Days without activity are included, so this reflects habit consistency—not exam ability.',
+      skills:['Focus Habit','Time-Management Habit','Independent-Learning Habit'],
+      noHabit:'There is not enough real learning-behaviour data in the latest 7 days yet. Keep completing Read + Think, Time Management, AI Practice and the Daily Challenge.',
+      equalHabit:'The three habit signals are currently close. Build at least 3 real learning days before drawing conclusions about strengths or priorities.',
+      strong:(label,val)=>`${label} is the relatively strongest habit signal across the latest 7 days (${val}%). Praise the specific behaviour rather than general “smartness.”`,
+      weak:(label,val)=>`${label} is currently the relatively weaker habit signal across the latest 7 days (${val}%). Focus on one small improvement this week.`,
+      action:{
+        focus:['Protect one 25-minute phone-free, interruption-free focus block.','“What time today would be easiest for you to complete one task without interruptions?”'],
+        time:['Agree on one clear start time and give only one reminder.','“What time will you start today, and what is the first important task?”'],
+        self:['Give one less answer and ask one more question so the child states the next step first.','“If you meet the same problem again, what will you try first?”']
+      },
+      legacy:'Legacy weekly report: this report used the old cumulative scores. Newly generated reports use habit signals calculated from that week’s real learning behaviour.',
+      weeklySignal:'Weekly habit signal'
+    }
+  };
+  function c9(){return copy[PARENT_LANG]||copy.zh}
+
+  /* Update wording so the bars are not presented as permanent abilities. */
+  if(PARENT_T?.zh){PARENT_T.zh.growthTitle=copy.zh.growthTitle;PARENT_T.zh.growthSub=copy.zh.growthSub;PARENT_T.zh.skills=copy.zh.skills}
+  if(PARENT_T?.ms){PARENT_T.ms.growthTitle=copy.ms.growthTitle;PARENT_T.ms.growthSub=copy.ms.growthSub;PARENT_T.ms.skills=copy.ms.skills}
+  if(PARENT_T?.en){PARENT_T.en.growthTitle=copy.en.growthTitle;PARENT_T.en.growthSub=copy.en.growthSub;PARENT_T.en.skills=copy.en.skills}
+  if(WEEKLY_REPORT_T?.zh){WEEKLY_REPORT_T.zh.focus='专注习惯';WEEKLY_REPORT_T.zh.time='时间管理习惯';WEEKLY_REPORT_T.zh.self='自主学习习惯'}
+  if(WEEKLY_REPORT_T?.ms){WEEKLY_REPORT_T.ms.focus='Tabiat Fokus';WEEKLY_REPORT_T.ms.time='Tabiat Pengurusan Masa';WEEKLY_REPORT_T.ms.self='Tabiat Pembelajaran Kendiri'}
+  if(WEEKLY_REPORT_T?.en){WEEKLY_REPORT_T.en.focus='Focus Habit';WEEKLY_REPORT_T.en.time='Time-Management Habit';WEEKLY_REPORT_T.en.self='Independent-Learning Habit'}
+
+  function myDateKey(value){
+    const d=value instanceof Date?new Date(value):new Date(value||0);
+    if(!Number.isFinite(d.getTime()))return '';
+    try{
+      const parts=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Kuala_Lumpur',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(d);
+      const get=t=>parts.find(p=>p.type===t)?.value||'';
+      return `${get('year')}-${get('month')}-${get('day')}`;
+    }catch{
+      return new Date(d.getTime()+8*3600000).toISOString().slice(0,10);
+    }
+  }
+  function recentDateKeys(days=7){
+    const now=new Date();
+    const todayKey=myDateKey(now);
+    const base=new Date(`${todayKey}T00:00:00+08:00`);
+    const out=[];
+    for(let i=0;i<days;i++){
+      const d=new Date(base);d.setDate(d.getDate()-i);out.push(myDateKey(d));
+    }
+    return out;
+  }
+  function pct(n){return Math.max(0,Math.min(100,Math.round(Number(n)||0)))}
+  function taskKey(cycle,day){return `${Number(cycle)||0}-${Number(day)||0}`}
+
+  function behaviorSignalsFromState(child,days=7){
+    const live=child?._scoreaBehaviorProgress||{};
+    const cs=(live.cycle_state&&typeof live.cycle_state==='object')?live.cycle_state:{};
+    const app=(live.app_state&&typeof live.app_state==='object')?live.app_state:{};
+    const readAt=(cs.readCompletedAt&&typeof cs.readCompletedAt==='object')?cs.readCompletedAt:{};
+    const read=(cs.read&&typeof cs.read==='object')?cs.read:{};
+    const thought=(cs.readThought&&typeof cs.readThought==='object')?cs.readThought:{};
+    const time=(cs.time&&typeof cs.time==='object')?cs.time:{};
+    const ai=(cs.ai&&typeof cs.ai==='object')?cs.ai:{};
+    const rewarded=(app.rewarded&&typeof app.rewarded==='object')?app.rewarded:{};
+    const targetDates=recentDateKeys(days),dateSet=new Set(targetDates),buckets=new Map(targetDates.map(d=>[d,[]]));
+
+    Object.entries(readAt).forEach(([key,when])=>{
+      if(!/^\d+-\d+$/.test(key))return;
+      const dk=myDateKey(when);
+      if(dateSet.has(dk))buckets.get(dk).push(key);
+    });
+
+    /* Fallback to synced reflections when a historical readCompletedAt timestamp is missing. */
+    if([...buckets.values()].every(a=>a.length===0)){
+      scoreAParentUniqueReflectionRows(child?.reflections||[]).forEach(r=>{
+        const dk=myDateKey(r.completed_at),key=taskKey(r.cycle_number,r.day_number);
+        if(dateSet.has(dk)&&/^\d+-\d+$/.test(key)&&!buckets.get(dk).includes(key))buckets.get(dk).push(key);
+      });
+    }
+
+    let focusTotal=0,timeTotal=0,selfTotal=0,activeDays=0,taskDays=0;
+    targetDates.forEach(dk=>{
+      const keys=[...new Set(buckets.get(dk)||[])];
+      if(!keys.length)return;
+      activeDays++;
+      let f=0,t=0,s=0;
+      keys.forEach(key=>{
+        const hasRead=!!read[key]||String(thought[key]||'').trim().length>0||!!readAt[key];
+        const hasTime=!!time[key];
+        const hasAI=!!ai[key];
+        const hasChallenge=!!rewarded[`challenge-${key}`];
+        f+=(hasAI?0.45:0)+(hasChallenge?0.55:0);
+        t+=(hasTime?1:0);
+        s+=(hasRead?0.35:0)+(hasAI?0.20:0)+(hasChallenge?0.45:0);
+        taskDays++;
+      });
+      focusTotal+=f/keys.length;
+      timeTotal+=t/keys.length;
+      selfTotal+=s/keys.length;
+    });
+
+    return {
+      focus:pct((focusTotal/days)*100),
+      time:pct((timeTotal/days)*100),
+      self:pct((selfTotal/days)*100),
+      activeDays,
+      taskDays,
+      available:taskDays>0
+    };
+  }
+
+  /* Student reflection content is the evidence. Lesson titles/questions no longer create trend hits by themselves. */
+  trendAnalysis=function(rows){
+    const uniq=scoreAParentUniqueReflectionRows(rows||[]).slice(0,30);
+    const body=uniq.map(r=>String(r.reflection_text||'')).join(' ').toLowerCase();
+    const topics=[
+      ['粗心',['粗心','看错','抄错','检查','careless','cuai']],
+      ['时间管理',['时间','来不及','拖延','安排','开始','time','procrast','masa','tangguh']],
+      ['专注',['专注','分心','手机','游戏','干扰','focus','distract','phone','fokus','telefon']],
+      ['错题与复盘',['错题','错误','做错','订正','复盘','mistake','error','review','kesilapan','semak']],
+      ['复习方法',['复习','记忆','回忆','feynman','自测','revision','memory','recall','ulang kaji','ingatan']],
+      ['理解问题',['不会','不懂','理解','概念','卡住','understand','concept','faham','konsep']],
+      ['考试策略',['考试','审题','分数','答题','紧张','exam','question','mark','peperiksaan','soalan']],
+      ['主动学习',['主动','计划','目标','自己','下一步','independent','goal','self','kendiri','matlamat']]
+    ];
+    return topics.map(([name,words])=>{
+      let score=0;words.forEach(w=>score+=(body.split(String(w).toLowerCase()).length-1));
+      return [name,score];
+    }).filter(x=>x[1]>0).sort((a,b)=>b[1]-a[1]);
+  };
+
+  function skillKey(label){
+    const s=String(label||'');
+    if(/专注|fokus|focus/i.test(s))return 'focus';
+    if(/时间|masa|time/i.test(s))return 'time';
+    return 'self';
+  }
+  function signalList(sig){
+    const labels=(pt().skills||c9().skills);
+    return [
+      {key:'focus',label:labels[0],value:sig.focus},
+      {key:'time',label:labels[1],value:sig.time},
+      {key:'self',label:labels[2],value:sig.self}
+    ];
+  }
+  function applyHabitSignals(child){
+    const sig=behaviorSignalsFromState(child,7),x=c9();
+    const vals=signalList(sig);
+    setText('focusVal',sig.available?`${sig.focus}%`:'—');
+    setText('timeVal',sig.available?`${sig.time}%`:'—');
+    setText('learnVal',sig.available?`${sig.self}%`:'—');
+    setBar('focusBar',sig.available?sig.focus:0);
+    setBar('timeBar',sig.available?sig.time:0);
+    setBar('learnBar',sig.available?sig.self:0);
+
+    if(!sig.available){
+      setText('goodText',x.noHabit);setText('nextText',x.noHabit);
+      return;
+    }
+
+    const sorted=[...vals].sort((a,b)=>b.value-a.value);
+    const equal=Math.max(...vals.map(v=>v.value))-Math.min(...vals.map(v=>v.value))<5;
+    if(equal){
+      setText('goodText',x.equalHabit);setText('nextText',x.equalHabit);
+      return;
+    }
+    setText('goodText',x.strong(sorted[0].label,sorted[0].value));
+    setText('nextText',x.weak(sorted[2].label,sorted[2].value));
+
+    const a=x.action[sorted[2].key]||x.action.self;
+    setText('parentAction',a[0]);setText('parentQuestion',a[1]);
+  }
+
+  async function loadBehaviorProgress(){
+    if(!DASH?.children?.length)return;
+    try{
+      const {data,error}=await sb.from('scorea_student_progress')
+        .select('student_id,user_id,current_cycle,current_day,xp,app_state,cycle_state,updated_at')
+        .order('updated_at',{ascending:false})
+        .limit(100);
+      if(error)throw error;
+      const latest=new Map();
+      (Array.isArray(data)?data:[]).forEach(r=>{
+        if(r?.student_id&&!latest.has(String(r.student_id)))latest.set(String(r.student_id),r);
+      });
+      DASH.children.forEach(child=>{
+        const sid=String(child?.student?.id||'');
+        const row=latest.get(sid);
+        if(row){
+          child._scoreaBehaviorProgress=row;
+          child.progress=child.progress||{};
+          if(row.current_cycle)child.progress.current_cycle=row.current_cycle;
+          if(row.current_day)child.progress.current_day=row.current_day;
+          if(Number.isFinite(Number(row.xp)))child.progress.xp=Number(row.xp);
+        }
+      });
+    }catch(err){
+      console.warn('Recent habit signal load failed',err);
+    }
+  }
+
+  const __renderChildV9=renderChild;
+  renderChild=function(child){
+    __renderChildV9(child);
+    applyHabitSignals(child);
+  };
+
+  const __loadDashboardV9=loadDashboard;
+  loadDashboard=async function(){
+    await __loadDashboardV9();
+    if(DASH?.children?.length){
+      await loadBehaviorProgress();
+      const child=DASH.children[CURRENT_CHILD];
+      if(child)renderChild(child);
+    }
+  };
+
+  const __switchChildV9=switchChild;
+  switchChild=async function(index){
+    await __switchChildV9(index);
+    const child=DASH?.children?.[CURRENT_CHILD];
+    if(child&&!child._scoreaBehaviorProgress){
+      await loadBehaviorProgress();
+      renderChild(child);
+    }
+  };
+
+  function weeklyAbsDay(r){
+    const local=Math.max(1,Number(r?.current_day)||1);
+    if(local>30)return Math.min(365,local);
+    const cycle=Math.max(1,Number(r?.current_cycle)||1);
+    return Math.min(365,(cycle-1)*30+local);
+  }
+  const __renderWeeklyReportsV9=renderWeeklyReports;
+  renderWeeklyReports=function(reports){
+    __renderWeeklyReportsV9(reports);
+    reports=Array.isArray(reports)?reports:[];
+    const items=[...document.querySelectorAll('#weeklyReportList .weeklyReportItem')];
+    items.forEach((item,i)=>{
+      const r=reports[i]||{},t=weeklyT(),abs=weeklyAbsDay(r);
+      const generated=r.generated_at?weeklyFmtDate(r.generated_at):'';
+      const meta=item.querySelector('.weeklyReportMeta');
+      if(meta)meta.textContent=`${t.progress}: Day ${abs} / 365${generated?` · ${t.generated} ${generated}`:''}`;
+      const firstMetric=item.querySelector('.weeklyMetric b');
+      if(firstMetric)firstMetric.textContent=`Day ${abs}`;
+      if(String(r.source_version||'').toLowerCase()!=='weekly-report-v2'){
+        const body=item.querySelector('.weeklyReportBody');
+        if(body&&!body.querySelector('.legacyWeeklyNote')){
+          const note=document.createElement('div');
+          note.className='weeklySection legacyWeeklyNote';
+          note.style.cssText='background:#fff8e8;border-color:#f2cf73;color:#765613';
+          note.textContent=c9().legacy;
+          body.insertBefore(note,body.firstChild);
+        }
+      }
+    });
+  };
+
+  const __setLanguageV9=setParentLanguage;
+  setParentLanguage=function(lang){
+    __setLanguageV9(lang);
+    applyParentCategoryLanguage?.();
+    const child=DASH?.children?.[CURRENT_CHILD];
+    if(child){applyHabitSignals(child)}
+    const sid=child?.student?.id;
+    if(sid&&WEEKLY_REPORT_CACHE.has(sid))renderWeeklyReports(WEEKLY_REPORT_CACHE.get(sid));
+  };
+})();
+
+
 /* Also localise the initial dashboard immediately. */
 applyParentLanguage();
 
