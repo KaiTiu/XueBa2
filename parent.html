@@ -1679,6 +1679,149 @@ const __parentSetLanguageV5=setParentLanguage;
 setParentLanguage=function(lang){__parentSetLanguageV5(lang);setCategoryStatusCopy();const child=DASH?.children?.[CURRENT_CHILD];if(child)renderCategoryLiveStates(child);else renderCategoryLiveStatesEmpty()};
 setCategoryStatusCopy();
 
+
+/* ===== Parent Dashboard V6: LIVE REFLECTION SYNC FIX =====
+   Root fix:
+   - /api/parent-dashboard-data may return child.reflections as an empty array.
+   - Parent Dashboard now also reads scorea_daily_reflections directly with the
+     logged-in Parent session. RLS must allow a parent to read only ACTIVE linked children.
+   - If only one child is linked, all authorised reflection rows are safely attached
+     to that child even if an older API payload omitted the internal student UUID.
+*/
+const SCOREA_PARENT_REFLECTION_SELECT='student_id,user_id,cycle_number,day_number,lesson_type,lesson_title,lesson_question,reflection_text,completed_at';
+let SCOREA_PARENT_REFLECTIONS_READY=false;
+let SCOREA_PARENT_REFLECTIONS_COUNT=0;
+let SCOREA_PARENT_REFLECTIONS_LAST_ERROR=null;
+
+function scoreAParentEnsureReflectionStatus(){
+  let el=document.getElementById('parentReflectionLiveStatus');
+  if(el)return el;
+  const anchor=document.getElementById('parentRecordStatusSub')||document.getElementById('parentRecordStatusTitle');
+  if(!anchor)return null;
+  el=document.createElement('div');
+  el.id='parentReflectionLiveStatus';
+  el.style.cssText='margin-top:10px;padding:10px 12px;border-radius:12px;border:1px solid #d9e6ff;background:#f6f9ff;color:#52647f;font-size:13px;font-weight:800;line-height:1.55';
+  anchor.insertAdjacentElement('afterend',el);
+  return el;
+}
+function scoreAParentReflectionStatus(text,type='info'){
+  const el=scoreAParentEnsureReflectionStatus();
+  if(!el)return;
+  el.textContent=text||'';
+  el.style.display=text?'block':'none';
+  if(type==='ok'){
+    el.style.background='#ecfdf5';el.style.borderColor='#a7f3d0';el.style.color='#047857';
+  }else if(type==='warn'){
+    el.style.background='#fff7ed';el.style.borderColor='#fed7aa';el.style.color='#9a3412';
+  }else{
+    el.style.background='#f6f9ff';el.style.borderColor='#d9e6ff';el.style.color='#52647f';
+  }
+}
+function scoreAIsUuid(v){return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(v||''))}
+function scoreAChildUuid(child){
+  const s=child?.student||{};
+  const cands=[s.id,s.uuid,s.student_uuid,child?.student_uuid,child?.student_id];
+  return cands.find(scoreAIsUuid)||'';
+}
+function scoreAChildUserId(child){
+  const s=child?.student||{};
+  const cands=[s.user_id,s.auth_user_id,child?.user_id,child?.student_user_id];
+  return cands.find(scoreAIsUuid)||'';
+}
+function scoreAAttachAuthorisedReflections(children,rows){
+  if(!Array.isArray(children)||!children.length)return;
+  const byStudent=new Map(),byUser=new Map();
+  (rows||[]).forEach(r=>{
+    const sid=String(r.student_id||'');
+    const uid=String(r.user_id||'');
+    if(sid){if(!byStudent.has(sid))byStudent.set(sid,[]);byStudent.get(sid).push(r)}
+    if(uid){if(!byUser.has(uid))byUser.set(uid,[]);byUser.get(uid).push(r)}
+  });
+  children.forEach(child=>{
+    let matched=[];
+    const sid=scoreAChildUuid(child),uid=scoreAChildUserId(child);
+    if(sid&&byStudent.has(sid))matched=byStudent.get(sid);
+    else if(uid&&byUser.has(uid))matched=byUser.get(uid);
+    else if(children.length===1)matched=rows||[];
+    if(matched.length || !Array.isArray(child.reflections) || child.reflections.length===0){
+      child.reflections=matched;
+    }
+  });
+}
+async function scoreAParentLoadLiveReflections(){
+  if(!DASH?.children?.length)return [];
+  scoreAParentReflectionStatus(PARENT_LANG==='en'?'Syncing real reflections from cloud…':PARENT_LANG==='ms'?'Menyegerakkan refleksi sebenar dari cloud…':'正在从云端同步真实思考记录…');
+  try{
+    const {data,error}=await sb.from('scorea_daily_reflections')
+      .select(SCOREA_PARENT_REFLECTION_SELECT)
+      .neq('cycle_number',999)
+      .neq('lesson_type','SYSTEM TEST')
+      .order('completed_at',{ascending:false})
+      .limit(200);
+    if(error)throw error;
+    const rows=Array.isArray(data)?data:[];
+    scoreAAttachAuthorisedReflections(DASH.children,rows);
+    SCOREA_PARENT_REFLECTIONS_READY=true;
+    SCOREA_PARENT_REFLECTIONS_COUNT=rows.length;
+    SCOREA_PARENT_REFLECTIONS_LAST_ERROR=null;
+    if(rows.length){
+      scoreAParentReflectionStatus(
+        PARENT_LANG==='en'?`✓ Synced ${rows.length} real reflection record(s).`:
+        PARENT_LANG==='ms'?`✓ ${rows.length} rekod refleksi sebenar telah disegerakkan.`:
+        `✓ 已同步 ${rows.length} 条真实思考记录。`,'ok');
+    }else{
+      scoreAParentReflectionStatus(
+        PARENT_LANG==='en'?'Cloud returned 0 reflection records. If the student has already completed Read + Think, run the Reflection Sync Fix SQL once, then reopen Student OS and refresh this page.':
+        PARENT_LANG==='ms'?'Cloud memulangkan 0 rekod refleksi. Jika pelajar sudah melengkapkan Bacaan + Fikir, jalankan Reflection Sync Fix SQL sekali, buka semula Student OS dan kemas kini halaman ini.':
+        '云端目前返回 0 条思考记录。若学生已经完成「必读 + 思考」，请先运行 Reflection Sync Fix SQL 一次，然后重新打开学生端，再刷新这里。','warn');
+    }
+    return rows;
+  }catch(err){
+    SCOREA_PARENT_REFLECTIONS_READY=false;
+    SCOREA_PARENT_REFLECTIONS_LAST_ERROR=err;
+    console.warn('Parent live reflection sync failed',err);
+    scoreAParentReflectionStatus(
+      PARENT_LANG==='en'?'Unable to read student reflections. Please run the Reflection Sync Fix SQL once in Supabase, then refresh.':
+      PARENT_LANG==='ms'?'Tidak dapat membaca refleksi pelajar. Jalankan Reflection Sync Fix SQL sekali di Supabase, kemudian kemas kini halaman.':
+      '暂时无法读取学生思考记录。请先在 Supabase 运行一次 Reflection Sync Fix SQL，然后刷新。','warn');
+    return [];
+  }
+}
+
+/* Always enrich the API payload with the live cloud rows before the final render. */
+const __parentLoadDashboardV6=loadDashboard;
+loadDashboard=async function(){
+  await __parentLoadDashboardV6();
+  if(DASH?.children?.length){
+    await scoreAParentLoadLiveReflections();
+    const child=DASH.children[CURRENT_CHILD];
+    if(child)renderChild(child);
+  }
+};
+
+/* Switching between children also uses the already authorised cloud rows. */
+switchChild=async function(index){
+  CURRENT_CHILD=Number(index)||0;
+  if(!DASH?.children?.[CURRENT_CHILD])return;
+  if(!SCOREA_PARENT_REFLECTIONS_READY && !SCOREA_PARENT_REFLECTIONS_LAST_ERROR){
+    await scoreAParentLoadLiveReflections();
+  }
+  renderChild(DASH.children[CURRENT_CHILD]);
+};
+
+/* Re-run the direct cloud sync when the user presses Refresh. */
+const __parentRefreshCategorySetLanguage=setParentLanguage;
+setParentLanguage=function(lang){
+  __parentRefreshCategorySetLanguage(lang);
+  if(SCOREA_PARENT_REFLECTIONS_READY){
+    scoreAParentReflectionStatus(
+      PARENT_LANG==='en'?`✓ Synced ${SCOREA_PARENT_REFLECTIONS_COUNT} real reflection record(s).`:
+      PARENT_LANG==='ms'?`✓ ${SCOREA_PARENT_REFLECTIONS_COUNT} rekod refleksi sebenar telah disegerakkan.`:
+      `✓ 已同步 ${SCOREA_PARENT_REFLECTIONS_COUNT} 条真实思考记录。`,
+      SCOREA_PARENT_REFLECTIONS_COUNT?'ok':'warn');
+  }
+};
+
 /* Also localise the initial dashboard immediately. */
 applyParentLanguage();
 
