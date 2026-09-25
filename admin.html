@@ -177,6 +177,21 @@ input{width:100%;padding:12px 13px;border:1px solid #d8e1ed;border-radius:12px;o
   .adminKeyStats .stat b{font-size:20px}
 }
 
+
+/* ===== ADMIN V5.0 AUTO TEMP PASSWORD + COPYABLE CUSTOMER LOGIN INFO ===== */
+.passwordGenRow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center}
+.passwordGenBtn{border:1px solid #cfdaf0;background:linear-gradient(135deg,#f5f8ff,#edf3ff);color:#28508b;border-radius:11px;padding:11px 12px;font-weight:900;cursor:pointer;white-space:nowrap}
+.passwordGenBtn:hover{border-color:#9db5df;background:#eaf1ff}
+.credentialShare{margin-top:14px;border:1px solid #cae0d4;background:linear-gradient(135deg,#f4fff8,#fbfffd);border-radius:16px;padding:14px;color:#173b2f}
+.credentialShareHead{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-bottom:9px}
+.credentialShareHead b{font-size:14px}
+.credentialShare textarea{width:100%;min-height:255px;resize:vertical;padding:13px;border:1px solid #cfded7;border-radius:12px;background:#fff;color:#24384d;font:13px/1.65 ui-monospace,SFMono-Regular,Consolas,monospace}
+.credentialShareActions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.copyCredentialBtn{border:0;border-radius:11px;background:#245eea;color:#fff;padding:10px 13px;font-weight:900;cursor:pointer}
+.copyCredentialBtn.secondary{background:#eaf1fb;color:#274d82}
+.passwordPreview{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.04em;font-weight:900;color:#1f4c8c}
+@media(max-width:650px){.passwordGenRow{grid-template-columns:1fr}.passwordGenBtn{width:100%}}
+
 </style>
 </head>
 <body>
@@ -284,7 +299,11 @@ input{width:100%;padding:12px 13px;border:1px solid #d8e1ed;border-radius:12px;o
 </div>
 <div class="formField">
 <label>Temporary Password（首次登录必须更改）</label>
-<input id="newStudentPassword" placeholder="设置临时 Password，至少 8 个字符" type="text"/>
+<div class="passwordGenRow">
+  <input id="newStudentPassword" placeholder="系统自动生成 Temporary Password" type="text" autocomplete="off"/>
+  <button class="passwordGenBtn" type="button" onclick="generateTempInto('newStudentPassword')">⚡ Auto Generate</button>
+</div>
+<div class="accountHint">系统会自动产生安全的 Temporary Password；你也可以按 Auto Generate 重新生成。</div>
 </div>
 <div class="formField">
 <label>课程开始日期</label>
@@ -367,7 +386,11 @@ input{width:100%;padding:12px 13px;border:1px solid #d8e1ed;border-radius:12px;o
 </div>
 <div class="formField">
 <label>Temporary Password</label>
-<input id="newParentPassword" placeholder="至少 8 个字符；首次登录必须更改" type="text"/>
+<div class="passwordGenRow">
+  <input id="newParentPassword" placeholder="系统自动生成 Temporary Password" type="text" autocomplete="off"/>
+  <button class="passwordGenBtn" type="button" onclick="generateTempInto('newParentPassword')">⚡ Auto Generate</button>
+</div>
+<div class="accountHint">建立 Parent Account 前会自动产生；首次登录后必须更改为自己的 Password。</div>
 </div>
 <div class="formField">
 <label>电话（可选）</label>
@@ -591,7 +614,10 @@ input{width:100%;padding:12px 13px;border:1px solid #d8e1ed;border-radius:12px;o
       <div class="formField">
         <label>Reset Temporary Password</label>
         <div class="accountGrid">
-          <input id="resetTempPassword" type="text" placeholder="设置新的 Temporary Password，至少 8 个字符">
+          <div class="passwordGenRow" style="grid-column:1/-1">
+            <input id="resetTempPassword" type="text" placeholder="新的 Temporary Password" autocomplete="off">
+            <button class="passwordGenBtn" type="button" onclick="generateTempInto('resetTempPassword')">⚡ Auto Generate</button>
+          </div>
           <button class="btn warn" onclick="resetStudentTemporaryPassword()">🔑 Reset</button>
         </div>
         <div class="accountHint">Reset 后，学生下一次登录必须先建立自己的新 Password。管理员不需要知道学生之后的正式 Password。</div>
@@ -633,7 +659,10 @@ input{width:100%;padding:12px 13px;border:1px solid #d8e1ed;border-radius:12px;o
     <div style="padding-top:14px">
       <div class="formField">
         <label>新的 Temporary Password</label>
-        <input id="parentTempPassword" type="password" placeholder="至少 8 个字符">
+        <div class="passwordGenRow">
+          <input id="parentTempPassword" type="text" placeholder="新的 Temporary Password" autocomplete="off">
+          <button class="passwordGenBtn" type="button" onclick="generateTempInto('parentTempPassword')">⚡ Auto Generate</button>
+        </div>
         <div class="accountHint">Parent 下次登录必须先建立自己的新 Password。</div>
       </div>
 
@@ -702,6 +731,152 @@ const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{
 
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+
+/* ===== TEMP PASSWORD + CUSTOMER LOGIN MESSAGE ===== */
+function scoreARandomInt(max){
+  const a=new Uint32Array(1);
+  crypto.getRandomValues(a);
+  return a[0]%max;
+}
+function scoreAShuffle(chars){
+  const a=[...chars];
+  for(let i=a.length-1;i>0;i--){
+    const j=scoreARandomInt(i+1);
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a.join("");
+}
+function generateTemporaryPassword(length=12){
+  const upper="ABCDEFGHJKLMNPQRSTUVWXYZ";
+  const lower="abcdefghijkmnopqrstuvwxyz";
+  const digit="23456789";
+  const symbol="!@#";
+  const all=upper+lower+digit+symbol;
+  let chars=[
+    upper[scoreARandomInt(upper.length)],
+    lower[scoreARandomInt(lower.length)],
+    digit[scoreARandomInt(digit.length)],
+    symbol[scoreARandomInt(symbol.length)]
+  ];
+  while(chars.length<Math.max(10,length)) chars.push(all[scoreARandomInt(all.length)]);
+  return scoreAShuffle(chars);
+}
+function generateTempInto(id){
+  const el=$(id);
+  if(!el)return "";
+  const value=generateTemporaryPassword(12);
+  el.value=value;
+  el.type="text";
+  el.dispatchEvent(new Event("input",{bubbles:true}));
+  return value;
+}
+function ensureTempPassword(id){
+  const el=$(id);
+  if(!el)return "";
+  if(!el.value || el.value.length<8) return generateTempInto(id);
+  return el.value;
+}
+function scoreALoginUrl(fileName){
+  try{
+    if(location.protocol==="http:"||location.protocol==="https:"){
+      return new URL(fileName,location.href).href;
+    }
+  }catch(e){}
+  return "";
+}
+function copyAdminText(value,successMessage="✓ 已复制客户登录资料"){
+  const done=()=>{
+    if(typeof salesToast==="function") salesToast(successMessage);
+    else alert(successMessage);
+  };
+  if(navigator.clipboard?.writeText){
+    navigator.clipboard.writeText(value).then(done).catch(()=>{
+      const ta=document.createElement("textarea");
+      ta.value=value;document.body.appendChild(ta);ta.select();
+      document.execCommand("copy");ta.remove();done();
+    });
+  }else{
+    const ta=document.createElement("textarea");
+    ta.value=value;document.body.appendChild(ta);ta.select();
+    document.execCommand("copy");ta.remove();done();
+  }
+}
+function renderCredentialShareBox(box,title,message){
+  if(!box)return;
+  const wrap=document.createElement("div");
+  wrap.className="credentialShare";
+
+  const head=document.createElement("div");
+  head.className="credentialShareHead";
+  const h=document.createElement("b");
+  h.textContent=title;
+  const badge=document.createElement("span");
+  badge.className="pill";
+  badge.textContent="READY TO SEND";
+  head.append(h,badge);
+
+  const ta=document.createElement("textarea");
+  ta.readOnly=true;
+  ta.value=message;
+
+  const actions=document.createElement("div");
+  actions.className="credentialShareActions";
+
+  const copyBtn=document.createElement("button");
+  copyBtn.type="button";
+  copyBtn.className="copyCredentialBtn";
+  copyBtn.textContent="📋 复制客户登录资料";
+  copyBtn.addEventListener("click",()=>copyAdminText(ta.value));
+
+  const pwBtn=document.createElement("button");
+  pwBtn.type="button";
+  pwBtn.className="copyCredentialBtn secondary";
+  pwBtn.textContent="🔑 只复制 Temporary Password";
+  const m=message.match(/Temporary Password[：:]\s*(.+)/);
+  pwBtn.addEventListener("click",()=>copyAdminText(m?.[1]?.trim()||"","✓ Temporary Password 已复制"));
+
+  actions.append(copyBtn,pwBtn);
+  wrap.append(head,ta,actions);
+  box.appendChild(wrap);
+}
+function buildStudentLoginMessage(d){
+  const login=scoreALoginUrl("index.html");
+  return [
+    "🎓 How to Score A with AI｜学生登录资料",
+    "",
+    `学生姓名：${d.fullName||"—"}`,
+    `Student ID：${d.studentId||"—"}`,
+    `年级：${d.grade||"—"}`,
+    `登录 Email：${d.email||"—"}`,
+    `Temporary Password：${d.password||"—"}`,
+    "",
+    `课程期限：${d.planDays||"—"} 天`,
+    `开始日期：${d.startDate||"—"}`,
+    `到期日期：${d.expiryDate||"—"}`,
+    ...(login?[`登录网址：${login}`]:[]),
+    "",
+    "⚠️ 第一次登录后，请立即把 Temporary Password 更改为自己的新 Password。",
+    "请妥善保管登录资料，不要转发给其他人。",
+    "",
+    "祝你学习愉快，一步一步建立属于自己的学习系统。"
+  ].join("\n");
+}
+function buildParentLoginMessage(d){
+  const login=scoreALoginUrl("parent.html");
+  return [
+    "👨‍👩‍👧 How to Score A with AI｜Parent Login Information",
+    "",
+    `家长姓名：${d.fullName||"—"}`,
+    `登录 Email：${d.email||"—"}`,
+    `Temporary Password：${d.password||"—"}`,
+    `绑定学生：${d.studentText||"—"}`,
+    ...(login?[`Parent Login：${login}`]:[]),
+    "",
+    "⚠️ 第一次登录后，请立即把 Temporary Password 更改为自己的新 Password。",
+    "请妥善保管登录资料。"
+  ].join("\n");
+}
+
 
 async function adminLogin(){
   const email=$("email").value.trim(), password=$("password").value;
@@ -1156,11 +1331,7 @@ async function updateStudentEmail(){
 
 async function resetStudentTemporaryPassword(){
   if(!CURRENT_ENROLLMENT?.user_id)return;
-  const temporaryPassword=$("resetTempPassword").value;
-  if(temporaryPassword.length<8){
-    alert("Temporary Password 至少需要 8 个字符。");
-    return;
-  }
+  const temporaryPassword=ensureTempPassword("resetTempPassword");
 
   if(!confirm(`确认为 ${CURRENT_ENROLLMENT.full_name} Reset Temporary Password？\n\n学生下一次登录必须重新建立自己的新 Password。`))return;
 
@@ -1180,6 +1351,16 @@ async function resetStudentTemporaryPassword(){
 
     box.className="manageResult good";
     box.textContent="✓ "+result.message;
+    const resetMsg=[
+      "🔑 How to Score A with AI｜Temporary Password Reset",
+      "",
+      `学生姓名：${CURRENT_ENROLLMENT.full_name||"—"}`,
+      `登录 Email：${$("currentStudentEmail").value||"—"}`,
+      `Temporary Password：${temporaryPassword}`,
+      "",
+      "⚠️ 下次登录后，请立即建立自己的新 Password。"
+    ].join("\n");
+    renderCredentialShareBox(box,"📨 Reset 登录资料",resetMsg);
   }catch(err){
     console.error("Reset temporary password failed",err);
     box.className="manageResult bad";
@@ -1635,7 +1816,7 @@ async function linkExistingParentToStudent(){
 function clearParentForm(){
   $("newParentName").value="";
   $("newParentEmail").value="";
-  $("newParentPassword").value="";
+  generateTempInto("newParentPassword");
   $("newParentPhone").value="";
   $("newParentRelationship").value="parent";
   $("newParentStudent").value="";
@@ -1647,7 +1828,7 @@ function clearParentForm(){
 async function createParentAccount(){
   const fullName=$("newParentName").value.trim();
   const email=$("newParentEmail").value.trim().toLowerCase();
-  const password=$("newParentPassword").value;
+  const password=ensureTempPassword("newParentPassword");
   const phone=$("newParentPhone").value.trim();
   const relationship=$("newParentRelationship").value;
   const studentId=$("newParentStudent").value;
@@ -1711,14 +1892,19 @@ async function createParentAccount(){
 Parent：${result.parent.full_name}
 Email：${result.parent.email}
 角色：PARENT
-绑定学生：${result.student.student_id} · ${result.student.full_name}
+绑定学生：${result.student.student_id} · ${result.student.full_name}`;
 
-Temporary Password 已建立。
-Parent 第一次登录必须先设置自己的新 Password。`;
+    const parentShareMessage=buildParentLoginMessage({
+      fullName:result.parent.full_name||fullName,
+      email:result.parent.email||email,
+      password,
+      studentText:`${result.student.student_id} · ${result.student.full_name}`
+    });
+    renderCredentialShareBox(box,"📨 可直接发给 Parent",parentShareMessage);
 
     $("newParentName").value="";
     $("newParentEmail").value="";
-    $("newParentPassword").value="";
+    generateTempInto("newParentPassword");
     $("newParentPhone").value="";
     $("newParentRelationship").value="parent";
     $("newParentStudent").value="";
@@ -1740,7 +1926,7 @@ let CURRENT_PARENT_RESET=null;
 function openParentResetPassword(userId,fullName){
   CURRENT_PARENT_RESET={user_id:userId,full_name:fullName||"Parent"};
   $("parentPasswordName").textContent=CURRENT_PARENT_RESET.full_name;
-  $("parentTempPassword").value="";
+  generateTempInto("parentTempPassword");
   const box=$("parentPasswordResult");
   box.className="manageResult hidden";
   box.textContent="";
@@ -1754,7 +1940,7 @@ function closeParentResetPassword(){
 
 async function resetParentTemporaryPassword(){
   const box=$("parentPasswordResult");
-  const temporaryPassword=$("parentTempPassword").value;
+  const temporaryPassword=ensureTempPassword("parentTempPassword");
 
   if(!CURRENT_PARENT_RESET?.user_id){
     box.className="manageResult bad";
@@ -1782,7 +1968,16 @@ async function resetParentTemporaryPassword(){
 
     box.className="manageResult good";
     box.textContent="✓ Parent Temporary Password 已重设。\n\nParent 下次登录时必须先建立自己的新 Password。";
-    $("parentTempPassword").value="";
+    const resetParentMsg=[
+      "🔑 How to Score A with AI｜Parent Temporary Password Reset",
+      "",
+      `Parent：${CURRENT_PARENT_RESET.full_name||"—"}`,
+      `Temporary Password：${temporaryPassword}`,
+      "",
+      "⚠️ 下次登录后，请立即建立自己的新 Password。"
+    ].join("\n");
+    renderCredentialShareBox(box,"📨 Parent Reset 登录资料",resetParentMsg);
+    generateTempInto("parentTempPassword");
   }catch(err){
     box.className="manageResult bad";
     box.textContent="✗ Reset 失败\n"+(err.result?.error||err.message||"Unknown error");
@@ -1801,7 +1996,7 @@ function clearCreateStudentForm(){
   $("newStudentName").value="";
   $("newStudentGrade").value="";
   $("newStudentEmail").value="";
-  $("newStudentPassword").value="";
+  generateTempInto("newStudentPassword");
   if($("newStudentSalePrice"))$("newStudentSalePrice").value="";
   if($("newStudentLeadSource"))$("newStudentLeadSource").value="";
   if($("newStudentPaymentStatus"))$("newStudentPaymentStatus").value="UNPAID";
@@ -1816,7 +2011,7 @@ async function createStudent(){
   const fullName=$("newStudentName").value.trim();
   const grade=$("newStudentGrade").value.trim();
   const email=$("newStudentEmail").value.trim().toLowerCase();
-  const password=$("newStudentPassword").value;
+  const password=ensureTempPassword("newStudentPassword");
   const startDate=$("newStudentStart").value;
   const planDays=selectedPlanDays();
   const salePrice=Number($("newStudentSalePrice")?.value||0);
@@ -1902,9 +2097,20 @@ Email: ${student.email||email}
 状态: ${shownStatus}
 售价: RM ${salePrice.toFixed(2)}
 来源: ${leadSource||'—'}
-付款: ${paymentStatus==='PAID'?'已付款':'未付款'}
+付款: ${paymentStatus==='PAID'?'已付款':'未付款'}`;
 
-请把登录 Email 与 Temporary Password 安全地交给学生/家长。学生第一次登录必须先更改为自己的新 Password。`;
+    const studentShareMessage=buildStudentLoginMessage({
+      fullName:student.full_name||fullName,
+      studentId:student.student_id||'—',
+      grade:student.grade||grade,
+      email:student.email||email,
+      password,
+      planDays:shownPlanDays,
+      startDate:shownStartDate,
+      expiryDate:shownExpiryDate
+    });
+    renderCredentialShareBox(box,"📨 可直接发给学生 / 家长",studentShareMessage);
+
     await loadDashboard();
 
     // Keep the success details visible, but clear data-entry fields.
@@ -1926,6 +2132,10 @@ Email: ${student.email||email}
   }
 }
 setDefaultStartDate();
+setTimeout(()=>{
+  ensureTempPassword("newStudentPassword");
+  ensureTempPassword("newParentPassword");
+},0);
 
 (async()=>{
   const {data}=await db.auth.getUser();
