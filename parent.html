@@ -1902,6 +1902,108 @@ loadDashboard=async function(){
 };
 
 
+/* ===== Parent Dashboard V8: SUMMARY METRICS LOGIC FIX =====
+   Fixes three misleading summary metrics:
+   1) Course Day is shown as the absolute 365-day position using current_cycle + current_day.
+   2) Learning streak is calculated from actual dated Read + Think records, not the old stale progress.streak column.
+   3) Past-7-day reflections show a record count (e.g. 12 records), while active calendar days are shown separately (e.g. 3/7 days).
+*/
+function scoreAParentDateKey(value){
+  const d=value instanceof Date?new Date(value):new Date(value||0);
+  if(!Number.isFinite(d.getTime()))return '';
+  const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${day}`;
+}
+function scoreAParentUniqueReflectionRows(rows){
+  const seen=new Set(),out=[];
+  (Array.isArray(rows)?rows:[]).forEach(r=>{
+    if(Number(r?.cycle_number)===999 || String(r?.lesson_type||'').toUpperCase()==='SYSTEM TEST')return;
+    const answer=String(r?.reflection_text||'').trim();
+    if(!answer)return;
+    const cycle=Number(r?.cycle_number)||0,day=Number(r?.day_number)||0;
+    const t=new Date(r?.completed_at||0).getTime();
+    const key=(cycle&&day)?`cd:${cycle}-${day}`:`t:${Number.isFinite(t)?t:0}|${answer}`;
+    if(seen.has(key))return;
+    seen.add(key);out.push(r);
+  });
+  return out;
+}
+function scoreAParentReflectionStats(rows){
+  const uniq=scoreAParentUniqueReflectionRows(rows);
+  const today=new Date();today.setHours(0,0,0,0);
+  const tomorrow=new Date(today);tomorrow.setDate(tomorrow.getDate()+1);
+  const start7=new Date(today);start7.setDate(start7.getDate()-6);
+  const recent=uniq.filter(r=>{
+    const t=new Date(r?.completed_at||0).getTime();
+    return Number.isFinite(t)&&t>=start7.getTime()&&t<tomorrow.getTime();
+  });
+  const activeDateKeys=[...new Set(recent.map(r=>scoreAParentDateKey(r.completed_at)).filter(Boolean))];
+
+  const allDateKeys=[...new Set(uniq.map(r=>scoreAParentDateKey(r.completed_at)).filter(Boolean))]
+    .sort((a,b)=>a<b?1:a>b?-1:0);
+  let streak=0;
+  if(allDateKeys.length){
+    const latest=new Date(allDateKeys[0]+'T00:00:00');
+    const yesterday=new Date(today);yesterday.setDate(yesterday.getDate()-1);
+    if(latest.getTime()===today.getTime() || latest.getTime()===yesterday.getTime()){
+      let cursor=new Date(latest);
+      const dateSet=new Set(allDateKeys);
+      while(dateSet.has(scoreAParentDateKey(cursor))){
+        streak++;
+        cursor.setDate(cursor.getDate()-1);
+      }
+    }
+  }
+  return {records:recent.length,activeDays:Math.min(7,activeDateKeys.length),streak};
+}
+function scoreAParentAbsoluteDay(child){
+  const p=child?.progress||{};
+  const localDay=Math.max(1,Number(p.current_day)||1);
+  const cycle=Math.max(1,Number(p.current_cycle)||1);
+  return Math.max(1,Math.min(365,(cycle-1)*30+localDay));
+}
+function scoreAParentApplySummaryLogic(child){
+  if(!child)return;
+  const stats=scoreAParentReflectionStats(child.reflections||[]);
+  const absDay=scoreAParentAbsoluteDay(child);
+  const boxes=[...document.querySelectorAll('.summaryBox')];
+
+  setText('sumDay',`Day ${absDay}`);
+  setText('sumStreak',`${stats.streak} ${PARENT_LANG==='en'?'day'+(stats.streak===1?'':'s'):PARENT_LANG==='ms'?'hari':'天'}`);
+  setText('sumWeek',PARENT_LANG==='en'?`${stats.records} records`:PARENT_LANG==='ms'?`${stats.records} rekod`:`${stats.records} 条`);
+
+  if(boxes[0]){
+    boxes[0].querySelector('small').textContent=PARENT_LANG==='en'?'Current Course Progress':PARENT_LANG==='ms'?'Kemajuan Kursus Semasa':'当前课程进度';
+    boxes[0].querySelector('span').textContent=PARENT_LANG==='en'?`Overall position: Day ${absDay} / 365`:PARENT_LANG==='ms'?`Kedudukan keseluruhan: Day ${absDay} / 365`:`365 天总进度：Day ${absDay} / 365`;
+  }
+  if(boxes[2]){
+    boxes[2].querySelector('small').textContent=PARENT_LANG==='en'?'Learning Streak':PARENT_LANG==='ms'?'Hari Belajar Berturut-turut':'连续学习日';
+    boxes[2].querySelector('span').textContent=PARENT_LANG==='en'?'Calculated from actual dated Read + Think records':PARENT_LANG==='ms'?'Dikira daripada tarikh sebenar Bacaan + Fikir':`按「必读 + 思考」实际日期计算`;
+  }
+  if(boxes[3]){
+    boxes[3].querySelector('small').textContent=PARENT_LANG==='en'?'Reflections in Past 7 Days':PARENT_LANG==='ms'?'Refleksi 7 Hari Lalu':'过去 7 天思考';
+    boxes[3].querySelector('span').textContent=PARENT_LANG==='en'?`Active on ${stats.activeDays}/7 calendar days`:PARENT_LANG==='ms'?`Aktif pada ${stats.activeDays}/7 hari kalendar`:`分布在 ${stats.activeDays}/7 个实际日期`;
+  }
+
+  /* Keep the category snapshot consistent with the corrected logic. */
+  if(document.getElementById('recordDayVal'))setText('recordDayVal',`Day ${absDay}`);
+  if(document.getElementById('reportDayVal'))setText('reportDayVal',`Day ${absDay}`);
+  if(document.getElementById('recordStreakVal'))setText('recordStreakVal',`${stats.streak} ${PARENT_LANG==='en'?'days':PARENT_LANG==='ms'?'hari':'天'}`);
+  if(document.getElementById('reportActiveVal'))setText('reportActiveVal',`${stats.streak} ${PARENT_LANG==='en'?'days':PARENT_LANG==='ms'?'hari':'天'}`);
+}
+const __parentRenderChildV8=renderChild;
+renderChild=function(child){
+  __parentRenderChildV8(child);
+  scoreAParentApplySummaryLogic(child);
+};
+const __parentSetLanguageV8=setParentLanguage;
+setParentLanguage=function(lang){
+  __parentSetLanguageV8(lang);
+  const child=DASH?.children?.[CURRENT_CHILD];
+  if(child)scoreAParentApplySummaryLogic(child);
+};
+
+
 /* Also localise the initial dashboard immediately. */
 applyParentLanguage();
 
