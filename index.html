@@ -2584,6 +2584,128 @@ body.profileModalOpen #mainTabs{
 @media(max-width:560px){.scoreaChatActions .btn{width:100%}}
 </style>
 
+
+<!-- BOSS UI READABILITY + POLISH CHECK 2026-09-25 -->
+<style id="boss-ui-polish-20260925">
+/* Readability safety: light challenge cards must use dark text. */
+#challenge.challengeV2 #verify,
+#challenge.challengeV2 #boss{
+  color:#10213e;
+}
+#challenge.challengeV2 #verify .muted,
+#challenge.challengeV2 #boss > .muted{
+  color:#5f7088!important;
+}
+
+/* Boss card: clearer visual hierarchy without changing any logic. */
+#challenge.challengeV2 #boss{
+  position:relative;
+  overflow:hidden;
+  padding:22px!important;
+  border:1px solid #e5dfc8!important;
+  border-top:4px solid #f1c85b!important;
+  background:
+    radial-gradient(circle at 92% 8%,rgba(255,211,91,.14),transparent 25%),
+    linear-gradient(145deg,#ffffff 0%,#fffdf8 48%,#f8fbff 100%)!important;
+  box-shadow:0 16px 40px rgba(23,49,93,.08)!important;
+}
+#challenge.challengeV2 #boss:before{
+  color:rgba(17,38,67,.045)!important;
+}
+#challenge.challengeV2 #boss > .eyebrow{
+  display:inline-flex;
+  align-items:center;
+  width:max-content;
+  padding:6px 10px;
+  border-radius:999px;
+  background:#fff7d9;
+  border:1px solid #f2d77b;
+  color:#7b5a00!important;
+  font-size:11px;
+  letter-spacing:.12em;
+  font-weight:950;
+}
+#challenge.challengeV2 #boss > h2{
+  margin:10px 0 7px!important;
+  color:#10213e!important;
+  font-size:clamp(24px,3vw,32px);
+  line-height:1.25;
+}
+#challenge.challengeV2 #boss > p.muted{
+  margin:0 0 16px!important;
+  padding:10px 13px;
+  border-radius:12px;
+  background:#f7f9fd;
+  border:1px solid #e1e8f2;
+  color:#556982!important;
+  font-weight:750;
+  line-height:1.55;
+}
+
+/* Keep the dark Boss quiz itself untouched; only polish the checklist below it. */
+#challenge.challengeV2 #bossChecks{
+  display:grid;
+  gap:9px;
+  margin-top:14px!important;
+}
+#challenge.challengeV2 #bossChecks .check{
+  display:flex!important;
+  align-items:flex-start;
+  gap:10px;
+  margin:0!important;
+  padding:12px 14px!important;
+  border:1px solid #dce6f2!important;
+  border-radius:14px;
+  background:#f8fbff;
+  color:#18314f!important;
+  font-weight:800;
+  line-height:1.5;
+  cursor:pointer;
+}
+#challenge.challengeV2 #bossChecks .check:hover{
+  background:#f0f6ff;
+  border-color:#a9c6ed!important;
+}
+#challenge.challengeV2 #bossChecks input.bc{
+  width:20px!important;
+  height:20px!important;
+  flex:0 0 20px;
+  margin:1px 0 0!important;
+  accent-color:#397cff!important;
+}
+#challenge.challengeV2 #bossStatus{
+  margin-top:14px!important;
+  padding:12px 14px!important;
+  border-radius:14px!important;
+  background:#eef5ff!important;
+  border:1px solid #cfe0f5!important;
+  color:#274462!important;
+  line-height:1.55;
+}
+#challenge.challengeV2 #bossStatus.ready{
+  background:#ecfbf4!important;
+  border-color:#bdebd2!important;
+  color:#126443!important;
+}
+#challenge.challengeV2 #bossDefeatBtn{
+  margin-top:4px;
+  min-height:48px!important;
+  padding:13px 20px!important;
+  border-radius:14px!important;
+  background:linear-gradient(90deg,#f5c84c,#ffb45e)!important;
+  color:#3f2a00!important;
+  box-shadow:0 10px 22px rgba(210,153,35,.18);
+}
+#challenge.challengeV2 #bossDefeatBtn:hover{
+  transform:translateY(-1px);
+}
+
+@media(max-width:700px){
+  #challenge.challengeV2 #boss{padding:16px!important}
+  #challenge.challengeV2 #bossChecks .check{padding:11px 12px!important}
+}
+</style>
+
 </head><body>
 <div id="authGate" class="authGate">
   <div class="authShell">
