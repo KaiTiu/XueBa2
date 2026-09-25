@@ -103,6 +103,18 @@ button,input{font:inherit}
 @media(max-width:900px){.parentCategoryNav{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:560px){.parentCategoryNav{grid-template-columns:1fr}.parentCatBtn{min-height:70px;padding:12px 13px}.parentCatIcon{width:40px;height:40px;flex-basis:40px}.parentCatText b{font-size:13px}}
 
+
+/* ===== Parent Dashboard V5: non-empty category states + full category audit ===== */
+.parentLiveStatus{margin-top:14px;background:#fff;border:1px solid #dfe7f2;border-radius:20px;padding:16px}
+.parentLiveStatusHead{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.parentLiveStatusHead h3{margin:0 0 5px;font-size:17px}.parentLiveStatusHead p{margin:0;color:#748199;font-size:12px;line-height:1.55}
+.parentLiveBadge{padding:7px 10px;border-radius:999px;background:#eef4ff;border:1px solid #d6e3fb;color:#345681;font-size:10px;font-weight:900}
+.parentLiveGrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:13px}
+.parentLiveMetric{border:1px solid #e2e9f3;border-radius:14px;background:#f8fbff;padding:11px 12px;min-height:72px}.parentLiveMetric small{display:block;color:#7b899e;font-size:10px;font-weight:850;margin-bottom:4px}.parentLiveMetric b{font-size:18px;color:#19365f}.parentLiveMetric span{display:block;margin-top:3px;color:#8a96a8;font-size:9px;line-height:1.35}
+.parentEmptyGuide{margin-top:12px;border:1px solid #dce6f4;border-radius:15px;background:linear-gradient(135deg,#f7faff,#fbf9ff);padding:13px 14px}.parentEmptyGuide b{display:block;color:#253d62;margin-bottom:7px}.parentEmptySteps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.parentEmptyStep{border:1px solid #e2e9f3;border-radius:12px;background:#fff;padding:10px 11px;color:#52657f;font-size:11px;line-height:1.55}.parentEmptyStep strong{display:block;color:#24415f;margin-bottom:3px}
+.parentReportIntro{margin:14px 0 0}
+@media(max-width:760px){.parentLiveGrid{grid-template-columns:repeat(2,1fr)}.parentEmptySteps{grid-template-columns:1fr}}
+
 </style>
 </head>
 <body>
@@ -240,6 +252,28 @@ button,input{font:inherit}
     <div id="parentCatRecords" class="parentCategoryPanel">
       <div class="parentPanelIntro"><b>📖 看孩子最近在想什么</b><span>这里集中显示学习趋势与每日真实思考，方便家长了解孩子卡在哪里、正在怎样调整。</span></div>
 
+
+      <section class="parentLiveStatus" id="parentRecordStatus">
+        <div class="parentLiveStatusHead">
+          <div><h3 id="parentRecordStatusTitle">📌 学习记录状态</h3><p id="parentRecordStatusSub">即使还没有每日思考，也先显示孩子目前已经累积的学习进度。</p></div>
+          <span class="parentLiveBadge" id="parentRecordBadge">LIVE</span>
+        </div>
+        <div class="parentLiveGrid">
+          <div class="parentLiveMetric"><small id="recordDayLabel">当前进度</small><b id="recordDayVal">—</b><span id="recordDaySub">SCORE-A 学习进度</span></div>
+          <div class="parentLiveMetric"><small id="recordXpLabel">成长 XP</small><b id="recordXpVal">—</b><span id="recordXpSub">参与与训练</span></div>
+          <div class="parentLiveMetric"><small id="recordStreakLabel">连续学习</small><b id="recordStreakVal">—</b><span id="recordStreakSub">稳定行动习惯</span></div>
+          <div class="parentLiveMetric"><small id="recordThinkLabel">思考记录</small><b id="recordThinkVal">—</b><span id="recordThinkSub">已同步的真实记录</span></div>
+        </div>
+        <div class="parentEmptyGuide" id="recordEmptyGuide">
+          <b id="recordEmptyTitle">为什么这里暂时没有内容？</b>
+          <div class="parentEmptySteps">
+            <div class="parentEmptyStep"><strong id="recordStep1Title">① 学生完成必读 + 思考</strong><span id="recordStep1Text">学生端留下真实思考后，Parent Dashboard 才有内容可整理。</span></div>
+            <div class="parentEmptyStep"><strong id="recordStep2Title">② 系统同步记录</strong><span id="recordStep2Text">同步成功后，会显示最近记录与重复出现的学习主题。</span></div>
+            <div class="parentEmptyStep"><strong id="recordStep3Title">③ 家长看趋势</strong><span id="recordStep3Text">重点是了解孩子卡在哪里，而不是拿记录数量比较。</span></div>
+          </div>
+        </div>
+      </section>
+
     <section class="card" style="margin-top:14px">
       <h3>🔎 系统观察到的学习趋势</h3>
       <div class="sub">系统只根据孩子近期真实思考整理关键词，不给孩子贴标签。</div>
@@ -256,6 +290,21 @@ button,input{font:inherit}
     </div>
 
     <div id="parentCatReports" class="parentCategoryPanel">
+
+      <div class="parentPanelIntro parentReportIntro"><b id="parentReportIntroTitle">📊 看长期成长，不只看单次成绩</b><span id="parentReportIntroText">这里保留每周成长报告；即使历史报告尚未产生，也会先显示孩子目前的即时学习概况。</span></div>
+      <section class="parentLiveStatus" id="parentReportSnapshot">
+        <div class="parentLiveStatusHead">
+          <div><h3 id="parentReportSnapshotTitle">本周即时概况</h3><p id="parentReportSnapshotSub">历史周报产生前，先看目前已同步到系统的真实数据。</p></div>
+          <span class="parentLiveBadge" id="parentReportBadge">LIVE SNAPSHOT</span>
+        </div>
+        <div class="parentLiveGrid">
+          <div class="parentLiveMetric"><small id="reportDayLabel">学习进度</small><b id="reportDayVal">—</b><span id="reportDaySub">当前 Day</span></div>
+          <div class="parentLiveMetric"><small id="reportXpLabel">成长 XP</small><b id="reportXpVal">—</b><span id="reportXpSub">当前累积</span></div>
+          <div class="parentLiveMetric"><small id="reportActiveLabel">连续学习</small><b id="reportActiveVal">—</b><span id="reportActiveSub">稳定行动</span></div>
+          <div class="parentLiveMetric"><small id="reportReflectionLabel">真实思考</small><b id="reportReflectionVal">—</b><span id="reportReflectionSub">目前已同步</span></div>
+        </div>
+      </section>
+
     <section id="weeklyReportSection" class="card weeklyHistory">
       <div class="weeklyHistoryHead">
         <div>
@@ -1572,6 +1621,63 @@ setParentLanguage=function(lang){
 };
 applyParentCategoryLanguage();
 showParentCategory('overview',{scroll:false,focus:false});
+
+
+/* ===== Parent Dashboard V5: useful live states for Records + Reports ===== */
+const PARENT_CATEGORY_STATUS_T={
+  zh:{
+    recordTitle:'📌 学习记录状态',recordSub:'即使还没有每日思考，也先显示孩子目前已经累积的学习进度。',live:'实时资料',
+    labels:['当前进度','成长 XP','连续学习','思考记录'],subs:['SCORE-A 学习进度','参与与训练','稳定行动习惯','已同步的真实记录'],
+    emptyTitle:'为什么这里暂时没有内容？',steps:[['① 学生完成必读 + 思考','学生端留下真实思考后，Parent Dashboard 才有内容可整理。'],['② 系统同步记录','同步成功后，会显示最近记录与重复出现的学习主题。'],['③ 家长看趋势','重点是了解孩子卡在哪里，而不是拿记录数量比较。']],
+    reportIntro:['📊 看长期成长，不只看单次成绩','这里保留每周成长报告；即使历史报告尚未产生，也会先显示孩子目前的即时学习概况。'],
+    reportTitle:'本周即时概况',reportSub:'历史周报产生前，先看目前已同步到系统的真实数据。',snapshot:'即时概况',reportLabels:['学习进度','成长 XP','连续学习','真实思考'],reportSubs:['当前 Day','当前累积','稳定行动','目前已同步'],days:'天',records:'条'
+  },
+  ms:{
+    recordTitle:'📌 Status Rekod Pembelajaran',recordSub:'Walaupun refleksi harian belum ada, kemajuan pembelajaran yang telah direkodkan tetap dipaparkan di sini.',live:'DATA SEMASA',
+    labels:['Kemajuan Semasa','XP Pertumbuhan','Pembelajaran Berturut','Rekod Refleksi'],subs:['Kemajuan SCORE-A','Penyertaan & latihan','Tabiat tindakan stabil','Rekod sebenar yang disegerakkan'],
+    emptyTitle:'Mengapa bahagian ini masih belum mempunyai rekod?',steps:[['① Anak lengkapkan Bacaan + Fikir','Rekod hanya boleh disusun selepas anak meninggalkan refleksi sebenar di Student OS.'],['② Sistem menyegerakkan rekod','Selepas disegerakkan, refleksi terkini dan tema pembelajaran akan dipaparkan.'],['③ Ibu bapa lihat trend','Fokusnya memahami halangan anak, bukan membandingkan jumlah rekod.']],
+    reportIntro:['📊 Lihat pertumbuhan jangka panjang, bukan satu markah sahaja','Sejarah laporan mingguan disimpan di sini. Jika laporan sejarah belum ada, ringkasan data semasa tetap dipaparkan.'],
+    reportTitle:'Ringkasan Semasa Minggu Ini',reportSub:'Sebelum laporan mingguan dijana, lihat dahulu data sebenar yang telah disegerakkan.',snapshot:'RINGKASAN SEMASA',reportLabels:['Kemajuan','XP Pertumbuhan','Pembelajaran Berturut','Refleksi Sebenar'],reportSubs:['Day semasa','Jumlah semasa','Tindakan stabil','Telah disegerakkan'],days:'hari',records:'rekod'
+  },
+  en:{
+    recordTitle:'📌 Learning Record Status',recordSub:'Even before daily reflections appear, the child’s existing learning progress is shown here.',live:'LIVE DATA',
+    labels:['Current Progress','Growth XP','Learning Streak','Reflection Records'],subs:['SCORE-A learning progress','Participation & training','Stable action habit','Real records synced'],
+    emptyTitle:'Why is this section still waiting for records?',steps:[['① Complete Daily Read + Think','The Parent Dashboard can organise records after the student leaves a real reflection in Student OS.'],['② System syncs the record','Once synced, recent reflections and repeated learning themes will appear here.'],['③ Parent reviews the trend','The goal is to understand where the child is stuck, not compare record counts.']],
+    reportIntro:['📊 See long-term growth, not one result','Weekly growth report history is kept here. If history is not ready yet, the current live learning snapshot is still shown.'],
+    reportTitle:'Current Weekly Snapshot',reportSub:'Before a weekly report is generated, review the real data currently synced to the system.',snapshot:'LIVE SNAPSHOT',reportLabels:['Learning Progress','Growth XP','Learning Streak','Real Reflections'],reportSubs:['Current Day','Current total','Stable action','Currently synced'],days:'days',records:'records'
+  }
+};
+function categoryStatusT(){return PARENT_CATEGORY_STATUS_T[PARENT_LANG]||PARENT_CATEGORY_STATUS_T.zh}
+function setCategoryStatusCopy(){
+  const t=categoryStatusT();
+  setText('parentRecordStatusTitle',t.recordTitle);setText('parentRecordStatusSub',t.recordSub);setText('parentRecordBadge',t.live);
+  ['recordDayLabel','recordXpLabel','recordStreakLabel','recordThinkLabel'].forEach((id,i)=>setText(id,t.labels[i]));
+  ['recordDaySub','recordXpSub','recordStreakSub','recordThinkSub'].forEach((id,i)=>setText(id,t.subs[i]));
+  setText('recordEmptyTitle',t.emptyTitle);
+  for(let i=1;i<=3;i++){setText(`recordStep${i}Title`,t.steps[i-1][0]);setText(`recordStep${i}Text`,t.steps[i-1][1])}
+  setText('parentReportIntroTitle',t.reportIntro[0]);setText('parentReportIntroText',t.reportIntro[1]);
+  setText('parentReportSnapshotTitle',t.reportTitle);setText('parentReportSnapshotSub',t.reportSub);setText('parentReportBadge',t.snapshot);
+  ['reportDayLabel','reportXpLabel','reportActiveLabel','reportReflectionLabel'].forEach((id,i)=>setText(id,t.reportLabels[i]));
+  ['reportDaySub','reportXpSub','reportActiveSub','reportReflectionSub'].forEach((id,i)=>setText(id,t.reportSubs[i]));
+}
+function renderCategoryLiveStates(child){
+  const t=categoryStatusT(),p=child?.progress||{},rows=Array.isArray(child?.reflections)?child.reflections:[];
+  const day=p.current_day?`Day ${p.current_day}`:'—',xp=`${Number(p.xp)||0} XP`,streak=`${Math.max(0,Number(p.streak)||0)} ${t.days}`,records=`${rows.length} ${t.records}`;
+  setText('recordDayVal',day);setText('recordXpVal',xp);setText('recordStreakVal',streak);setText('recordThinkVal',records);
+  setText('reportDayVal',day);setText('reportXpVal',xp);setText('reportActiveVal',streak);setText('reportReflectionVal',records);
+  const guide=document.getElementById('recordEmptyGuide');if(guide)guide.style.display=rows.length?'none':'';
+}
+function renderCategoryLiveStatesEmpty(){
+  ['recordDayVal','recordXpVal','recordStreakVal','recordThinkVal','reportDayVal','reportXpVal','reportActiveVal','reportReflectionVal'].forEach(id=>setText(id,'—'));
+  const guide=document.getElementById('recordEmptyGuide');if(guide)guide.style.display='';
+}
+const __parentRenderChildV5=renderChild;
+renderChild=function(child){__parentRenderChildV5(child);setCategoryStatusCopy();renderCategoryLiveStates(child)};
+const __parentRenderNoChildrenV5=renderNoChildren;
+renderNoChildren=function(){__parentRenderNoChildrenV5();setCategoryStatusCopy();renderCategoryLiveStatesEmpty()};
+const __parentSetLanguageV5=setParentLanguage;
+setParentLanguage=function(lang){__parentSetLanguageV5(lang);setCategoryStatusCopy();const child=DASH?.children?.[CURRENT_CHILD];if(child)renderCategoryLiveStates(child);else renderCategoryLiveStatesEmpty()};
+setCategoryStatusCopy();
 
 /* Also localise the initial dashboard immediately. */
 applyParentLanguage();
