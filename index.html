@@ -10679,4 +10679,217 @@ scoreA365Episode=function(absDay,lang=getScoreALanguage()){
 })();
 </script>
 
+
+<script>
+/* ===== V9.2 FINAL TRILINGUAL STATIC UI FIX =====
+   Fixes later-added Home / Challenge / Growth labels that were hard-coded in Chinese.
+*/
+(function(){
+  const T = {
+    zh:{
+      coachTitle:'🤖 A-BOT 学习伙伴',
+      coachSub:'听、想、练，再自己完成。',
+      adventureTitle:'🗺️ 我的学习冒险',
+      adventureSub:'地图与能力值来自真实学习行动。',
+      menuTitle:'⚡ 冒险菜单',
+      menuSub:'选择你现在要进入的学习区域',
+      welcome:'✨ 先完成今天的真实学习行动，再慢慢升级自己。',
+      stepRead:'📖 必读 + 思考',
+      stepTime:'⏰ 时间管理',
+      stepAI:'🤖 AI 练习',
+      stepChallenge:'🎮 今日挑战',
+      missionHint:'完成这 4 个步骤，你得到的不只是 XP，而是一个完整的学习回路：<b>阅读 → 思考 → 计划 → 练习 → 挑战</b>。',
+      missionDay:n=>'今日任务 · 第 '+n+' 天',
+
+      challengeH1:'今天不是只做题，<br>而是完成一个真正的学习任务。',
+      challengeP:'先解锁训练，再进入今天的挑战。完成阅读与思考、时间管理、AI 练习后，才能正式击败今天的学习敌人。',
+      challengeStep:'⚔️ 今日挑战',
+      challengeLegend:'🎯 先完成真实行动，再领取 XP、技能与成长记录。',
+      challengeTip:'提示：<b>不用一次把全部内容看完。</b> 先完成今天最重要的一步，再继续下一步。系统会记录你的真实行动。',
+
+      growthH1:'成长不是只看分数，<br>而是看你正在建立什么能力。',
+      growthP:'这里会集中显示你的角色、365 天成长世界、徽章路线图和学习资料管理。每一次完成真实学习行动，都会慢慢留下成长证据。',
+      growthStep1:'🧭 认识自己', growthStep2:'🌍 通过 World', growthStep3:'🏅 收集 Badge', growthStep4:'📁 保存成长证据',
+      growthLegend:'🏆 你不是在重复学习，而是在建立自己的长期学习系统。',
+      characterTitle:'🎭 我的角色成长', characterSub:'角色会跟着你的学习记录一起升级。',
+      worldRoadmapTitle:'🗺️ 365 天成长世界', worldRoadmapSub:'每 30 天进入一个新 World。',
+      recordsTitle:'🏅 我的成长记录', recordsSub:'World 进度、Boss 通关与徽章都集中在这里。',
+      safetyTitle:'💾 学习资料保管库', safetySub:'先 Backup，再清除资料，会更安全。'
+    },
+    ms:{
+      coachTitle:'🤖 A-BOT Rakan Pembelajaran',
+      coachSub:'Dengar, fikir, berlatih, kemudian selesaikan sendiri.',
+      adventureTitle:'🗺️ Pengembaraan Pembelajaran Saya',
+      adventureSub:'Peta dan kemahiran datang daripada tindakan pembelajaran sebenar.',
+      menuTitle:'⚡ Menu Pengembaraan',
+      menuSub:'Pilih kawasan pembelajaran yang mahu anda buka sekarang',
+      welcome:'✨ Lengkapkan tindakan pembelajaran sebenar hari ini dahulu, kemudian tingkatkan diri sedikit demi sedikit.',
+      stepRead:'📖 Baca + Fikir',
+      stepTime:'⏰ Pengurusan Masa',
+      stepAI:'🤖 Latihan AI',
+      stepChallenge:'🎮 Cabaran Hari Ini',
+      missionHint:'Lengkapkan 4 langkah ini untuk membina satu kitaran pembelajaran lengkap: <b>Baca → Fikir → Rancang → Berlatih → Cabaran</b>.',
+      missionDay:n=>'MISI HARI INI · HARI '+n,
+
+      challengeH1:'Hari ini bukan sekadar menjawab soalan,<br>tetapi melengkapkan satu tugasan pembelajaran sebenar.',
+      challengeP:'Buka latihan dahulu, kemudian masuk ke cabaran hari ini. Selepas Baca + Fikir, Pengurusan Masa dan Latihan AI selesai, barulah cabaran hari ini boleh ditamatkan.',
+      challengeStep:'⚔️ Cabaran Hari Ini',
+      challengeLegend:'🎯 Lengkapkan tindakan sebenar dahulu, kemudian terima XP, kemahiran dan rekod perkembangan.',
+      challengeTip:'Petua: <b>Tidak perlu melihat semuanya sekali gus.</b> Selesaikan langkah paling penting hari ini dahulu, kemudian teruskan ke langkah seterusnya. Sistem akan merekod tindakan sebenar anda.',
+
+      growthH1:'Perkembangan bukan sekadar melihat markah,<br>tetapi melihat kebolehan yang sedang anda bina.',
+      growthP:'Di sini anda boleh melihat watak, perjalanan perkembangan 365 hari, laluan lencana dan pengurusan data pembelajaran. Setiap tindakan pembelajaran sebenar akan meninggalkan bukti perkembangan.',
+      growthStep1:'🧭 Kenali Diri', growthStep2:'🌍 Lengkapkan World', growthStep3:'🏅 Kumpul Badge', growthStep4:'📁 Simpan Bukti Perkembangan',
+      growthLegend:'🏆 Anda bukan sekadar mengulang pembelajaran; anda sedang membina sistem pembelajaran jangka panjang anda sendiri.',
+      characterTitle:'🎭 Perkembangan Watak Saya', characterSub:'Watak anda akan naik taraf bersama rekod pembelajaran anda.',
+      worldRoadmapTitle:'🗺️ Dunia Perkembangan 365 Hari', worldRoadmapSub:'Masuk ke World baharu setiap 30 hari.',
+      recordsTitle:'🏅 Rekod Perkembangan Saya', recordsSub:'Kemajuan World, Boss dan lencana dikumpulkan di sini.',
+      safetyTitle:'💾 Simpanan Data Pembelajaran', safetySub:'Buat Backup sebelum memadam data untuk lebih selamat.'
+    },
+    en:{
+      coachTitle:'🤖 A-BOT Learning Buddy',
+      coachSub:'Listen, think, practise, then complete it yourself.',
+      adventureTitle:'🗺️ My Learning Adventure',
+      adventureSub:'Your map and skill values come from real learning actions.',
+      menuTitle:'⚡ Adventure Menu',
+      menuSub:'Choose the learning area you want to enter now',
+      welcome:'✨ Complete today’s real learning actions first, then level yourself up step by step.',
+      stepRead:'📖 Read + Think',
+      stepTime:'⏰ Time Management',
+      stepAI:'🤖 AI Practice',
+      stepChallenge:'🎮 Today’s Challenge',
+      missionHint:'Complete these 4 steps to build a full learning loop: <b>Read → Think → Plan → Practise → Challenge</b>.',
+      missionDay:n=>"TODAY'S MISSION · DAY "+n,
+
+      challengeH1:'Today is not just about answering questions.<br>It is about completing a real learning mission.',
+      challengeP:'Unlock the training first, then enter today’s challenge. Complete Read + Think, Time Management and AI Practice before finishing today’s challenge.',
+      challengeStep:'⚔️ Today’s Challenge',
+      challengeLegend:'🎯 Complete real actions first, then earn XP, skills and growth records.',
+      challengeTip:'Tip: <b>You do not need to finish everything at once.</b> Complete the most important step first, then continue to the next one. The system records your real actions.',
+
+      growthH1:'Growth is not only about scores.<br>It is about the abilities you are building.',
+      growthP:'This hub shows your character, 365-day growth worlds, badge roadmap and learning-data management. Every real learning action leaves evidence of growth.',
+      growthStep1:'🧭 Know Yourself', growthStep2:'🌍 Complete Worlds', growthStep3:'🏅 Collect Badges', growthStep4:'📁 Save Growth Evidence',
+      growthLegend:'🏆 You are not repeating study. You are building your own long-term learning system.',
+      characterTitle:'🎭 My Character Growth', characterSub:'Your character levels up together with your learning record.',
+      worldRoadmapTitle:'🗺️ 365-Day Growth Worlds', worldRoadmapSub:'Enter a new World every 30 days.',
+      recordsTitle:'🏅 My Growth Records', recordsSub:'World progress, Boss clears and badges are collected here.',
+      safetyTitle:'💾 Learning Data Vault', safetySub:'Back up your data before clearing it for greater safety.'
+    }
+  };
+
+  function lang(){
+    try{
+      const l=(typeof getScoreALanguage==='function'?getScoreALanguage():(localStorage.getItem('scoreaLanguage')||'zh'));
+      return l==='ms'||l==='en'?l:'zh';
+    }catch(e){return 'zh'}
+  }
+  function one(s,r=document){return r.querySelector(s)}
+  function all(s,r=document){return Array.from(r.querySelectorAll(s))}
+  function setHTML(el,v){if(el&&v!=null)el.innerHTML=v}
+  function setText(el,v){if(el&&v!=null)el.textContent=v}
+
+  function fixHome(x){
+    const home=one('#home'); if(!home)return;
+
+    const coach=one('#aBotCoachCard',home);
+    const coachHead=coach&&coach.previousElementSibling&&coach.previousElementSibling.classList.contains('homeV3SectionHead')?coach.previousElementSibling:null;
+    if(coachHead){
+      setHTML(one('h2',coachHead),x.coachTitle);
+      setText(one('p',coachHead),x.coachSub);
+    }
+
+    const feature=one('.premiumHomeFeatureGrid',home);
+    const advHead=feature&&feature.previousElementSibling&&feature.previousElementSibling.classList.contains('homeV3SectionHead')?feature.previousElementSibling:null;
+    if(advHead){
+      setHTML(one('h2',advHead),x.adventureTitle);
+      setText(one('p',advHead),x.adventureSub);
+    }
+
+    const quick=one('.premiumQuick',home);
+    const quickCard=quick&&quick.closest('.premiumMiniCard');
+    const quickH=quickCard&&one('h3',quickCard);
+    if(quickH)setHTML(quickH,x.menuTitle+' <small style="display:block;font-size:11px;font-weight:700;color:#7a8799;margin-top:4px">'+x.menuSub+'</small>');
+
+    setText(one('.homeV3Welcome',home),x.welcome);
+
+    const steps=all('.premiumMission .homeV3Step span',home);
+    [x.stepRead,x.stepTime,x.stepAI,x.stepChallenge].forEach((v,i)=>setText(steps[i],v));
+    setHTML(one('.premiumMission .homeV3MissionHint',home),x.missionHint);
+
+    const md=one('#premiumMissionDay',home);
+    if(md){
+      const m=(md.textContent||'').match(/(\d+)\s*$/);
+      const n=m?m[1]:(typeof CYCLE!=='undefined'?CYCLE.day:1);
+      setText(md,x.missionDay(n));
+    }
+  }
+
+  function fixChallenge(x){
+    const sec=one('#challenge'); if(!sec)return;
+    const hero=one('.challengeHero',sec);
+    if(hero){
+      setHTML(one('h1',hero),x.challengeH1);
+      const p=one(':scope > p',hero); if(p)setText(p,x.challengeP);
+      const steps=all('.challengeQuestStep span',hero);
+      [x.stepRead,x.stepTime,x.stepAI,x.challengeStep].forEach((v,i)=>setText(steps[i],v));
+      setText(one('.challengeLegend',hero),x.challengeLegend);
+    }
+    setHTML(one('.challengeMiniTips',sec),x.challengeTip);
+  }
+
+  function fixProgress(x){
+    const sec=one('#progress'); if(!sec)return;
+    const hero=one('.progressHero',sec);
+    if(hero){
+      setHTML(one('h1',hero),x.growthH1);
+      const p=one(':scope > p',hero); if(p)setText(p,x.growthP);
+      const steps=all('.progressStep span',hero);
+      [x.growthStep1,x.growthStep2,x.growthStep3,x.growthStep4].forEach((v,i)=>setText(steps[i],v));
+      setText(one('.progressLegend',hero),x.growthLegend);
+    }
+    const heads=all('.growthSectionHead',sec);
+    heads.forEach(h=>{
+      const kicker=(one('.growthSectionKicker',h)?.textContent||'').trim();
+      const h2=one('h2',h),p=one('p',h);
+      if(kicker==='CHARACTER PROGRESS'){setHTML(h2,x.characterTitle);setText(p,x.characterSub)}
+      else if(kicker==='WORLD ROADMAP'){setHTML(h2,x.worldRoadmapTitle);setText(p,x.worldRoadmapSub)}
+      else if(kicker==='BADGE & RECORDS'){setHTML(h2,x.recordsTitle);setText(p,x.recordsSub)}
+      else if(kicker==='DATA SAFETY'){setHTML(h2,x.safetyTitle);setText(p,x.safetySub)}
+    });
+  }
+
+  function refresh(){
+    const x=T[lang()]||T.zh;
+    fixHome(x); fixChallenge(x); fixProgress(x);
+  }
+
+  const oldLang=window.setScoreALanguage;
+  if(typeof oldLang==='function'&&!oldLang.__v92StaticI18n){
+    const wrapped=function(l){
+      const r=oldLang.apply(this,arguments);
+      setTimeout(refresh,20); setTimeout(refresh,120);
+      return r;
+    };
+    wrapped.__v92StaticI18n=true;
+    window.setScoreALanguage=wrapped;
+  }
+
+  const oldRender=window.renderPremiumUI;
+  if(typeof oldRender==='function'&&!oldRender.__v92StaticI18n){
+    const wrappedRender=function(){
+      const r=oldRender.apply(this,arguments);
+      setTimeout(refresh,0);
+      return r;
+    };
+    wrappedRender.__v92StaticI18n=true;
+    window.renderPremiumUI=wrappedRender;
+  }
+
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(refresh,60));
+  else setTimeout(refresh,60);
+  setTimeout(refresh,250);
+})();
+</script>
+
 </body></html>
