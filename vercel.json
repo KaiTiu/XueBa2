@@ -6,7 +6,7 @@
       "schedule": "0 12 * * 0"
     }
   ],
-  "rewrites": [
+  "redirects": [
     {
       "source": "/",
       "has": [
@@ -15,7 +15,8 @@
           "value": "parent.learviaedutech.com"
         }
       ],
-      "destination": "/parent.html"
+      "destination": "/parent.html",
+      "permanent": false
     }
   ]
 }
