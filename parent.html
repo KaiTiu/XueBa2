@@ -177,7 +177,7 @@ button,input{font:inherit}
       <span id="parentTopName" class="topName"></span>
       <button class="btn light" onclick="scrollToParentGuide()">📘 家长指南</button>
       <button class="btn light" onclick="openPasswordModal()">🔐 修改 Password</button>
-      <button class="btn light" onclick="loadDashboard()">↻ 更新</button>
+      <button id="refreshBtn" class="btn light" type="button" onclick="refreshDashboard()">↻ 更新</button>
       <button class="btn light" onclick="logout()">登出</button>
     </div>
   </header>
@@ -1270,7 +1270,7 @@ function applyParentLanguage(){
   ptext(pquery("#firstPasswordBox h2"),x.firstTitle);ptext(pquery("#firstPasswordBox .meta"),x.firstMeta);
   const firstLabels=pqueries("#firstPasswordBox .label");ptext(firstLabels[0],x.newPassword);ptext(firstLabels[1],x.confirmPassword);ptext(pquery('#firstPasswordBox button[onclick="changeFirstPassword()"]'),x.firstBtn);
   ptext(pquery(".brand small"),x.topSub);
-  ptext(pquery('button[onclick="scrollToParentGuide()"]'),x.topGuide);ptext(pquery('button[onclick="openPasswordModal()"]'),x.topPassword);ptext(pquery('button[onclick="loadDashboard()"]'),x.topRefresh);ptext(pquery('button[onclick="logout()"]'),x.topLogout);
+  ptext(pquery('button[onclick="scrollToParentGuide()"]'),x.topGuide);ptext(pquery('button[onclick="openPasswordModal()"]'),x.topPassword);ptext(document.getElementById("refreshBtn"),x.topRefresh);ptext(pquery('button[onclick="logout()"]'),x.topLogout);
   ptext(pquery(".hero .eyebrow"),x.eyebrow);
   const name=document.getElementById("studentName")?.textContent|| (PARENT_LANG==="en"?"Child":PARENT_LANG==="ms"?"Anak":"孩子");
   const hh=pquery(".hero h1");if(hh)hh.innerHTML=`👨‍👩‍👧 <span id="studentName">${esc(name)}</span>${x.heroSuffix}`;ptext(pquery(".hero p"),x.heroLead);ptext(pquery("#childSelectWrap .label"),x.selectChild);
@@ -1330,7 +1330,7 @@ renderChild=function(child){
 };
 
 /* Localised auth/password/dashboard errors without changing APIs. */
-apiPost=async function(path,body={}){const session=await getSession();if(!session?.access_token)throw new Error(pt().errors.expired);const r=await fetch(path,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+session.access_token},body:JSON.stringify(body)});const raw=await r.text();let data;try{data=JSON.parse(raw)}catch{data={error:raw}}if(!r.ok||!data?.ok){const err=new Error(data?.error||`HTTP ${r.status}`);err.result=data;throw err}return data};
+apiPost=async function(path,body={}){const session=await getSession();if(!session?.access_token)throw new Error(pt().errors.expired);const r=await fetch(path,{method:"POST",cache:"no-store",headers:{"Content-Type":"application/json","Authorization":"Bearer "+session.access_token},body:JSON.stringify(body)});const raw=await r.text();let data;try{data=JSON.parse(raw)}catch{data={error:raw}}if(!r.ok||!data?.ok){const err=new Error(data?.error||`HTTP ${r.status}`);err.result=data;throw err}return data};
 parentLogin=async function(){clearMsg("loginMsg");const x=pt(),email=document.getElementById("loginEmail").value.trim().toLowerCase(),password=document.getElementById("loginPassword").value,btn=document.getElementById("loginBtn");if(!email||!password){showMsg("loginMsg",x.errors.needLogin);return}btn.disabled=true;btn.textContent=x.errors.checking;try{const {data,error}=await sb.auth.signInWithPassword({email,password});if(error)throw error;CURRENT_USER=data.user;const role=String(CURRENT_USER?.app_metadata?.role||"").toLowerCase();if(role!=="parent"){await sb.auth.signOut();throw new Error(x.errors.notParent)}if(CURRENT_USER?.app_metadata?.must_change_password===true){document.getElementById("loginBox").classList.add("hidden");document.getElementById("firstPasswordBox").classList.remove("hidden");return}await openDashboard()}catch(err){showMsg("loginMsg",x.errors.loginFail+(err.message||"Unknown error"))}finally{btn.disabled=false;btn.textContent=x.loginBtn}};
 changeFirstPassword=async function(){clearMsg("firstPasswordMsg");const x=pt(),a=document.getElementById("firstNewPassword").value,b=document.getElementById("firstConfirmPassword").value;try{if(a.length<8)throw new Error(x.errors.pass8);if(a!==b)throw new Error(x.errors.passMismatch);await apiPost("/api/parent-change-temporary-password",{new_password:a,confirm_password:b});showMsg("firstPasswordMsg",x.errors.passCreated,"ok");await sb.auth.signOut();setTimeout(()=>{document.getElementById("firstPasswordBox").classList.add("hidden");document.getElementById("loginBox").classList.remove("hidden");document.getElementById("loginPassword").value="";document.getElementById("firstNewPassword").value="";document.getElementById("firstConfirmPassword").value="";showMsg("loginMsg",x.errors.passUpdatedLogin,"ok")},600)}catch(err){showMsg("firstPasswordMsg",x.errors.updateFail+(err.result?.error||err.message||"Unknown error"))}};
 changePasswordFromDashboard=async function(){clearMsg("passwordMsg");const x=pt(),current=document.getElementById("currentPassword").value,next=document.getElementById("newPassword").value,confirm=document.getElementById("confirmPassword").value;try{const session=await getSession(),email=session?.user?.email;if(!email)throw new Error(x.errors.noEmail);if(!current)throw new Error(x.errors.needCurrent);if(next.length<8)throw new Error(x.errors.pass8);if(next!==confirm)throw new Error(x.errors.passMismatch);const {error}=await sb.auth.signInWithPassword({email,password:current});if(error)throw new Error(x.errors.wrongCurrent);await apiPost("/api/parent-change-temporary-password",{new_password:next,confirm_password:confirm});showMsg("passwordMsg",x.errors.passUpdated,"ok");setTimeout(async()=>{await sb.auth.signOut();location.reload()},900)}catch(err){showMsg("passwordMsg",x.errors.updateFail+(err.result?.error||err.message||"Unknown error"))}};
@@ -2545,6 +2545,81 @@ setParentLanguage=function(lang){
   setTimeout(rerender,0);
   setTimeout(rerender,180);
 };
+
+/* ===== Parent Dashboard V13: WORKING REFRESH BUTTON =====
+   Gives the top Refresh button visible feedback and forces live data to be fetched again.
+*/
+let SCOREA_PARENT_MANUAL_REFRESHING=false;
+
+function parentRefreshText(state){
+  const lang=(typeof PARENT_LANG!=="undefined"?PARENT_LANG:"zh");
+  const map={
+    zh:{loading:"↻ 更新中…",done:"✓ 已更新",error:"更新失败",normal:"↻ 更新"},
+    ms:{loading:"↻ Sedang Kemas Kini…",done:"✓ Dikemas Kini",error:"Kemas kini gagal",normal:"↻ Kemas Kini"},
+    en:{loading:"↻ Refreshing…",done:"✓ Updated",error:"Refresh failed",normal:"↻ Refresh"}
+  };
+  return (map[lang]||map.zh)[state] || (map[lang]||map.zh).normal;
+}
+
+async function refreshDashboard(){
+  if(SCOREA_PARENT_MANUAL_REFRESHING)return;
+  SCOREA_PARENT_MANUAL_REFRESHING=true;
+
+  const btn=document.getElementById("refreshBtn");
+  if(btn){
+    btn.disabled=true;
+    btn.setAttribute("aria-busy","true");
+    btn.textContent=parentRefreshText("loading");
+  }
+
+  try{
+    /* Force all client-side caches to be rebuilt. */
+    if(typeof WEEKLY_REPORT_CACHE!=="undefined" && WEEKLY_REPORT_CACHE?.clear){
+      WEEKLY_REPORT_CACHE.clear();
+    }
+    if(typeof SCOREA_PARENT_REFLECTIONS_READY!=="undefined"){
+      SCOREA_PARENT_REFLECTIONS_READY=false;
+    }
+    if(typeof SCOREA_PARENT_REFLECTIONS_LAST_ERROR!=="undefined"){
+      SCOREA_PARENT_REFLECTIONS_LAST_ERROR=null;
+    }
+
+    /* Re-fetch dashboard + live reflections + weekly reports through the current
+       full loadDashboard chain. */
+    await loadDashboard();
+
+    /* Re-apply the selected language after async repaint. */
+    try{applyParentLanguage()}catch(e){}
+    const child=DASH?.children?.[CURRENT_CHILD];
+    if(child){
+      try{renderChild(child)}catch(e){}
+      const sid=child?.student?.id;
+      if(sid && typeof WEEKLY_REPORT_CACHE!=="undefined" && WEEKLY_REPORT_CACHE.has(sid)){
+        try{renderWeeklyReports(WEEKLY_REPORT_CACHE.get(sid))}catch(e){}
+      }
+    }
+
+    if(btn)btn.textContent=parentRefreshText("done");
+  }catch(err){
+    console.error("Parent manual refresh failed:",err);
+    if(btn)btn.textContent=parentRefreshText("error");
+    alert(
+      (typeof pt==="function" && pt()?.errors?.dashFail ? pt().errors.dashFail : "Parent Dashboard refresh failed: ")
+      +(err?.result?.error||err?.message||"Unknown error")
+    );
+  }finally{
+    SCOREA_PARENT_MANUAL_REFRESHING=false;
+    if(btn){
+      btn.disabled=false;
+      btn.removeAttribute("aria-busy");
+      setTimeout(()=>{
+        if(!SCOREA_PARENT_MANUAL_REFRESHING){
+          btn.textContent=(typeof pt==="function" && pt()?.topRefresh) ? pt().topRefresh : parentRefreshText("normal");
+        }
+      },1100);
+    }
+  }
+}
 
 /* Also localise the initial dashboard immediately and once more after async boot. */
 applyParentLanguage();
