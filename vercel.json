@@ -17,6 +17,17 @@
       ],
       "destination": "/parent.html",
       "permanent": false
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "free.learviaedutech.com"
+        }
+      ],
+      "destination": "/free.html",
+      "permanent": false
     }
   ]
 }
