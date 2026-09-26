@@ -2354,10 +2354,203 @@ setParentLanguage=function(lang){
 })();
 
 
-/* Also localise the initial dashboard immediately. */
+
+
+/* ===== Parent Dashboard V11: TRILINGUAL REFLECTION CONTENT =====
+   Fixes two language-switch gaps:
+   1) Recent reflection cards previously reused Chinese lesson metadata saved by Student OS.
+   2) Weekly reflection_summary was stored in Chinese by the report generator.
+   Student-written answers remain exactly as entered; only system lesson metadata / summaries are localised.
+*/
+(function(){
+  const REFLECTION_META_I18N={
+    en:{
+      1:['🧠 Top Student Mindset','Growth Mindset: I can’t do it yet','Which knowledge point makes you say “I can’t do it” most often? Rewrite it as “I can’t do it yet..., so I will first...”'],
+      2:['🧠 Top Student Mindset','Mistakes are learning information','Think of a recent mistake. What was the real cause: knowledge, carelessness, question reading, method, or time?'],
+      3:['🧠 Top Student Mindset','Scores are data, not the finish line','If you wanted to improve your latest result by 5–10 marks, which problem should you solve first, and why?'],
+      4:['🧠 Top Student Mindset','Build up before the exam','Which 20–30 minute time slot can you fix today for steady long-term revision?'],
+      5:['🧠 Top Student Mindset','Face temptation: follow the goal, not the mood','What distracts you most today? What will you finish before entertainment?'],
+      6:['🧠 Top Student Mindset','Today’s effort shapes your future','What small learning action will your future self thank you for completing today?'],
+      7:['⭐ Core Mindset','Growth mindset','Which negative self-talk will you change into “I can’t do it yet” today?'],
+      8:['⭐ Core Mindset','Take responsibility and act','Which learning problem can you take the first step on today?'],
+      9:['⭐ Core Mindset','Systems thinking','Among habits, time, focus, understanding, practice and revision, which is weakest now? How can you improve it a little today?'],
+      10:['⭐ Core Mindset','Compounding mindset','Which small but useful learning habit are you willing to keep for 30 days?'],
+      11:['🧠 Feynman','If you can explain it, you understand it','Choose one idea today. How would you explain it in one simple sentence to a Year 3 student?'],
+      12:['🧠 Feynman','Choose only one knowledge point','What is the one knowledge point you most want to truly understand today?'],
+      13:['🧠 Feynman','Explain it in your own words','Without looking at the textbook, explain today’s knowledge point in your own words.'],
+      14:['🧠 Feynman','Find the part you cannot explain clearly','Which part of your explanation felt most stuck? What exactly do you not understand?'],
+      15:['🧠 Feynman','Strengthen the gap, then simplify it','Where will you go back to strengthen the gap? After that, what is your one-sentence summary?'],
+      16:['🎓 Exam High Score System','High scores need strategy, not only knowledge','Besides knowledge, where do you most often lose marks: question reading, time, carelessness, expression, or checking?'],
+      17:['🎓 Pre-exam Preparation','Sleep matters more than one extra hour of study','Before your next exam, which preparation habit do you most need to change?'],
+      18:['🎓 Question Reading Skills','Check keywords, units and limits first','Which type of question requirement do you most often miss? How will you remind yourself next time?'],
+      19:['🎓 Answering Strategy','Secure the marks you can get first','Which type of question keeps you stuck too long in exams? What time rule will you use?'],
+      20:['🎓 Carelessness Prevention','Carelessness needs a checking system','What is your most common careless mistake? What will you check first at the end?'],
+      21:['🎓 Time Management','Reserve the final 10 minutes','If an exam is 60 minutes, by which minute should your first round of answering be finished?'],
+      22:['🚀 30-Day Sprint','Red–Yellow–Green scan','Write one 🔴 topic, one 🟡 topic and one 🟢 topic from your current learning.'],
+      23:['🚀 30-Day Sprint','Find the real reason for lost marks','What is your biggest Top 1 cause of lost marks recently, and in which subject does it happen?'],
+      24:['🚀 30-Day Sprint','80/20: recover the easiest marks first','If you could improve only one topic first, which one could help you recover the most marks?'],
+      25:['🚀 Mock Exam','Do not only look at the total score','If you lost 20 marks in your latest exam, where do you think most of those marks were lost?'],
+      26:['✍️ High-Score Writing','Answer the task first, then polish the language','What should you improve first in writing: task understanding, structure, detail, language, or ending? Why?'],
+      27:['✍️ High-Score Writing','Make the body specific','Rewrite “I was very nervous” into a more specific sentence with a clear picture.'],
+      28:['✍️ Writing Check','Always check in the final 5 minutes','What do you most often forget to check after writing? What fixed checking order will you use?'],
+      29:['🏆 Growth Path','Know your level, then train the next step','What do you most need to strengthen now: habits, focus, understanding, proactive learning, exam skills, or self-management?'],
+      30:['🌙 Daily Review','Ordinary students look at results; top students review the process','In one sentence: what should you keep from today, and what should you improve tomorrow?']
+    },
+    ms:{
+      1:['🧠 Minda Pelajar Cemerlang','Minda berkembang: saya belum boleh lagi','Topik mana yang paling kerap membuat anda berkata “saya tak boleh”? Tukar kepada “saya belum boleh lagi..., jadi saya akan mula dengan...”'],
+      2:['🧠 Minda Pelajar Cemerlang','Kesilapan ialah maklumat pembelajaran','Fikirkan satu kesilapan terkini. Apakah punca sebenar: pengetahuan, kecuaian, membaca soalan, kaedah atau masa?'],
+      3:['🧠 Minda Pelajar Cemerlang','Markah ialah data, bukan penamat','Jika mahu menaikkan keputusan terkini 5–10 markah, masalah mana patut diselesaikan dahulu, dan mengapa?'],
+      4:['🧠 Minda Pelajar Cemerlang','Bina asas sebelum peperiksaan','Slot masa 20–30 minit yang manakah boleh anda tetapkan mulai hari ini untuk ulang kaji berterusan?'],
+      5:['🧠 Minda Pelajar Cemerlang','Hadapi godaan: ikut matlamat, bukan perasaan','Apakah gangguan terbesar anda hari ini? Apa yang akan anda siapkan sebelum berhibur?'],
+      6:['🧠 Minda Pelajar Cemerlang','Usaha hari ini membentuk masa depan','Apakah satu tindakan pembelajaran kecil hari ini yang akan dihargai oleh diri anda pada masa depan?'],
+      7:['⭐ Minda Teras','Minda berkembang','Ayat negatif tentang diri yang manakah akan anda tukar kepada “saya belum boleh lagi” hari ini?'],
+      8:['⭐ Minda Teras','Ambil tanggungjawab dan bertindak','Masalah pembelajaran mana yang boleh anda ambil langkah pertama hari ini?'],
+      9:['⭐ Minda Teras','Pemikiran sistem','Antara tabiat, masa, fokus, kefahaman, latihan dan ulang kaji, yang mana paling lemah sekarang? Bagaimana anda boleh memperbaikinya sedikit hari ini?'],
+      10:['⭐ Minda Teras','Minda kompaun','Apakah satu tabiat belajar kecil tetapi berguna yang sanggup anda kekalkan selama 30 hari?'],
+      11:['🧠 Feynman','Boleh terangkan bermakna benar-benar faham','Pilih satu idea hari ini. Bagaimana anda menerangkannya dalam satu ayat mudah kepada murid Tahun 3?'],
+      12:['🧠 Feynman','Pilih satu sahaja titik pengetahuan','Apakah satu titik pengetahuan yang paling anda mahu benar-benar faham hari ini?'],
+      13:['🧠 Feynman','Terangkan dengan kata-kata sendiri','Tanpa melihat buku teks, terangkan pengetahuan hari ini dengan kata-kata anda sendiri.'],
+      14:['🧠 Feynman','Cari bahagian yang sukar diterangkan','Bahagian mana paling tersekat ketika anda menerangkan tadi? Apa sebenarnya yang anda belum faham?'],
+      15:['🧠 Feynman','Kuatkan jurang, kemudian ringkaskan','Di manakah anda akan kembali untuk menguatkan kefahaman? Selepas itu, apakah rumusan satu ayat anda?'],
+      16:['🎓 Sistem Markah Tinggi','Markah tinggi perlukan strategi, bukan pengetahuan sahaja','Selain pengetahuan, di mana anda paling kerap kehilangan markah: membaca soalan, masa, kecuaian, penyampaian atau semakan?'],
+      17:['🎓 Persediaan Peperiksaan','Tidur lebih penting daripada satu jam tambahan belajar','Sebelum peperiksaan seterusnya, tabiat persediaan mana yang paling perlu anda ubah?'],
+      18:['🎓 Kemahiran Membaca Soalan','Semak kata kunci, unit dan had dahulu','Jenis kehendak soalan mana yang paling kerap anda terlepas pandang? Bagaimana anda akan mengingatkan diri selepas ini?'],
+      19:['🎓 Strategi Menjawab','Dapatkan dahulu markah yang anda boleh peroleh','Jenis soalan mana yang membuat anda tersekat terlalu lama? Apakah peraturan masa yang akan anda gunakan?'],
+      20:['🎓 Sistem Elak Kecuaian','Kecuaian juga perlu sistem semakan','Apakah kesilapan cuai yang paling kerap berlaku? Apakah perkara pertama yang akan anda semak pada akhir?'],
+      21:['🎓 Pengurusan Masa','Simpan 10 minit terakhir','Jika peperiksaan 60 minit, selewat-lewatnya pada minit ke berapa pusingan pertama jawapan perlu siap?'],
+      22:['🚀 Pecutan 30 Hari','Imbasan Merah–Kuning–Hijau','Tulis satu topik 🔴, satu topik 🟡 dan satu topik 🟢 dalam pembelajaran anda sekarang.'],
+      23:['🚀 Pecutan 30 Hari','Cari punca sebenar kehilangan markah','Apakah punca Top 1 kehilangan markah anda baru-baru ini, dan berlaku dalam subjek apa?'],
+      24:['🚀 Pecutan 30 Hari','80/20: ambil semula markah yang paling mudah dahulu','Jika hanya boleh memperbaiki satu topik dahulu, topik mana paling mungkin membantu anda mendapatkan semula paling banyak markah?'],
+      25:['🚀 Peperiksaan Percubaan','Jangan lihat jumlah markah sahaja','Jika peperiksaan terbaru kurang 20 markah, di manakah anda rasa kebanyakan markah itu hilang?'],
+      26:['✍️ Penulisan Markah Tinggi','Tepati tajuk dahulu, kemudian cantikkan bahasa','Dalam penulisan, apa yang perlu anda baiki dahulu: memahami tajuk, struktur, butiran, bahasa atau penutup? Mengapa?'],
+      27:['✍️ Penulisan Markah Tinggi','Tulis isi dengan lebih khusus','Tukar “saya sangat gementar” kepada satu ayat yang lebih khusus dan mudah dibayangkan.'],
+      28:['✍️ Semakan Penulisan','Pastikan semak dalam 5 minit terakhir','Apakah perkara yang paling kerap anda lupa semak selepas menulis? Apakah urutan semakan tetap yang akan anda gunakan?'],
+      29:['🏆 Laluan Pertumbuhan','Kenal pasti tahap anda, kemudian latih langkah seterusnya','Apa yang paling perlu anda kuatkan sekarang: tabiat, fokus, kefahaman, pembelajaran proaktif, kemahiran peperiksaan atau pengurusan diri?'],
+      30:['🌙 Refleksi Harian','Pelajar biasa melihat hasil; pelajar cemerlang menilai proses','Dalam satu ayat: apakah amalan hari ini yang patut dikekalkan, dan apa yang perlu diperbaiki esok?']
+    }
+  };
+
+  function reflectionMeta(row){
+    if(PARENT_LANG==='zh')return null;
+    const langMap=REFLECTION_META_I18N[PARENT_LANG]||{};
+    const rawDay=Math.max(1,Number(row?.day_number)||1);
+    const day=((rawDay-1)%30)+1; // supports both cycle Day 1–30 and absolute Day 31–365
+    return langMap[day]||null;
+  }
+  function reflectionPayload(report){
+    let p=report?.report_payload;
+    if(typeof p==='string'){try{p=JSON.parse(p)}catch{p=null}}
+    return p&&typeof p==='object'?p:{};
+  }
+  function localWeeklyEmpty(){
+    return PARENT_LANG==='ms'?'Belum ada rekod refleksi harian sebenar untuk minggu ini.':
+      PARENT_LANG==='en'?'There are no real daily reflection records for this week yet.':
+      '本周暂时没有真实每日思考记录。';
+  }
+  function localWeeklySummary(report){
+    const count=Number(report?.reflection_count)||0;
+    if(count<=0)return localWeeklyEmpty();
+    const recent=Array.isArray(reflectionPayload(report).recent_reflections)?reflectionPayload(report).recent_reflections:[];
+    if(recent.length){
+      return recent.slice(0,3).map(r=>{
+        const m=reflectionMeta(r);
+        const title=m?m[1]:String(r.lesson_title||`Day ${r.day_number||''}`);
+        const answer=String(r.reflection_text||'').trim();
+        return `${title}: ${answer}`;
+      }).join('\n');
+    }
+    if(PARENT_LANG==='zh')return String(report?.reflection_summary||'').trim()||localWeeklyEmpty();
+    return PARENT_LANG==='ms'
+      ?`Minggu ini terdapat ${count} refleksi sebenar. Buka “Rekod Pembelajaran” untuk membaca jawapan asal pelajar.`
+      :`There are ${count} real reflections this week. Open “Learning Records” to read the student’s original responses.`;
+  }
+
+  function renderLocalisedReflectionList(child){
+    const list=document.getElementById('reflectionList');
+    if(!list)return;
+    const x=pt(),rows=Array.isArray(child?.reflections)?child.reflections:[];
+    if(!rows.length){list.innerHTML=`<div class="empty">${esc(x.noReflection)}</div>`;return}
+    list.innerHTML=rows.slice(0,7).map(r=>{
+      const when=r.completed_at?new Date(r.completed_at).toLocaleDateString(parentLocale(),{month:'short',day:'numeric'}):'';
+      const cycle=PARENT_LANG==='ms'?`Pusingan ${esc(r.cycle_number)}`:PARENT_LANG==='en'?`Cycle ${esc(r.cycle_number)}`:`第 ${esc(r.cycle_number)} 轮`;
+      const m=reflectionMeta(r);
+      const type=m?m[0]:(r.lesson_type||x.dailyRead);
+      const title=m?m[1]:(r.lesson_title||x.todayThink);
+      const question=m?m[2]:(r.lesson_question||'');
+      return `<div class="reflection">
+        <div class="rmeta">${cycle} · Day ${esc(r.day_number)}${when?` · ${esc(when)}`:''} · ${esc(type)}</div>
+        <div class="rtitle">${esc(title)}</div>
+        ${question?`<div class="question">💭 ${esc(question)}</div>`:''}
+        <div class="answer">✍️ ${esc(r.reflection_text||'')}</div>
+      </div>`;
+    }).join('');
+  }
+
+  const __renderChildV11=renderChild;
+  renderChild=function(child){
+    __renderChildV11(child);
+    renderLocalisedReflectionList(child);
+  };
+
+  const __renderWeeklyReportsV11=renderWeeklyReports;
+  renderWeeklyReports=function(reports){
+    __renderWeeklyReportsV11(reports);
+    const rows=Array.isArray(reports)?reports:[];
+    const items=[...document.querySelectorAll('#weeklyReportList .weeklyReportItem')];
+    items.forEach((item,i)=>{
+      const r=rows[i]||{},t=weeklyT(),body=item.querySelector('.weeklyReportBody');
+      if(!body)return;
+      let thoughtEl=item.querySelector('.weeklyThoughts');
+      let sec=thoughtEl?.closest('.weeklySection');
+      if(!sec){
+        sec=document.createElement('div');
+        sec.className='weeklySection weeklyReflectionLocalized';
+        sec.innerHTML=`<b>${esc(t.thoughts)}</b><div class="weeklyThoughts"></div>`;
+        body.appendChild(sec);
+        thoughtEl=sec.querySelector('.weeklyThoughts');
+      }
+      const b=sec.querySelector('b');if(b)b.textContent=t.thoughts;
+      if(thoughtEl){thoughtEl.textContent=localWeeklySummary(r);thoughtEl.style.whiteSpace='pre-line'}
+    });
+  };
+
+  const __setParentLanguageV11=setParentLanguage;
+  setParentLanguage=function(lang){
+    __setParentLanguageV11(lang);
+    const child=DASH?.children?.[CURRENT_CHILD];
+    if(child)renderLocalisedReflectionList(child);
+    const sid=child?.student?.id;
+    if(sid&&WEEKLY_REPORT_CACHE.has(sid))renderWeeklyReports(WEEKLY_REPORT_CACHE.get(sid));
+  };
+})();
+
+
+/* ===== Parent Dashboard V12: FINAL LANGUAGE RE-APPLY =====
+   Ensures BM / EN reflection metadata and weekly summaries remain localised
+   even after asynchronous cloud reflection / weekly-report refreshes repaint the DOM.
+*/
+const __scoreAParentSetLanguageV12=setParentLanguage;
+setParentLanguage=function(lang){
+  __scoreAParentSetLanguageV12(lang);
+  const rerender=()=>{
+    try{
+      const child=DASH?.children?.[CURRENT_CHILD];
+      if(child)renderChild(child);
+      const sid=child?.student?.id;
+      if(sid&&typeof WEEKLY_REPORT_CACHE!=='undefined'&&WEEKLY_REPORT_CACHE.has(sid)){
+        renderWeeklyReports(WEEKLY_REPORT_CACHE.get(sid));
+      }
+    }catch(e){console.warn('Parent V12 language reapply:',e)}
+  };
+  setTimeout(rerender,0);
+  setTimeout(rerender,180);
+};
+
+/* Also localise the initial dashboard immediately and once more after async boot. */
 applyParentLanguage();
 
 boot();
+setTimeout(()=>{try{setParentLanguage(PARENT_LANG)}catch(e){}},900);
 </script>
 </body>
 </html>
