@@ -260,7 +260,10 @@ body.premiumTeen .premiumHomeHero{background:radial-gradient(circle at 82% 15%,r
 .hwn1{left:45%;top:8%}.hwn2{left:23%;top:26%}.hwn3{left:61%;top:39%}.hwn4{left:29%;top:57%}.hwn5{left:63%;top:68%}.hwn6{left:37%;top:80%}
 .homeWorldAvatar{position:absolute;width:58px;height:58px;border-radius:50%;object-fit:cover;object-position:center 26%;border:4px solid #fff;box-shadow:0 7px 20px rgba(0,0,0,.45);z-index:4;transition:.25s}
 .premiumSkillList{display:grid;gap:13px;margin-top:14px}.premiumSkillRow{display:grid;grid-template-columns:92px 1fr 34px;gap:9px;align-items:center;font-size:12px;font-weight:850}.premiumSkillTrack{height:10px;background:#1c3b58;border-radius:99px;overflow:hidden}.premiumSkillTrack i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#9b79ff,#55dfd2);transition:.35s}.premiumSkillNum{text-align:right;color:#fff}
-@media(max-width:900px){.premiumHomeFeatureGrid{grid-template-columns:1fr}.homeWorldMap{min-height:390px}}@media(max-width:650px){.premiumCoachCard{grid-template-columns:64px 1fr}.premiumCoachBot{width:62px;height:62px;font-size:35px}.homeWorldMap{min-height:370px}.homeWorldNode{width:58px;height:58px;font-size:23px;border-width:4px}.homeWorldNode small{top:62px;width:88px}.hwn1{left:43%}.hwn2{left:14%}.hwn3{left:62%}.hwn4{left:20%}.hwn5{left:64%}.hwn6{left:31%}.premiumSkillRow{grid-template-columns:80px 1fr 30px}}
+.homeAbilityNextHint{margin-top:14px;padding:10px 12px;border:1px solid rgba(122,211,255,.22);border-radius:13px;background:rgba(5,24,45,.34);color:#b9d2e8;font-size:11px;line-height:1.55}
+.homeAbilityNextHint b{color:#fff}
+
+@media(max-width:900px){.premiumHomeFeatureGrid{grid-template-columns:1fr}.homeWorldMap{min-height:390px}}@media(max-width:650px){.premiumCoachCard{grid-template-columns:64px 1fr}.premiumCoachBot{width:62px;height:62px;font-size:35px}.homeWorldMap{min-height:370px}.homeWorldNode{width:58px;height:58px;font-size:23px;border-width:4px}.homeWorldNode small{top:62px;width:88px}.hwn1{left:43%}.hwn2{left:14%}.hwn3{left:62%}.hwn4{left:20%}.hwn5{left:64%}.hwn6{left:31%}.premiumSkillRow{grid-template-columns:80px 1fr 78px}}
 
 /* ===== V2 365-Day WORLD MAP ===== */
 .mapPath.worldMap365{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px;margin:24px 0 8px;overflow:visible;padding:0}
@@ -1250,11 +1253,12 @@ html[lang="en"] [data-v74-reader="lib30"] .readerCard{
   gap:11px;
 }
 #home.homeV3 .premiumSkillRow{
-  grid-template-columns:78px 1fr 34px;
+  grid-template-columns:78px 1fr 82px;
   gap:9px;
   padding:11px 0;
   border-bottom:1px solid rgba(255,255,255,.055);
 }
+#home.homeV3 .premiumSkillNum{white-space:nowrap;font-size:11px;font-weight:900;letter-spacing:.1px}
 #home.homeV3 .premiumSkillTrack{
   height:12px;
   background:#1c3b55;
@@ -2853,6 +2857,7 @@ body.profileModalOpen #mainTabs{
       <div class="premiumSkillRow"><span data-i18n="skillLearning">学习力</span><div class="premiumSkillTrack"><i id="homeSkillLearnBar" style="width:0%"></i></div><span class="premiumSkillNum" id="homeSkillLearn">0</span></div>
       <div class="premiumSkillRow"><span data-i18n="skillMistake">错题分析</span><div class="premiumSkillTrack"><i id="homeSkillMistakeBar" style="width:0%"></i></div><span class="premiumSkillNum" id="homeSkillMistake">0</span></div>
     </div>
+    <div id="homeAbilityNextHint" class="homeAbilityNextHint"></div>
   </div>
 </div>
 <div class="premiumMiniCard" style="margin-bottom:18px"><h3 data-i18n="quickAccess">⚡ 快速入口</h3><div class="premiumQuick"><button onclick="goPremiumChallenge()"><b>🎮 <span data-i18n="navChallenge">今日挑战</span></b><small data-i18n="quickChallenge">继续今天完整学习流程</small></button><button onclick="goPremiumPanel('training')"><b>🧰 <span data-i18n="navToolbox">工具箱</span></b><small data-i18n="quickToolbox">时间、目标、错题、AI练习</small></button><button onclick="goPremiumPanel('library')"><b>📚 <span data-i18n="navLibrary">资料库</span></b><small data-i18n="quickLibrary">学习方法与考试策略</small></button><button onclick="goPremiumPanel('progress')"><b>🏆 <span data-i18n="navGrowth">我的成长</span></b><small data-i18n="quickGrowth">World、技能、徽章与成长</small></button></div></div>
@@ -3743,7 +3748,7 @@ function mistakeHTML(){
   return `<div class="card"><h2>${T.title}</h2><div class="weekNav"><button class="btn light" onclick="changeMistakeWeek(-1)">${T.prev}</button><span class="weekPill">Day ${U.mistakeWeek} / 365</span><button class="btn light" onclick="changeMistakeWeek(1)">${T.next}</button></div><div class="sectionBox"><h3>${T.record}</h3><div class="miniGrid"><input class="field" id="mSub" placeholder="${T.sub}"><input class="field" id="mMine" placeholder="${T.mine}"><input class="field" id="mCorrect" placeholder="${T.correct}"><input class="field" id="mWhere" placeholder="${T.where}"></div></div><div class="sectionBox"><h3>${T.reason}</h3>${opts.map((x,i)=>`<label class="check"><input type="checkbox" class="mReason" value="${x}"> ${x}</label>`).join("")}</div><div class="sectionBox"><h3>${T.care}</h3>${careless.map(x=>`<label class="check"><input type="checkbox" class="mCare" value="${x}"> ${x}</label>`).join("")}</div><div class="sectionBox"><h3>${T.fix}</h3><textarea class="field" id="mMethod" placeholder="${T.method}"></textarea><textarea class="field" id="mCorrectWhat" placeholder="${T.what}"></textarea><textarea class="field" id="mPrevent" placeholder="${T.prevent}"></textarea><textarea class="field" id="mKey" placeholder="${T.key}"></textarea></div><button class="btn green" onclick="saveMistake()">${T.save}</button><div class="sectionBox"><h3>${T.stats}</h3><div id="mistakeStats"></div></div></div>`;
 }
 function changeMistakeWeek(n){U.mistakeWeek=Math.max(1,Math.min(365,U.mistakeWeek+n));usave();openToolbox("mistakebox")}
-function saveMistake(){let x={subject:mSub.value,mine:mMine.value,correct:mCorrect.value,where:mWhere.value,reasons:[...document.querySelectorAll(".mReason:checked")].map(x=>x.value),careless:[...document.querySelectorAll(".mCare:checked")].map(x=>x.value),method:mMethod.value,correctWhat:mCorrectWhat.value,prevent:mPrevent.value,key:mKey.value,date:new Date().toLocaleDateString()};U.mistakes.push(x);(U.mistakeWeeks[U.mistakeWeek]||(U.mistakeWeeks[U.mistakeWeek]=[])).push(x);usave();renderMistakeStats();alert("✓ 错题分析已保存")}
+function saveMistake(){let x={globalDay:U.mistakeWeek,subject:mSub.value,mine:mMine.value,correct:mCorrect.value,where:mWhere.value,reasons:[...document.querySelectorAll(".mReason:checked")].map(x=>x.value),careless:[...document.querySelectorAll(".mCare:checked")].map(x=>x.value),method:mMethod.value,correctWhat:mCorrectWhat.value,prevent:mPrevent.value,key:mKey.value,date:new Date().toLocaleDateString()};U.mistakes.push(x);(U.mistakeWeeks[U.mistakeWeek]||(U.mistakeWeeks[U.mistakeWeek]=[])).push(x);usave();renderMistakeStats();alert("✓ 错题分析已保存")}
 function renderMistakeStats(){
   let e=document.getElementById("mistakeStats");if(!e)return;let m={};
   (U.mistakeWeeks[U.mistakeWeek]||[]).forEach(x=>(x.reasons||[]).forEach(r=>m[r]=(m[r]||0)+1));
@@ -4079,7 +4084,7 @@ else if(t=="pomodoro")h=`<div class="card"><h2>🧠 Feynman 理解训练</h2><in
 else if(t=="weeklycheck")h=`<div class="card"><h2>🔁 学习复盘</h2><textarea class="field" placeholder="今天我学会了什么？"></textarea><textarea class="field" placeholder="哪里还不稳？下一次什么时候复习？"></textarea><button class="btn green" onclick="logTool('Review')">保存复盘</button></div>`;
 else h=`<div class="card"><h2>📝 考试策略训练</h2><p>今天选择一个策略刻意练习：</p><select class="field"><option>先审题再作答</option><option>时间分配</option><option>关键词标记</option><option>完成后检查</option><option>不会的题先跳过再回来</option></select><textarea class="field" placeholder="练习后，我发现……"></textarea><button class="btn green" onclick="logTool('Exam Strategy')">完成策略训练</button></div>`;A.innerHTML=h}
 function logTool(n){S.logs.push({day:S.day,type:n,date:new Date().toLocaleString()});localStorage.setItem(K,JSON.stringify(S));alert("✓ "+n+" 已记录。现在回到「今日挑战」完成反思。")}
-function startTimer(){if(timer)return;timer=setInterval(()=>{secs--;let m=Math.floor(secs/60),s=secs%60;let c=document.getElementById("clock");if(c)c.textContent=`${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;if(secs<=0){clearInterval(timer);timer=null;S.logs.push({day:S.day,type:"Pomodoro 25min"});S.focus=Math.min(100,S.focus+5);save();alert("🎉 25分钟专注训练完成！")}},1000)}
+function startTimer(){if(timer)return;timer=setInterval(()=>{secs--;let m=Math.floor(secs/60),s=secs%60;let c=document.getElementById("clock");if(c)c.textContent=`${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;if(secs<=0){clearInterval(timer);timer=null;S.logs.push({day:S.day,globalDay:(typeof scoreAGlobalDay==="function"?scoreAGlobalDay():S.day),type:"Pomodoro 25min",date:new Date().toISOString()});S.focus=Math.min(100,S.focus+5);save();alert("🎉 25分钟专注训练完成！")}},1000)}
 function resetTimer(){clearInterval(timer);timer=null;secs=1500;if(document.getElementById("clock"))document.getElementById("clock").textContent="25:00"}
 function completeDay(){let r=document.getElementById("reflect").value.trim();if(!r){alert("先完成今天的成长反思。");return}if(S.done.includes(S.day))return;S.logs.push({day:S.day,type:"Reflection",text:r});S.done.push(S.day);S.xp+=60;S.focus=Math.min(100,S.focus+3);S.time=Math.min(100,S.time+3);S.learn=Math.min(100,S.learn+3);if(![7,14,21].includes(S.day)){S.day++;S.streak++;}save();showReward("💎","MISSION COMPLETE!","+60 XP · A-BOT 已记录你的真实学习成长。");advance30()}
 function bossRender(){let titles={10:"🔥 BOSS 01 · Awakening Challenge",20:"⚡ BOSS 02 · Growth Master Challenge",30:"🏆 FINAL BOSS · 30-Day Championship"};let bt=document.getElementById("bossTitle");if(bt)bt.textContent=titles[CYCLE.day]||"🏆 BOSS Challenge";let a=CYCLE.day==30?["自己制定 Top 3","完成一次专注学习","分析一个学习弱点","完成一题错题分析","用 Feynman 解释知识","完成学习复盘","写出下一步行动"]:["自己制定今日目标","完成一次专注训练","分析一个真实学习问题","完成反思"];let bc=document.getElementById("bossChecks");if(bc)bc.innerHTML=a.map(x=>`<label class="check"><input type="checkbox" class="bc"> ${x}</label>`).join("")}
@@ -4946,7 +4951,8 @@ function scoreACloudV2ResetLocalForNewOwner(){
   /* Clean only student-progress state. Do NOT touch Supabase auth/session. */
   S={
     day:1,xp:0,done:[],badges:[],streak:1,
-    focus:0,time:0,learn:0,logs:[],rewarded:{}
+    focus:0,time:0,learn:0,logs:[],rewarded:{},
+    abilityLevels:{focus:1,time:1,learn:1,mistake:1}
   };
   CYCLE={
     cycle:1,day:1,read:{},time:{},ai:{},
@@ -4969,6 +4975,10 @@ function scoreACloudV2EnsureState(){
   S.focus=Number(S.focus)||0;
   S.time=Number(S.time)||0;
   S.learn=Number(S.learn)||0;
+  S.abilityLevels=(S.abilityLevels&&typeof S.abilityLevels==="object")?S.abilityLevels:{};
+  ["focus","time","learn","mistake"].forEach(k=>{
+    S.abilityLevels[k]=Math.max(1,Math.min(10,Number(S.abilityLevels[k])||1));
+  });
 
   CYCLE=CYCLE||{};
   CYCLE.cycle=Math.max(1,Number(CYCLE.cycle)||1);
@@ -5800,26 +5810,144 @@ function scoreARenderBadgeRoadmap(){
 }
 
 /* ----- Collection: automatic, transparent earning rules ----- */
+function scoreAAbsKey(absDay){
+  let d=Math.max(1,Math.min(365,Number(absDay)||1));
+  let cycle=Math.floor((d-1)/30)+1;
+  let local=((d-1)%30)+1;
+  return {abs:d,cycle,local,key:`${cycle}-${local}`};
+}
+function scoreAChallengeDoneAt(absDay){
+  let p=scoreAAbsKey(absDay),rk=`challenge-${p.cycle}-${p.local}`;
+  if(S.rewarded&&S.rewarded[rk])return true;
+  if(Number(S.totalCompleted||0)>=p.abs)return true;
+  if(Number(CYCLE.cycle||1)===p.cycle && (S.done||[]).includes(p.local))return true;
+  return false;
+}
+function scoreAMistakeCountAt(absDay){
+  try{
+    let a=(U.mistakeWeeks||{})[String(absDay)]||(U.mistakeWeeks||{})[absDay];
+    if(Array.isArray(a))return a.length;
+    return (U.mistakes||[]).filter(x=>Number(x.globalDay||x.dayIndex||0)===Number(absDay)).length;
+  }catch(e){return 0}
+}
 function scoreAActionCounts(){
   let read=Object.keys(CYCLE.readCompletedAt||{}).length;
   let time=Object.values(CYCLE.time||{}).filter(Boolean).length;
   let ai=Object.values(CYCLE.ai||{}).filter(Boolean).length;
-  let challenge=(S.totalCompleted||0)+(S.done||[]).length;
+  let challengeKeys=Object.keys(S.rewarded||{}).filter(k=>/^challenge-\d+-\d+$/.test(k)).length;
+  let challenge=challengeKeys||((S.totalCompleted||0)+(S.done||[]).length);
   let pomodoro=(S.logs||[]).filter(x=>String(x.type||"").toLowerCase().includes("pomodoro")).length;
   let mistakes=0;
   try{
-    mistakes+=(U.mistakes||[]).length;
-    Object.values(U.mistakeWeeks||{}).forEach(a=>{if(Array.isArray(a))mistakes+=a.length});
+    let weekValues=Object.values(U.mistakeWeeks||{}).filter(Array.isArray);
+    mistakes=weekValues.length?weekValues.reduce((n,a)=>n+a.length,0):(U.mistakes||[]).length;
   }catch(e){}
   return {read,time,ai,challenge,pomodoro,mistakes};
 }
+/* V80: Dual-track ability system for the 365-day journey.
+   Score = recent 30 learning-day performance (can rise / fall).
+   Lv    = long-term earned level (only rises, never drops).
+
+   Level requirements:
+   Lv1  Day 1   start
+   Lv2  Day 7   score >= 50
+   Lv3  Day 30  score >= 60
+   Lv4  Day 60  score >= 65
+   Lv5  Day 90  score >= 70
+   Lv6  Day 120 score >= 75
+   Lv7  Day 180 score >= 80
+   Lv8  Day 240 score >= 85
+   Lv9  Day 300 score >= 90
+   Lv10 Day 360 score >= 95
+*/
+const SCOREA_ABILITY_LEVEL_RULES=[
+  {lv:1,day:1,score:0},
+  {lv:2,day:7,score:50},
+  {lv:3,day:30,score:60},
+  {lv:4,day:60,score:65},
+  {lv:5,day:90,score:70},
+  {lv:6,day:120,score:75},
+  {lv:7,day:180,score:80},
+  {lv:8,day:240,score:85},
+  {lv:9,day:300,score:90},
+  {lv:10,day:360,score:95}
+];
+function scoreAAbilityEligibleLevel(score,absDay){
+  const v=Math.max(0,Math.min(100,Number(score)||0));
+  const d=Math.max(1,Math.min(365,Number(absDay)||1));
+  let lv=1;
+  SCOREA_ABILITY_LEVEL_RULES.forEach(r=>{
+    if(d>=r.day && v>=r.score)lv=r.lv;
+  });
+  return lv;
+}
+function scoreAAbilityPersistedLevel(key,score,absDay){
+  S.abilityLevels=(S.abilityLevels&&typeof S.abilityLevels==="object")?S.abilityLevels:{};
+  const old=Math.max(1,Math.min(10,Number(S.abilityLevels[key])||1));
+  const eligible=scoreAAbilityEligibleLevel(score,absDay);
+  const next=Math.max(old,eligible);
+  if(next!==old || !Object.prototype.hasOwnProperty.call(S.abilityLevels,key)){
+    S.abilityLevels[key]=next;
+    try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}
+  }
+  return next;
+}
+function scoreAAbilityNextRequirement(level){
+  const lv=Math.max(1,Math.min(10,Number(level)||1));
+  return SCOREA_ABILITY_LEVEL_RULES.find(r=>r.lv===lv+1)||null;
+}
+function scoreARecentPomodoroCount(startAbs,endAbs){
+  let n=0;
+  (S.logs||[]).forEach(x=>{
+    if(!String(x.type||"").toLowerCase().includes("pomodoro"))return;
+    let gd=Number(x.globalDay||0);
+    if(gd>=startAbs&&gd<=endAbs){n++;return}
+    if(!gd&&endAbs<=30){let d=Number(x.day||0);if(d>=startAbs&&d<=endAbs)n++}
+  });
+  return n;
+}
+/* Ability score remains rolling-window based; only Lv mapping is corrected here. */
 function scoreAAbilityScores(){
-  let c=scoreAActionCounts();
+  let abs=typeof scoreAGlobalDay==="function"?scoreAGlobalDay():Math.min(365,Math.max(1,(CYCLE.cycle-1)*30+CYCLE.day));
+  let cur=scoreAAbsKey(abs);
+  let currentTouched=!!((CYCLE.readCompletedAt||{})[cur.key]||(CYCLE.time||{})[cur.key]||(CYCLE.ai||{})[cur.key]||scoreAChallengeDoneAt(abs));
+  let endAbs=(abs===1||currentTouched)?abs:Math.max(1,abs-1);
+  let startAbs=Math.max(1,endAbs-29),windowDays=Math.max(1,endAbs-startAbs+1);
+  let recent={read:0,time:0,ai:0,challenge:0,mistakes:0};
+  for(let d=startAbs;d<=endAbs;d++){
+    let p=scoreAAbsKey(d);
+    if((CYCLE.readCompletedAt||{})[p.key])recent.read++;
+    if((CYCLE.time||{})[p.key])recent.time++;
+    if((CYCLE.ai||{})[p.key])recent.ai++;
+    if(scoreAChallengeDoneAt(d))recent.challenge++;
+    recent.mistakes+=scoreAMistakeCountAt(d);
+  }
+  let pomRecent=scoreARecentPomodoroCount(startAbs,endAbs);
+  let rate=n=>Math.max(0,Math.min(1,n/windowDays));
+  let pomTarget=Math.max(1,Math.ceil(windowDays/7)*2);
+  let focus=Math.round(100*(.45*rate(recent.challenge)+.25*rate(recent.read)+.20*rate(recent.ai)+.10*Math.min(1,pomRecent/pomTarget)));
+  let time=Math.round(100*(.85*rate(recent.time)+.15*rate(recent.challenge)));
+  let learn=Math.round(100*(.35*rate(recent.read)+.30*rate(recent.ai)+.35*rate(recent.challenge)));
+  let mistakeTarget=Math.max(1,Math.ceil(windowDays/5));
+  let mistake=Math.round(100*Math.min(1,recent.mistakes/mistakeTarget));
+
+  let all=scoreAActionCounts();
+  let evidence={
+    focus:all.challenge+Math.min(all.pomodoro,365)*0.25,
+    time:all.time,
+    learn:(all.read+all.ai+all.challenge)/3,
+    mistake:all.mistakes*5
+  };
   return {
-    focus:Math.min(100,c.time+c.challenge+c.pomodoro*2),
-    time:Math.min(100,c.time*2),
-    learn:Math.min(100,c.read+c.ai+c.challenge),
-    mistake:Math.min(100,c.mistakes*5)
+    focus,time,learn,mistake,
+    levels:{
+      focus:scoreAAbilityPersistedLevel("focus",focus,abs),
+      time:scoreAAbilityPersistedLevel("time",time,abs),
+      learn:scoreAAbilityPersistedLevel("learn",learn,abs),
+      mistake:scoreAAbilityPersistedLevel("mistake",mistake,abs)
+    },
+    recent:{...recent,pomodoro:pomRecent,startAbs,endAbs,windowDays},
+    evidence
   };
 }
 function scoreACollectionCounts(){
@@ -5853,7 +5981,28 @@ renderPremiumHomeFeatures=function(){
   });
 
   let scores=scoreAAbilityScores();
-  [["Focus",scores.focus],["Time",scores.time],["Learn",scores.learn],["Mistake",scores.mistake]].forEach(([k,v])=>{let n=document.getElementById("homeSkill"+k),b=document.getElementById("homeSkill"+k+"Bar");if(n)n.textContent=v;if(b)b.style.width=v+"%"});
+  let lv=scores.levels||{focus:1,time:1,learn:1,mistake:1};
+  [["Focus",scores.focus,lv.focus],["Time",scores.time,lv.time],["Learn",scores.learn,lv.learn],["Mistake",scores.mistake,lv.mistake]].forEach(([k,v,l])=>{let n=document.getElementById("homeSkill"+k),b=document.getElementById("homeSkill"+k+"Bar");if(n)n.textContent=`${v} · Lv${l}`;if(b)b.style.width=v+"%"});
+  let abilitySub=document.querySelector("#home .premiumSkillCard > p");
+  if(abilitySub)abilitySub.textContent=lang==="ms"?"Skor = prestasi 30 hari pembelajaran terkini (boleh naik / turun) · Lv = tahap pertumbuhan 365 hari (hanya naik)":lang==="en"?"Score = recent 30 learning-day performance (can rise / fall) · Lv = 365-day long-term growth level (only rises)":"分数＝最近30个学习日表现（可升可降） · Lv＝365天长期成长等级（只升不降）";
+
+  let hint=document.getElementById("homeAbilityNextHint");
+  if(hint){
+    let currentHighest=Math.max(lv.focus,lv.time,lv.learn,lv.mistake);
+    let req=scoreAAbilityNextRequirement(currentHighest);
+    if(!req){
+      hint.innerHTML=lang==="ms"?"🏆 <b>Lv10 dicapai.</b> Teruskan mengekalkan prestasi 30 hari anda."
+        :lang==="en"?"🏆 <b>Lv10 reached.</b> Keep maintaining your recent 30-day performance."
+        :"🏆 <b>已达到 Lv10。</b>继续保持最近30个学习日的稳定表现。";
+    }else{
+      let remain=Math.max(0,req.day-abs);
+      hint.innerHTML=lang==="ms"
+        ?`🎯 Tahap seterusnya: <b>Lv${req.lv}</b> · paling awal Day ${req.day} · skor 30 hari ≥ ${req.score}${remain?` · lagi ${remain} hari pembelajaran`:""}<br><small>Setiap kemampuan dinilai secara berasingan.</small>`
+        :lang==="en"
+        ?`🎯 Next level: <b>Lv${req.lv}</b> · earliest Day ${req.day} · 30-day score ≥ ${req.score}${remain?` · ${remain} learning days to go`:""}<br><small>Each ability is evaluated independently.</small>`
+        :`🎯 下一等级：<b>Lv${req.lv}</b> · 最早 Day ${req.day} · 最近30日分数 ≥ ${req.score}${remain?` · 还需 ${remain} 个学习日`:""}<br><small>四项能力会分别判断是否升级。</small>`;
+    }
+  }
 
   let av=document.getElementById("homeWorldAvatar"),node=document.querySelector(`[data-home-stage="${stage}"]`),map=document.getElementById("homeWorldMap");
   if(av&&node&&map){let nr=node.getBoundingClientRect(),mr=map.getBoundingClientRect();av.style.left=(nr.left-mr.left+nr.width*.82)+"px";av.style.top=(nr.top-mr.top-nr.height*.05)+"px";}
