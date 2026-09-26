@@ -193,6 +193,129 @@ input{width:100%;padding:12px 13px;border:1px solid #d8e1ed;border-radius:12px;o
 @media(max-width:650px){.passwordGenRow{grid-template-columns:1fr}.passwordGenBtn{width:100%}}
 
 .salePriceQuick{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}.salePriceQuick button{border:1px solid #d7e0ed;background:#f8fbff;color:#31548a;border-radius:999px;padding:5px 9px;font-size:11px;font-weight:900;cursor:pointer}.salePriceQuick button:hover{background:#eaf1ff;border-color:#9db5df}
+
+/* ===== SALES TALK POPUP — mobile-friendly quick copy ===== */
+.salesTalkPopup{
+  position:fixed;
+  inset:0;
+  z-index:20000;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:18px;
+  background:rgba(8,22,43,.58);
+  backdrop-filter:blur(5px);
+}
+.salesTalkPopup.show{display:flex}
+.salesTalkPopupCard{
+  width:min(720px,96vw);
+  max-height:88vh;
+  overflow:hidden;
+  background:#fff;
+  border:1px solid #dce5ef;
+  border-radius:24px;
+  box-shadow:0 30px 90px rgba(0,0,0,.28);
+  display:flex;
+  flex-direction:column;
+}
+.salesTalkPopupHead{
+  display:flex;
+  justify-content:space-between;
+  gap:14px;
+  align-items:flex-start;
+  padding:18px 18px 14px;
+  border-bottom:1px solid #e8edf4;
+  background:linear-gradient(135deg,#f7fbff,#fbf8ff);
+}
+.salesTalkPopupHead h3{
+  margin:4px 0 0;
+  color:#173a73;
+  font-size:19px;
+  line-height:1.35;
+}
+.salesTalkPopupMeta{
+  font-size:11px;
+  font-weight:900;
+  color:#5e6f89;
+  letter-spacing:.04em;
+}
+.salesTalkPopupClose{
+  flex:none;
+  width:40px;
+  height:40px;
+  border:0;
+  border-radius:50%;
+  background:#17233b;
+  color:#fff;
+  font-size:22px;
+  font-weight:900;
+  cursor:pointer;
+}
+.salesTalkPopupText{
+  padding:18px;
+  white-space:pre-line;
+  overflow:auto;
+  color:#344963;
+  font-size:15px;
+  line-height:1.75;
+  -webkit-overflow-scrolling:touch;
+}
+.salesTalkPopupActions{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  padding:14px 18px 18px;
+  border-top:1px solid #e8edf4;
+  background:#fff;
+}
+.salesTalkPopupCopy{
+  flex:1;
+  min-width:190px;
+  min-height:48px;
+  border:0;
+  border-radius:13px;
+  background:#245eea;
+  color:#fff;
+  font-weight:950;
+  cursor:pointer;
+}
+.salesTalkPopupCloseBtn{
+  min-height:48px;
+  border:1px solid #d9e3f1;
+  border-radius:13px;
+  background:#f4f7fb;
+  color:#294662;
+  padding:0 18px;
+  font-weight:900;
+  cursor:pointer;
+}
+.salesTalkPopupCopy:active,
+.salesTalkPopupCloseBtn:active{transform:scale(.98)}
+body.salesTalkPopupOpen{overflow:hidden}
+
+@media(max-width:560px){
+  .salesTalkPopup{padding:10px;align-items:flex-end}
+  .salesTalkPopupCard{
+    width:100%;
+    max-height:90vh;
+    border-radius:22px 22px 14px 14px;
+  }
+  .salesTalkPopupHead{padding:15px 15px 12px}
+  .salesTalkPopupHead h3{font-size:17px}
+  .salesTalkPopupText{
+    padding:16px;
+    font-size:15px;
+    line-height:1.72;
+  }
+  .salesTalkPopupActions{
+    position:sticky;
+    bottom:0;
+    padding:12px 14px 14px;
+  }
+  .salesTalkPopupCopy,
+  .salesTalkPopupCloseBtn{width:100%}
+}
+
 </style>
 </head>
 <body>
@@ -533,6 +656,25 @@ input{width:100%;padding:12px 13px;border:1px solid #d8e1ed;border-radius:12px;o
 </section>
 </main>
 
+
+
+<!-- Sales Talk Popup -->
+<div id="salesTalkPopup" class="salesTalkPopup" onclick="if(event.target===this)closeSalesTalkPopup()">
+  <div class="salesTalkPopupCard" role="dialog" aria-modal="true" aria-labelledby="salesTalkPopupTitle">
+    <div class="salesTalkPopupHead">
+      <div>
+        <div class="salesTalkPopupMeta" id="salesTalkPopupMeta">成交话术</div>
+        <h3 id="salesTalkPopupTitle">话术标题</h3>
+      </div>
+      <button class="salesTalkPopupClose" type="button" onclick="closeSalesTalkPopup()" aria-label="关闭">×</button>
+    </div>
+    <div class="salesTalkPopupText" id="salesTalkPopupText"></div>
+    <div class="salesTalkPopupActions">
+      <button class="salesTalkPopupCopy" type="button" onclick="copySalesTalkPopup()">📋 复制这段话术</button>
+      <button class="salesTalkPopupCloseBtn" type="button" onclick="closeSalesTalkPopup()">关闭</button>
+    </div>
+  </div>
+</div>
 
 <div id="enrollmentModal" class="modalBack hidden" onclick="if(event.target===this)closeEnrollmentManager()">
   <div class="modalCard">
@@ -2358,8 +2500,78 @@ window.renderSalesTalkLibrary=function(){
   const it=items[current]||items[0];
   document.getElementById('salesTalkTitle').textContent=replacePrice(it[0]);
   document.getElementById('salesTalkText').textContent=replacePrice(it[1]);
+  if(document.getElementById('salesTalkPopup')?.classList.contains('show')) openSalesTalkPopup();
 };
-window.selectSalesTalk=function(i){current=i;renderSalesTalkLibrary()};
+
+function openSalesTalkPopup(){
+  const popup=document.getElementById('salesTalkPopup');
+  if(!popup)return;
+  const d=DB[L()]||DB.zh;
+  const title=document.getElementById('salesTalkTitle')?.textContent||'';
+  const text=document.getElementById('salesTalkText')?.innerText||'';
+  const price=P();
+
+  document.getElementById('salesTalkPopupTitle').textContent=title;
+  document.getElementById('salesTalkPopupText').textContent=text;
+  document.getElementById('salesTalkPopupMeta').textContent=
+    L()==='zh'
+      ? `成交话术｜${price}`
+      : (L()==='ms'
+          ? `Skrip Jualan｜${price}`
+          : `Sales Script｜${price}`);
+
+  const copyBtn=document.querySelector('.salesTalkPopupCopy');
+  const closeBtn=document.querySelector('.salesTalkPopupCloseBtn');
+  if(copyBtn)copyBtn.textContent=L()==='zh'?'📋 复制这段话术':(L()==='ms'?'📋 Salin skrip ini':'📋 Copy this script');
+  if(closeBtn)closeBtn.textContent=L()==='zh'?'关闭':(L()==='ms'?'Tutup':'Close');
+
+  popup.classList.add('show');
+  document.body.classList.add('salesTalkPopupOpen');
+  setTimeout(()=>document.querySelector('.salesTalkPopupClose')?.focus(),30);
+}
+
+window.closeSalesTalkPopup=function(){
+  document.getElementById('salesTalkPopup')?.classList.remove('show');
+  document.body.classList.remove('salesTalkPopupOpen');
+};
+
+window.copySalesTalkPopup=function(){
+  const d=DB[L()]||DB.zh;
+  const v=document.getElementById('salesTalkPopupText')?.innerText||'';
+  const done=()=>{
+    if(typeof salesToast==='function')salesToast(d.copied);
+    const btn=document.querySelector('.salesTalkPopupCopy');
+    if(btn){
+      const old=btn.textContent;
+      btn.textContent=L()==='zh'?'✓ 已复制':(L()==='ms'?'✓ Sudah disalin':'✓ Copied');
+      setTimeout(()=>{btn.textContent=old},1200);
+    }
+  };
+  if(navigator.clipboard?.writeText){
+    navigator.clipboard.writeText(v).then(done).catch(()=>{
+      const t=document.createElement('textarea');
+      t.value=v;document.body.appendChild(t);t.select();
+      document.execCommand('copy');t.remove();done();
+    });
+  }else{
+    const t=document.createElement('textarea');
+    t.value=v;document.body.appendChild(t);t.select();
+    document.execCommand('copy');t.remove();done();
+  }
+};
+
+window.selectSalesTalk=function(i){
+  current=i;
+  renderSalesTalkLibrary();
+  openSalesTalkPopup();
+};
+
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape' && document.getElementById('salesTalkPopup')?.classList.contains('show')){
+    closeSalesTalkPopup();
+  }
+});
+
 window.toggleSalesTalkLibrary=function(){open=!open;document.getElementById('salesTalkBody')?.classList.toggle('show',open);renderSalesTalkLibrary();if(open)setTimeout(()=>document.getElementById('salesTalkLibrary')?.scrollIntoView({behavior:'smooth',block:'start'}),60)};
 window.copyCurrentSalesTalk=function(){const d=DB[L()]||DB.zh,v=document.getElementById('salesTalkText')?.innerText||'';const done=()=>{if(typeof salesToast==='function')salesToast(d.copied)};if(navigator.clipboard?.writeText)navigator.clipboard.writeText(v).then(done).catch(()=>{const t=document.createElement('textarea');t.value=v;document.body.appendChild(t);t.select();document.execCommand('copy');t.remove();done()});else{const t=document.createElement('textarea');t.value=v;document.body.appendChild(t);t.select();document.execCommand('copy');t.remove();done()}};
 setTimeout(renderSalesTalkLibrary,100);
