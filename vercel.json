@@ -5,5 +5,17 @@
       "path": "/api/cron-weekly-reports",
       "schedule": "0 12 * * 0"
     }
+  ],
+  "rewrites": [
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "parent.learviaedutech.com"
+        }
+      ],
+      "destination": "/parent.html"
+    }
   ]
 }
